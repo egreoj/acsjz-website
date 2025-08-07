@@ -121,3 +121,110 @@ footer {
   text-align: center;
   padding: 20px;
 }
+.beehire-highlight {
+  background: linear-gradient(135deg, #d1f0ee, #e0f7f5);
+  padding: 60px 20px;
+  color: #003b3d;
+  border-top: 1px solid #b8e4df;
+  border-bottom: 1px solid #b8e4df;
+}
+
+.beehire-highlight h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  color: #008080;
+}
+
+.beehire-highlight ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.beehire-highlight ul li {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+/* Better header style */
+header {
+  background-color: #ffffffee;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding: 15px 0;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+header .brand {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  color: #008080;
+  margin: 0;
+}
+
+header nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+header nav a:hover {
+  color: #008080;
+}
+
+/* Top Products Section */
+#top-products {
+  padding: 60px 20px;
+  background: #f8fdfd;
+}
+
+#top-products h1 {
+  margin-bottom: 10px;
+}
+
+#top-products p {
+  margin-bottom: 25px;
+}
+
+#top-products .btn {
+  margin-top: 20px;
+}
+/* =====================
+   Header Styling
+===================== */
+.main-header {
+  background-color: #fffffff8;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  padding: 12px 0;
+  transition: all 0.3s ease;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #008080;
+}
+
+.nav-links a {
+  margin-left: 24px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: #00b4a8;
+}
