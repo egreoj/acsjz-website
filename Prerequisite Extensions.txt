@@ -1,0 +1,200 @@
+<<<<<<< HEAD
+🔧 Must-Have Extensions for Web Development
+✅ 1. Live Server – Ritwick Dey
+Auto-refresh browser as you code.
+
+🔎 Search: Live Server
+
+✅ Purpose: Real-time preview without manual refresh
+
+✅ 2. Prettier – Code Formatter – Prettier
+Auto-format HTML, CSS, JS neatly
+
+🔎 Search: Prettier - Code formatter
+
+✅ Purpose: Indentions, spacing, clean code layout
+
+✅ 3. HTML CSS Support – ecmel
+Autocomplete and IntelliSense for HTML and inline CSS
+
+🔎 Search: HTML CSS Support
+
+✅ Purpose: Smarter hints in HTML for CSS classes
+
+✅ 4. IntelliSense for CSS class names in HTML – Zignd
+Shows class names from CSS file while typing in HTML
+
+🔎 Search: IntelliSense for CSS class names in HTML
+
+✅ Purpose: No need to memorize class names
+
+✅ 5. Tailwind CSS IntelliSense – Tailwind Labs
+Kung gagamit ka Tailwind later
+
+🔎 Search: Tailwind CSS IntelliSense
+
+✅ Purpose: Auto-suggest utility classes with docs pop-up
+
+✅ 6. Auto Rename Tag – Jun Han
+Automatically renames closing tag when you change the opening tag (and vice versa)
+
+🔎 Search: Auto Rename Tag
+
+✅ Purpose: Save time on tag edits
+
+✅ 7. Bracket Pair Colorizer 2 – CoenraadS
+Makes matching brackets colorful
+
+🔎 Search: Bracket Pair Colorizer 2
+
+✅ Purpose: Easier to read nested HTML, JS, CSS
+
+✅ 8. Path Intellisense – Christian Kohler
+Autocomplete paths to files like images, CSS, JS
+
+🔎 Search: Path Intellisense
+
+✅ Purpose: Avoid path errors
+
+✅ 9. Color Highlight – naumovs
+Shows real colors for hex codes in CSS/HTML
+
+🔎 Search: Color Highlight
+
+✅ Purpose: Visual color preview as you type
+
+✅ 10. Material Icon Theme – Philipp Kief
+Nice folder/file icons
+
+🔎 Search: Material Icon Theme
+
+✅ Purpose: Better visual navigation
+
+⚙️ Optional (for Advanced Users)
+ESLint – for JavaScript/React projects
+
+Firebase Tools – if using Firebase later
+
+GitLens – for Git version control
+
+REST Client – for testing APIs
+
+🚀 Tip: Install All at Once with Command
+You can run this in terminal (if gusto mo advanced):
+
+bash
+Copy
+Edit
+code --install-extension ritwickdey.LiveServer \
+     --install-extension esbenp.prettier-vscode \
+     --install-extension ecmel.vscode-html-css \
+     --install-extension Zignd.html-css-class-completion \
+     --install-extension bradlc.vscode-tailwindcss \
+     --install-extension formulahendry.auto-rename-tag \
+     --install-extension CoenraadS.bracket-pair-colorizer-2 \
+     --install-extension christian-kohler.path-intellisense \
+     --install-extension naumovs.color-highlight \
+     --install-extension PKief.material-icon-theme
+✅ Install mo na ni tanan bro and you’re set for serious front-end dev!
+
+=======
+🔧 Must-Have Extensions for Web Development
+✅ 1. Live Server – Ritwick Dey
+Auto-refresh browser as you code.
+
+🔎 Search: Live Server
+
+✅ Purpose: Real-time preview without manual refresh
+
+✅ 2. Prettier – Code Formatter – Prettier
+Auto-format HTML, CSS, JS neatly
+
+🔎 Search: Prettier - Code formatter
+
+✅ Purpose: Indentions, spacing, clean code layout
+
+✅ 3. HTML CSS Support – ecmel
+Autocomplete and IntelliSense for HTML and inline CSS
+
+🔎 Search: HTML CSS Support
+
+✅ Purpose: Smarter hints in HTML for CSS classes
+
+✅ 4. IntelliSense for CSS class names in HTML – Zignd
+Shows class names from CSS file while typing in HTML
+
+🔎 Search: IntelliSense for CSS class names in HTML
+
+✅ Purpose: No need to memorize class names
+
+✅ 5. Tailwind CSS IntelliSense – Tailwind Labs
+Kung gagamit ka Tailwind later
+
+🔎 Search: Tailwind CSS IntelliSense
+
+✅ Purpose: Auto-suggest utility classes with docs pop-up
+
+✅ 6. Auto Rename Tag – Jun Han
+Automatically renames closing tag when you change the opening tag (and vice versa)
+
+🔎 Search: Auto Rename Tag
+
+✅ Purpose: Save time on tag edits
+
+✅ 7. Bracket Pair Colorizer 2 – CoenraadS
+Makes matching brackets colorful
+
+🔎 Search: Bracket Pair Colorizer 2
+
+✅ Purpose: Easier to read nested HTML, JS, CSS
+
+✅ 8. Path Intellisense – Christian Kohler
+Autocomplete paths to files like images, CSS, JS
+
+🔎 Search: Path Intellisense
+
+✅ Purpose: Avoid path errors
+
+✅ 9. Color Highlight – naumovs
+Shows real colors for hex codes in CSS/HTML
+
+🔎 Search: Color Highlight
+
+✅ Purpose: Visual color preview as you type
+
+✅ 10. Material Icon Theme – Philipp Kief
+Nice folder/file icons
+
+🔎 Search: Material Icon Theme
+
+✅ Purpose: Better visual navigation
+
+⚙️ Optional (for Advanced Users)
+ESLint – for JavaScript/React projects
+
+Firebase Tools – if using Firebase later
+
+GitLens – for Git version control
+
+REST Client – for testing APIs
+
+🚀 Tip: Install All at Once with Command
+You can run this in terminal (if gusto mo advanced):
+
+bash
+Copy
+Edit
+code --install-extension ritwickdey.LiveServer \
+     --install-extension esbenp.prettier-vscode \
+     --install-extension ecmel.vscode-html-css \
+     --install-extension Zignd.html-css-class-completion \
+     --install-extension bradlc.vscode-tailwindcss \
+     --install-extension formulahendry.auto-rename-tag \
+     --install-extension CoenraadS.bracket-pair-colorizer-2 \
+     --install-extension christian-kohler.path-intellisense \
+     --install-extension naumovs.color-highlight \
+     --install-extension PKief.material-icon-theme
+✅ Install mo na ni tanan bro and you’re set for serious front-end dev!
+
+>>>>>>> 64a0aeb111bb3dd284864fdc4f7621fcdf512b9c
+Let me know if gusto mo may sample favicon, logo, or add animation next. G?
