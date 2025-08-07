@@ -228,3 +228,65 @@ header nav a:hover {
 .nav-links a:hover {
   color: #00b4a8;
 }
+#mission-vision {
+  padding: 60px 20px;
+  background: #f0fdfd;
+  border-top: 1px solid #ccecec;
+  border-bottom: 1px solid #ccecec;
+}
+
+#mission-vision h2 {
+  text-align: center;
+  color: #008080;
+  font-family: 'Orbitron', sans-serif;
+  margin-bottom: 30px;
+}
+
+.mission-box,
+.vision-box {
+  margin-bottom: 30px;
+}
+
+.mission-box h3,
+.vision-box h3 {
+  color: #005f5f;
+  font-size: 1.3rem;
+}
+
+.mission-box p,
+.vision-box p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #333;
+}
+#mission-vision {
+  padding: 60px 20px;
+  background: #f0fdfd;
+  border-top: 1px solid #ccecec;
+  border-bottom: 1px solid #ccecec;
+}
+
+#mission-vision h2 {
+  text-align: center;
+  color: #008080;
+  font-family: 'Orbitron', sans-serif;
+  margin-bottom: 30px;
+}
+
+.mission-box,
+.vision-box {
+  margin-bottom: 30px;
+}
+
+.mission-box h3,
+.vision-box h3 {
+  color: #005f5f;
+  font-size: 1.3rem;
+}
+
+.mission-box p,
+.vision-box p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #333;
+}
