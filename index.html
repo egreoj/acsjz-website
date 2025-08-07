@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ACSJZ IT Solutions Inc.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+   <!-- Header -->
+<header class="main-header">
+  <div class="container header-container">
+    <h1 class="brand">ACSJZ IT Solutions</h1>
+    <nav class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+  <!-- Our Products Top Banner -->
+  <!-- Our Products Top Banner -->
+<section id="top-products" class="light-section">
+  <div class="container" style="text-align: center;">
+    <h1 style="font-family: 'Orbitron', sans-serif; font-size: 2.2rem; color: #40E0D0;">Our Products</h1>
+    <p>Explore our growing list of innovative software and mobile solutions built by ACSJZ.</p>
+    <a href="products.html" class="btn" style="margin-top: 30px;">View All Products</a>
+  </div>
+</section>
+
+
+  <!-- Hero Section -->
+  <section id="home" class="hero">
+    <div class="container">
+      <h2>We Build Innovative Solutions</h2>
+      <p>From IT support and electronics repair to full-scale mobile app development — ACSJZ delivers modern, powerful, and scalable products.</p>
+      <a href="#contact" class="btn">Get in Touch</a>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="light-section">
+    <div class="container">
+      <h2>About ACSJZ</h2>
+      <p>ACSJZ IT Solutions Inc. combines 20+ years of expertise in IT, electronics, and software development. Founded with passion and purpose — our name stands for Abigail Collette Sophia and Jamela Zakieh, who inspire everything we build.</p>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services">
+    <div class="container">
+      <h2>What We Do</h2>
+      <div class="services-grid">
+        <div class="service-box">
+          <h3>🧰 IT Support</h3>
+          <p>On-site and remote tech support for homes and businesses — fast, reliable, and secure.</p>
+        </div>
+        <div class="service-box">
+          <h3>🔧 Electronics Repair</h3>
+          <p>Expert diagnostics and board-level repair for desktops, laptops, and mobile devices.</p>
+        </div>
+        <div class="service-box">
+          <h3>💡 Custom Development</h3>
+          <p>We build modern mobile and web apps tailored to business needs — from idea to deployment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Product Section -->
+  <section id="products" class="light-section">
+    <div class="container">
+      <h2>Featured Product: Beehire 🐝</h2>
+      <div class="product-box">
+        <p>Beehire is our flagship mobile app that connects clients with skilled workers — instantly. Whether it's on-demand, virtual, or walk-in services, Beehire makes it easy to hire the right professional anytime, anywhere.</p>
+        <ul class="product-highlights">
+          <li>📍 Location-based worker discovery via Google Maps</li>
+          <li>💬 Global chat with real-time messaging & support</li>
+          <li>⚙️ Built using Firebase, Kotlin, and scalable backend</li>
+          <li>🧠 Future integration with AI assistant (in progress)</li>
+        </ul>
+        <a href="products.html" class="btn">More About Beehire</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="light-section">
+    <div class="container">
+      <h2>Contact Us</h2>
+      <p>Email us at <a href="mailto:bee.hire@acsjz.com">bee.hire@acsjz.com</a> or fill out the contact form to get started.</p>
+      <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST" class="contact-form">
+        <input type="text" name="name" placeholder="Your Name" required />
+        <input type="email" name="_replyto" placeholder="Your Email" required />
+        <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
+        <button type="submit" class="btn">Send Message</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 ACSJZ IT Solutions Inc. | All rights reserved.</p>
+    <p>Explore our software: <strong>Beehire App</strong> and more coming soon.</p>
+  </footer>
+
+  <script>
+  window.addEventListener('scroll', function() {
+    const header = document.querySelector('.main-header');
+    header.classList.toggle('scrolled', window.scrollY > 10);
+  });
+</script>
+
+
+</body>
+</html>
