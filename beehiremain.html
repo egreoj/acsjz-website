@@ -38,10 +38,10 @@
     section h2 { color: #333; border-bottom: 2px solid #FFD700; padding-bottom: 10px; }
 
     /* Popular Services — strict 2x2 grid, equal size, centered column */
-    .services-wrap { max-width: 720px; margin: 0 auto; } /* keeps it neat */
+    .services-wrap { max-width: 720px; margin: 0 auto; }
     .services-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr); /* ALWAYS 2 columns */
+      grid-template-columns: repeat(2, 1fr);
       gap: 14px;
       margin-top: 20px;
     }
@@ -212,6 +212,7 @@
     const groupIn = document.getElementById('menuLoggedIn');
     const groupOut = document.getElementById('menuLoggedOut');
     const menuGreeting = document.getElementById('menuGreeting');
+    const viewProfileItem = document.getElementById('viewProfileItem');
 
     const servicesGrid = document.getElementById('servicesGrid');
     const workerSearch = document.getElementById('workerSearch');
@@ -398,6 +399,8 @@
         menuGreeting.textContent = `Signed in as ${displayName}`;
         groupIn.style.display = "block";
         groupOut.style.display = "none";
+        // update "View Profile" to include uid
+        viewProfileItem.href = `profile-view.html?uid=${encodeURIComponent(user.uid)}`;
 
         setUserMode();
         await loadWorkers();      // load after login
@@ -432,34 +435,54 @@
       }
     });
 
-    // Primary CTA buttons
+    // --- Primary CTA buttons ---
+    // HIRE: if logged in and registered -> dashboard; else -> register
     document.getElementById('hireBtn').addEventListener('click', async () => {
-  if (!CURRENT_USER) {
-    window.location.href = "login.html";
-    return;
-  }
+      if (!CURRENT_USER) {
+        window.location.href = "login.html";
+        return;
+      }
 
-  try {
-    const ref = doc(db, "workers", CURRENT_USER.uid);
-    const snap = await getDoc(ref);
+      try {
+        const ref = doc(db, "workers", CURRENT_USER.uid);
+        const snap = await getDoc(ref);
 
-    if (snap.exists()) {
-      // Registered → go to hirer dashboard
-      window.location.href = "hirer-dashboard.html";
-    } else {
-      // Not registered → go to register page
-      window.location.href = "register.html";
-    }
-  } catch (e) {
-    console.error("Error checking registration:", e);
-    alert("Failed to check your registration status. Please try again.");
-  }
-});
+        if (snap.exists()) {
+          window.location.href = "hirer-dashboard.html";
+        } else {
+          window.location.href = "register.html";
+        }
+      } catch (e) {
+        console.error("Error checking registration:", e);
+        alert("Failed to check your registration status. Please try again.");
+      }
+    });
 
+    // WORK: if not logged in -> register; if logged in & worker exists -> profile-view?uid; else -> edit_profile
+    document.getElementById('workBtn').addEventListener('click', async () => {
+      if (!CURRENT_USER) {
+        window.location.href = "register.html";
+        return;
+      }
+
+      try {
+        const ref = doc(db, "workers", CURRENT_USER.uid);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+          window.location.href = `profile-view.html?uid=${encodeURIComponent(CURRENT_USER.uid)}`;
+        } else {
+          window.location.href = "edit_profile.html";
+        }
+      } catch (e) {
+        console.error("Work redirect check failed:", e);
+        alert("Sorry, couldn’t check your status. Please try again.");
+      }
+    });
 
     // Quick profile double-click shortcut
-    userPhotoEl.addEventListener('dblclick', () => { if (CURRENT_USER) window.location.href = "profile-view.html"; });
-    userNameEl.addEventListener('dblclick', () => { if (CURRENT_USER) window.location.href = "profile-view.html"; });
+    userPhotoEl.addEventListener('dblclick', () => { if (CURRENT_USER) window.location.href = `profile-view.html?uid=${encodeURIComponent(CURRENT_USER.uid)}`; });
+    userNameEl.addEventListener('dblclick', () => { if (CURRENT_USER) window.location.href = `profile-view.html?uid=${encodeURIComponent(CURRENT_USER.uid)}`; });
 
     // Popular services → filter map
     let activeCategory = null;
