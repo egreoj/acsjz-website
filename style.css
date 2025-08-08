@@ -157,3 +157,13 @@ footer {
   text-align: center;
   padding: 20px;
 }
+#map { position: relative; } /* allow absolute overlay inside */
+.map-overlay {
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,.78);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 15px;
+  font-weight: 700; color: #333;
+  text-align: center; padding: 16px;
+  pointer-events: none; /* block map but not trap focus */
+}

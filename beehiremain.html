@@ -7,14 +7,26 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #fdfdfd; color: #333; }
-    header { background: #FFD700; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    header { background: #FFD700; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 50; }
     .logo { font-size: 1.8em; font-weight: bold; color: #222; display: flex; align-items: center; }
     .logo span { margin-left: 8px; }
-    .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+
+    /* Profile dropdown */
+    .user-profile { position: relative; display: flex; align-items: center; gap: 10px; cursor: pointer; }
     .user-profile img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
+    .user-name { font-weight: 600; }
+    .menu { position: absolute; right: 0; top: 56px; background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; box-shadow: 0 10px 24px rgba(0,0,0,0.12); min-width: 220px; padding: 8px; display: none; }
+    .menu.show { display: block; }
+    .menu .group { padding: 6px 8px; border-bottom: 1px solid #f2f2f2; }
+    .menu .group:last-child { border-bottom: 0; }
+    .menu button, .menu a { width: 100%; text-align: left; padding: 10px 12px; border: 0; background: transparent; border-radius: 8px; font-size: 0.95em; cursor: pointer; display: block; color: #222; text-decoration: none; }
+    .menu button:hover, .menu a:hover { background: #f7f7f7; }
+    .menu .muted { color:#777; font-size: .85em; padding: 8px 12px 4px; }
+
     nav { background: black; padding: 12px; text-align: center; }
     nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; font-size: 1.1em; }
     nav a:hover { color: #FFD700; }
+
     .hero { background: linear-gradient(rgba(255,215,0,0.8), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1500&q=80'); background-size: cover; background-position: center; text-align: center; color: white; padding: 80px 20px; }
     .hero h1 { font-size: 2.8em; margin-bottom: 15px; }
     .hero p { font-size: 1.3em; margin-bottom: 25px; }
@@ -25,62 +37,45 @@
     section { padding: 40px 20px; max-width: 1200px; margin: auto; }
     section h2 { color: #333; border-bottom: 2px solid #FFD700; padding-bottom: 10px; }
 
-    /* Uniform Popular Services buttons */
+    /* Popular Services — strict 2x2 grid, equal size, centered column */
+    .services-wrap { max-width: 720px; margin: 0 auto; } /* keeps it neat */
     .services-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(2, 1fr); /* ALWAYS 2 columns */
+      gap: 14px;
       margin-top: 20px;
     }
     .service-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100px; /* uniform height */
-      background: white;
-      border-radius: 14px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-      border: 1px solid #eaeaea;
-      font-weight: 700;
-      font-size: 1em;
-      cursor: pointer;
-      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-      text-align: center;
-      user-select: none;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 110px; background: white; border-radius: 14px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08); border: 1px solid #eaeaea;
+      font-weight: 700; font-size: 1em; cursor: pointer; transition: transform .15s, box-shadow .15s, border-color .15s; text-align: center; user-select: none;
     }
+    .service-btn span { display:block; margin-top: 6px; font-weight:700; }
     .service-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); border-color: #ffd84d; }
     .service-btn.active { outline: 3px solid #FFD700; }
 
-    /* Custom search below services */
-    .service-search {
-      margin-top: 18px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .service-search input {
-      flex: 1 1 320px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-    }
-    .service-search .clear-btn {
-      padding: 12px 16px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      background: #fff;
-      cursor: pointer;
-      font-weight: 600;
-    }
+    /* Search below services */
+    .service-search { max-width: 720px; margin: 18px auto 0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .service-search input { flex: 1 1 320px; padding: 12px 14px; border-radius: 10px; border: 1px solid #ccc; font-size: 1em; }
+    .service-search .clear-btn { padding: 12px 16px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-weight: 600; }
     .service-search .clear-btn:hover { border-color: #bbb; }
 
-    #map { height: 450px; width: 100%; margin: 20px 0; border-radius: 15px; }
+    #map { height: 450px; width: 100%; margin: 20px 0; border-radius: 15px; position: relative; }
+    .map-overlay {
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,.78);
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 15px;
+      font-weight: 700; color: #333;
+      text-align: center; padding: 16px;
+      pointer-events: none;
+    }
+
     .ads { background: #fffbe6; padding: 40px 20px; text-align: center; border-radius: 15px; margin: 30px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
     .ads h3 { margin-bottom: 15px; }
     .ads p { font-size: 1.1em; }
+
     footer { background: #222; color: white; text-align: center; padding: 20px; margin-top: 20px; }
   </style>
 </head>
@@ -88,9 +83,28 @@
   <!-- Header -->
   <header>
     <div class="logo">🐝<span>Beehire</span></div>
-    <div class="user-profile" id="profileBtn" title="View Profile">
-      <img id="userPhoto" src="https://via.placeholder.com/45" alt="User Profile">
-      <span id="userName">Hi!</span>
+
+    <!-- Profile w/ dropdown -->
+    <div class="user-profile" id="profileBtn" aria-haspopup="true" aria-expanded="false">
+      <img id="userPhoto" alt="User">
+      <span class="user-name" id="userName">Guest</span>
+
+      <div class="menu" id="profileMenu" role="menu" aria-label="Profile menu">
+        <!-- Logged-in group -->
+        <div class="group" id="menuLoggedIn" style="display:none;">
+          <div class="muted" id="menuGreeting">Signed in</div>
+          <a href="profile-view.html" id="viewProfileItem">👤 View Profile</a>
+          <a href="edit_profile.html" id="editProfileItem">✏️ Edit Profile</a>
+          <button id="logoutItem">🚪 Log out</button>
+        </div>
+
+        <!-- Logged-out group -->
+        <div class="group" id="menuLoggedOut" style="display:none;">
+          <div class="muted">Welcome to Beehire</div>
+          <a href="login.html" id="loginItem">🔐 Log in</a>
+          <a href="register.html" id="registerItem">🆕 Register</a>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -116,19 +130,22 @@
   <!-- Services Section -->
   <section id="services">
     <h2>Popular Services</h2>
-    <div class="services-grid" id="servicesGrid">
-      <div class="service-btn" data-cat="Electrician">🔌<br>Electricians</div>
-      <div class="service-btn" data-cat="Plumber">🚰<br>Plumbers</div>
-      <div class="service-btn" data-cat="Tutor">📚<br>Tutors</div>
-      <div class="service-btn" data-cat="Mechanic">🔧<br>Mechanics</div>
-      <div class="service-btn" data-cat="Virtual Services">💻<br>Virtual Services</div>
-      <div class="service-btn" data-cat="Legal Consultation">⚖️<br>Legal Consultations</div>
-      <div class="service-btn" data-cat="Cleaner">🧹<br>Cleaners</div>
-      <div class="service-btn" data-cat="Laborer">🧱<br>Laborers</div>
-      <div class="service-btn" data-cat="Driver">🚗<br>Drivers</div>
-      <div class="service-btn" data-cat="Carpenter">👷‍♂️<br>Carpenters</div>
-      <div class="service-btn" data-cat="Painter">🎨<br>Painters</div>
-      <div class="service-btn" data-cat="Cook">🍳<br>Cooks</div>
+
+    <div class="services-wrap">
+      <div class="services-grid" id="servicesGrid">
+        <div class="service-btn" data-cat="Electrician">🔌<span>Electricians</span></div>
+        <div class="service-btn" data-cat="Plumber">🚰<span>Plumbers</span></div>
+        <div class="service-btn" data-cat="Tutor">📚<span>Tutors</span></div>
+        <div class="service-btn" data-cat="Mechanic">🔧<span>Mechanics</span></div>
+        <div class="service-btn" data-cat="Virtual Services">💻<span>Virtual Services</span></div>
+        <div class="service-btn" data-cat="Legal Consultation">⚖️<span>Legal</span></div>
+        <div class="service-btn" data-cat="Cleaner">🧹<span>Cleaners</span></div>
+        <div class="service-btn" data-cat="Laborer">🧱<span>Laborers</span></div>
+        <div class="service-btn" data-cat="Driver">🚗<span>Drivers</span></div>
+        <div class="service-btn" data-cat="Carpenter">👷‍♂️<span>Carpenters</span></div>
+        <div class="service-btn" data-cat="Painter">🎨<span>Painters</span></div>
+        <div class="service-btn" data-cat="Cook">🍳<span>Cooks</span></div>
+      </div>
     </div>
 
     <!-- Search box (custom worker search) -->
@@ -172,7 +189,7 @@
   <!-- Firebase + App Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
     import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -190,63 +207,118 @@
 
     const userPhotoEl = document.getElementById('userPhoto');
     const userNameEl = document.getElementById('userName');
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    const groupIn = document.getElementById('menuLoggedIn');
+    const groupOut = document.getElementById('menuLoggedOut');
+    const menuGreeting = document.getElementById('menuGreeting');
+
     const servicesGrid = document.getElementById('servicesGrid');
     const workerSearch = document.getElementById('workerSearch');
     const clearFilters = document.getElementById('clearFilters');
+
+    // ---- Guest avatar (SVG with "Guest" word) ----
+    function guestAvatarURI(size = 45) {
+      const svg = `
+        <svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>
+          <defs>
+            <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+              <stop offset='0%' stop-color='#FFE480'/>
+              <stop offset='100%' stop-color='#FFD000'/>
+            </linearGradient>
+          </defs>
+          <circle cx='${size/2}' cy='${size/2}' r='${size/2}' fill='url(#g)'/>
+          <text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle'
+                font-family='Segoe UI, Arial' font-weight='700' font-size='10' fill='#111'>Guest</text>
+        </svg>`;
+      return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+    }
 
     function toHttps(url) {
       if (!url) return "";
       return url.startsWith("http://") ? url.replace("http://", "https://") : url;
     }
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        userNameEl.textContent = "Hi!";
-        userPhotoEl.src = "https://via.placeholder.com/45";
-        return;
-      }
-      try {
-        const ref = doc(db, "workers", user.uid);
-        const snap = await getDoc(ref);
-        let displayName = user.displayName || "Hi!";
-        let photo = user.photoURL || "";
-
-        if (snap.exists()) {
-          const data = snap.data();
-          displayName = data.fullName || data.name || displayName || "Hi!";
-          photo = data.profileImageUrl || data.photoUrl || photo || "";
-        }
-
-        const safePhoto = toHttps(photo) || "https://via.placeholder.com/45";
-        userNameEl.textContent = displayName || "Hi!";
-        userPhotoEl.src = safePhoto;
-      } catch (e) {
-        console.error("Header profile load error:", e);
-      }
-    });
-
-    // ---- Buttons binding ----
-    document.getElementById('hireBtn').addEventListener('click', () => {
-      window.location.href = "hirer-dashboard.html";
-    });
-    document.getElementById('workBtn').addEventListener('click', () => {
-      window.location.href = "profile-view.html";
-    });
-    document.getElementById('getStartedBtn').addEventListener('click', () => {
-      window.location.href = "login.html";
-    });
-    document.getElementById('profileBtn').addEventListener('click', () => {
-      window.location.href = "profile-view.html";
-    });
-
-    // ---- Leaflet Map ----
+    // Map init
     const map = L.map('map').setView([10.7202, 122.5621], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
-
     const markerLayer = L.layerGroup().addTo(map);
-    let ALL_WORKERS = [];
 
-    // Normalize skill to match service buttons
+    // Guest overlay helpers
+    function ensureOverlay() {
+      let ov = document.querySelector('#map .map-overlay');
+      if (!ov) {
+        ov = document.createElement('div');
+        ov.className = 'map-overlay';
+        ov.textContent = 'Please log in to explore the map.';
+        document.getElementById('map').appendChild(ov);
+      }
+      return ov;
+    }
+    function removeOverlay() {
+      const ov = document.querySelector('#map .map-overlay');
+      if (ov) ov.remove();
+    }
+
+    function setGuestMode() {
+      userNameEl.textContent = "Guest";
+      userPhotoEl.src = guestAvatarURI(45);
+
+      groupIn.style.display = "none";
+      groupOut.style.display = "block";
+
+      markerLayer.clearLayers();
+
+      // disable map interactions
+      map.dragging.disable();
+      map.scrollWheelZoom.disable();
+      map.touchZoom.disable();
+      map.doubleClickZoom.disable();
+      map.boxZoom.disable();
+      map.keyboard.disable();
+
+      ensureOverlay();
+    }
+
+    function setUserMode() {
+      removeOverlay();
+      // enable map interactions
+      map.dragging.enable();
+      map.scrollWheelZoom.enable();
+      map.touchZoom.enable();
+      map.doubleClickZoom.enable();
+      map.boxZoom.enable();
+      map.keyboard.enable();
+    }
+
+    // Load workers (only when logged in)
+    let ALL_WORKERS = [];
+    async function loadWorkers() {
+      try {
+        const workerRef = collection(db, "workers");
+        const snapshot = await getDocs(workerRef);
+
+        ALL_WORKERS = snapshot.docs.map(d => {
+          const data = d.data();
+          const lat = data.latitude ?? data.lat;
+          const lng = data.longitude ?? data.lng;
+          if (typeof lat !== "number" || typeof lng !== "number") return null;
+
+          const imgUrl = data.profileImageUrl || data.photoUrl || "";
+          const photo = toHttps(imgUrl) || "https://via.placeholder.com/100";
+          const name = data.fullName || data.name || "Worker";
+          const skill = data.skillCategory || (Array.isArray(data.skills) && data.skills.length ? data.skills[0] : "Skill");
+          const availability = data.availability || "";
+          const location = data.location || "";
+
+          return { uid: d.id, lat, lng, name, photo, skill, availability, location };
+        }).filter(Boolean);
+      } catch (err) {
+        console.error("Map load error:", err);
+      }
+    }
+
+    // Normalize skills for filtering
     function normalizeSkill(val) {
       if (!val) return "";
       const s = String(val).toLowerCase();
@@ -262,7 +334,7 @@
       if (s.includes("carpent")) return "Carpenter";
       if (s.includes("paint")) return "Painter";
       if (s.includes("cook") || s.includes("chef")) return "Cook";
-      return val; // fallback
+      return val;
     }
 
     function renderMarkers({ category = null, search = "" } = {}) {
@@ -297,35 +369,86 @@
       }
     }
 
-    // Load workers
-    (async function loadWorkers() {
-      try {
-        const workerRef = collection(db, "workers");
-        const snapshot = await getDocs(workerRef);
+    // Auth + header logic
+    let CURRENT_USER = null;
 
-        ALL_WORKERS = snapshot.docs.map(d => {
-          const data = d.data();
-          const lat = data.latitude ?? data.lat;
-          const lng = data.longitude ?? data.lng;
-          if (typeof lat !== "number" || typeof lng !== "number") return null;
+    onAuthStateChanged(auth, async (user) => {
+      CURRENT_USER = user || null;
 
-          const imgUrl = data.profileImageUrl || data.photoUrl || "https://via.placeholder.com/100";
-          const photo = toHttps(imgUrl) || "https://via.placeholder.com/100";
-          const name = data.fullName || data.name || "Worker";
-          const skill = data.skillCategory || (Array.isArray(data.skills) && data.skills.length ? data.skills[0] : "Skill");
-          const availability = data.availability || "";
-          const location = data.location || "";
-
-          return { uid: d.id, lat, lng, name, photo, skill, availability, location };
-        }).filter(Boolean);
-
-        renderMarkers({});
-      } catch (err) {
-        console.error("Map load error:", err);
+      if (!user) {
+        setGuestMode();
+        return;
       }
-    })();
 
-    // Popular services click → filter map
+      try {
+        const ref = doc(db, "workers", user.uid);
+        const snap = await getDoc(ref);
+
+        let displayName = user.displayName || "User";
+        let photo = user.photoURL || "";
+
+        if (snap.exists()) {
+          const data = snap.data();
+          displayName = data.fullName || data.name || displayName || "User";
+          photo = data.profileImageUrl || data.photoUrl || photo || "";
+        }
+
+        userNameEl.textContent = displayName;
+        userPhotoEl.src = toHttps(photo) || guestAvatarURI(45);
+        menuGreeting.textContent = `Signed in as ${displayName}`;
+        groupIn.style.display = "block";
+        groupOut.style.display = "none";
+
+        setUserMode();
+        await loadWorkers();      // load after login
+        renderMarkers({});
+      } catch (e) {
+        console.error("Header profile load error:", e);
+        setGuestMode();
+      }
+    });
+
+    // Toggle dropdown
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!CURRENT_USER) {
+        window.location.href = "login.html";
+        return;
+      }
+      profileMenu.classList.toggle('show');
+      profileBtn.setAttribute('aria-expanded', profileMenu.classList.contains('show') ? 'true' : 'false');
+    });
+    document.addEventListener('click', () => profileMenu.classList.remove('show'));
+
+    // Logout
+    document.getElementById('logoutItem').addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        profileMenu.classList.remove('show');
+        window.location.reload();
+      } catch (err) {
+        console.error("Logout failed:", err);
+        alert("Failed to log out. Please try again.");
+      }
+    });
+
+    // Primary CTA buttons
+    document.getElementById('hireBtn').addEventListener('click', () => {
+      window.location.href = "hirer-dashboard.html";
+    });
+    document.getElementById('workBtn').addEventListener('click', () => {
+      if (CURRENT_USER) window.location.href = "profile-view.html";
+      else window.location.href = "register.html";
+    });
+    document.getElementById('getStartedBtn').addEventListener('click', () => {
+      window.location.href = "login.html";
+    });
+
+    // Quick profile double-click shortcut
+    userPhotoEl.addEventListener('dblclick', () => { if (CURRENT_USER) window.location.href = "profile-view.html"; });
+    userNameEl.addEventListener('dblclick', () => { if (CURRENT_USER) window.location.href = "profile-view.html"; });
+
+    // Popular services → filter map
     let activeCategory = null;
 
     servicesGrid.addEventListener('click', (e) => {
@@ -342,6 +465,7 @@
       }
 
       renderMarkers({ category: activeCategory, search: workerSearch.value });
+      document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
     // Search (debounced)
@@ -360,6 +484,9 @@
       servicesGrid.querySelectorAll('.service-btn.active').forEach(b => b.classList.remove('active'));
       renderMarkers({});
     });
+
+    // Set initial guest avatar immediately (before auth resolves)
+    userPhotoEl.src = guestAvatarURI(45);
   </script>
 </body>
 </html>
