@@ -433,16 +433,29 @@
     });
 
     // Primary CTA buttons
-    document.getElementById('hireBtn').addEventListener('click', () => {
+    document.getElementById('hireBtn').addEventListener('click', async () => {
+  if (!CURRENT_USER) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  try {
+    const ref = doc(db, "workers", CURRENT_USER.uid);
+    const snap = await getDoc(ref);
+
+    if (snap.exists()) {
+      // Registered → go to hirer dashboard
       window.location.href = "hirer-dashboard.html";
-    });
-    document.getElementById('workBtn').addEventListener('click', () => {
-      if (CURRENT_USER) window.location.href = "profile-view.html";
-      else window.location.href = "register.html";
-    });
-    document.getElementById('getStartedBtn').addEventListener('click', () => {
-      window.location.href = "login.html";
-    });
+    } else {
+      // Not registered → go to register page
+      window.location.href = "register.html";
+    }
+  } catch (e) {
+    console.error("Error checking registration:", e);
+    alert("Failed to check your registration status. Please try again.");
+  }
+});
+
 
     // Quick profile double-click shortcut
     userPhotoEl.addEventListener('dblclick', () => { if (CURRENT_USER) window.location.href = "profile-view.html"; });
