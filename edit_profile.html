@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Profile - Beehire</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; margin: 0; padding: 0; }
+    header { background: #FFD700; padding: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    header h1 { margin: 0; color: #222; }
+    .container { max-width: 1000px; background: white; margin: 30px auto; padding: 30px; border-radius: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
+    h2 { text-align: center; color: #333; margin-bottom: 20px; }
+    form { display: flex; flex-direction: column; gap: 20px; }
+    label { font-weight: bold; margin-bottom: 5px; }
+    input, textarea, select { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1em; width: 100%; }
+    textarea { resize: vertical; }
+    .row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .row > div { flex: 1; min-width: 280px; }
+    .profile-photo { text-align: center; }
+    .profile-photo img { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 5px solid #FFD700; margin-bottom: 10px; }
+    .document-upload { border: 2px dashed #ccc; border-radius: 12px; padding: 20px; text-align: center; background: #fafafa; }
+    .document-list { margin-top: 15px; text-align: left; }
+    .document-list li { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #ddd; }
+    button { background: #FFD700; color: #222; padding: 14px; border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer; font-weight: bold; align-self: center; width: 200px; }
+    button:hover { background: #e6c200; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🐝 Beehire</h1>
+  </header>
+
+  <div class="container">
+    <h2>Edit Your Profile</h2>
+    <form id="profileForm">
+      <div class="profile-photo">
+        <img id="profileImage" src="https://via.placeholder.com/150" alt="Profile Photo">
+        <input type="file" id="photoUpload" accept="image/*">
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="fullname">Full Name</label>
+          <input type="text" id="fullname">
+        </div>
+        <div>
+          <label for="birthdate">Birthdate</label>
+          <input type="date" id="birthdate">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="age">Age</label>
+          <input type="number" id="age" readonly>
+        </div>
+        <div>
+          <label for="gender">Gender</label>
+          <select id="gender">
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="status">Civil Status</label>
+          <select id="status">
+            <option>Single</option>
+            <option>Married</option>
+            <option>Separated</option>
+            <option>Widowed</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone">
+        </div>
+        <div>
+          <label for="email">Email Address</label>
+          <input type="email" id="email" readonly>
+        </div>
+        <div>
+          <label for="location">Location</label>
+          <input type="text" id="location">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="skill">Primary Skill</label>
+          <input type="text" id="skill">
+        </div>
+        <div>
+          <label for="experience">Experience (years)</label>
+          <input type="number" id="experience">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="rate">Service Rate</label>
+          <input type="text" id="rate">
+        </div>
+        <div>
+          <label for="availability">Availability</label>
+          <input type="text" id="availability">
+        </div>
+      </div>
+
+      <label for="bio">About Me</label>
+      <textarea id="bio" rows="4"></textarea>
+
+      <button type="submit">Save Profile</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+      authDomain: "myapp-96865.firebaseapp.com",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.appspot.com",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("profileForm");
+    const birthdateInput = document.getElementById('birthdate');
+    const ageInput = document.getElementById('age');
+
+    birthdateInput.addEventListener('change', () => {
+      const birthdate = new Date(birthdateInput.value);
+      const today = new Date();
+      let age = today.getFullYear() - birthdate.getFullYear();
+      const m = today.getMonth() - birthdate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) age--;
+      ageInput.value = age;
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert("Please log in first.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const userRef = doc(db, "workers", user.uid);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById("fullname").value = data.fullName || "";
+        document.getElementById("birthdate").value = data.birthdate || "";
+        document.getElementById("gender").value = data.gender || "Male";
+        document.getElementById("status").value = data.status || "Single";
+        document.getElementById("phone").value = data.phone || "";
+        document.getElementById("email").value = data.email || user.email;
+        document.getElementById("location").value = data.location || "";
+        document.getElementById("skill").value = data.skillCategory || "";
+        document.getElementById("experience").value = data.experience || "";
+        document.getElementById("rate").value = data.pricing || "";
+        document.getElementById("availability").value = data.availability || "";
+        document.getElementById("bio").value = data.bio || "";
+        if (data.profileImageUrl) {
+          document.getElementById("profileImage").src = data.profileImageUrl;
+        }
+        birthdateInput.dispatchEvent(new Event('change'));
+      } else {
+        document.getElementById("email").value = user.email;
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const securePhotoUrl = document.getElementById("profileImage").src.startsWith("http://")
+          ? document.getElementById("profileImage").src.replace("http://", "https://")
+          : document.getElementById("profileImage").src;
+
+        const userData = {
+          uid: user.uid,
+          email: document.getElementById("email").value,
+          fullName: document.getElementById("fullname").value,
+          birthdate: document.getElementById("birthdate").value,
+          age: Number(document.getElementById("age").value) || 0,
+          gender: document.getElementById("gender").value,
+          status: document.getElementById("status").value,
+          phone: document.getElementById("phone").value,
+          location: document.getElementById("location").value,
+          skillCategory: document.getElementById("skill").value,
+          skills: [],
+          experience: Number(document.getElementById("experience").value) || 0,
+          pricing: document.getElementById("rate").value,
+          serviceRadius: "100",
+          availability: document.getElementById("availability").value,
+          bio: document.getElementById("bio").value,
+          profileImageUrl: securePhotoUrl,
+          banned: false,
+          isAdmin: false,
+          online: true,
+          createdAt: docSnap.exists() ? (docSnap.data().createdAt || Date.now()) : Date.now(),
+          latitude: null,
+          longitude: null,
+          updatedAt: Date.now()
+        };
+
+        try {
+          await setDoc(userRef, userData, { merge: true });
+          alert("Profile saved successfully!");
+          window.location.href = "beehiremain.html";
+        } catch (err) {
+          console.error("Failed to save profile:", err);
+          alert("Failed to save. Please try again.");
+        }
+      });
+    });
+  </script>
+</body>
+</html>

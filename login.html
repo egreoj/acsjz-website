@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Beehire Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff8dc;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #FFD700;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    header h1 { margin: 0; color: #222; }
+    .container {
+      max-width: 500px;
+      background: white;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    }
+    h2 { text-align: center; color: #333; }
+    form { display: flex; flex-direction: column; }
+    label { margin: 10px 0 5px; font-weight: bold; }
+    input {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+    button {
+      margin-top: 20px;
+      background: #FFD700;
+      color: #222;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover { background: #e6c200; }
+    .social-login {
+      text-align: center;
+      margin: 25px 0 10px;
+    }
+    .google-btn, .fb-btn {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 1em;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .google-btn {
+      background: white;
+      color: #444;
+      border: 2px solid #ccc;
+    }
+    .google-btn:hover { background: #f1f1f1; }
+    .fb-btn {
+      background: #1877f2;
+      color: white;
+    }
+    .fb-btn:hover { background: #145dbf; }
+    .register-link { text-align: center; margin-top: 15px; }
+    .hint { font-size: 0.9em; color: #666; margin-top: 8px; }
+    .loading { opacity: 0.6; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🐝 Beehire</h1>
+  </header>
+
+  <div class="container">
+    <h2>Login to Your Account</h2>
+
+    <form id="loginForm">
+      <label for="identifier">Username / Phone / Email</label>
+      <input type="text" id="identifier" name="identifier" placeholder="Enter username, phone or email" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter password" required>
+
+      <button type="submit" id="loginBtn">Login</button>
+      <div class="hint">Tip: Enter your <b>username</b> or <b>phone</b> and we’ll look up your email.</div>
+    </form>
+
+    <div class="social-login">
+      <p>or login with</p>
+      <button class="google-btn" id="googleBtn">Continue with Google</button>
+      <button class="fb-btn" id="fbBtn">Continue with Facebook</button>
+    </div>
+
+    <div class="register-link">
+      Don't have an account? <a href="register.html">Register</a>
+    </div>
+  </div>
+
+  <!-- Firebase JS SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { 
+      getAuth, signInWithEmailAndPassword,
+      GoogleAuthProvider, FacebookAuthProvider, signInWithPopup 
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { 
+      getFirestore, collection, query, where, getDocs, doc, getDoc
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+      authDomain: "myapp-96865.firebaseapp.com",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.appspot.com",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("loginForm");
+    const loginBtn = document.getElementById("loginBtn");
+    const googleBtn = document.getElementById("googleBtn");
+    const fbBtn = document.getElementById("fbBtn");
+
+    function setLoading(loading) {
+      const container = document.querySelector('.container');
+      if (loading) container.classList.add('loading');
+      else container.classList.remove('loading');
+    }
+
+    // Check workers/{uid} existence and redirect accordingly
+    async function routeByWorkerDoc(user) {
+      try {
+        const ref = doc(db, "workers", user.uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          window.location.href = "beehiremain.html";
+        } else {
+          window.location.href = "edit_profile.html";
+        }
+      } catch (err) {
+        console.error("Routing failed:", err);
+        alert("Something went wrong. Please try again.");
+      }
+    }
+
+    // Resolve identifier → email from workers
+    async function resolveEmailFromWorkers(identifierRaw) {
+      const workersRef = collection(db, "workers");
+      const identifier = identifierRaw.trim();
+
+      // 1) Try direct email match
+      let q = query(workersRef, where("email", "==", identifier.toLowerCase()));
+      let snap = await getDocs(q);
+      if (!snap.empty) return snap.docs[0].data().email;
+
+      // 2) Try username (lowercased)
+      q = query(workersRef, where("username", "==", identifier.toLowerCase()));
+      snap = await getDocs(q);
+      if (!snap.empty) return snap.docs[0].data().email;
+
+      // 3) Try phone (as-is)
+      q = query(workersRef, where("phone", "==", identifier));
+      snap = await getDocs(q);
+      if (!snap.empty) return snap.docs[0].data().email;
+
+      return null;
+    }
+
+    // Email/Password login
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setLoading(true);
+
+      const identifier = document.getElementById("identifier").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        let emailToLogin = null;
+        if (identifier.includes("@")) {
+          emailToLogin = identifier.toLowerCase();
+        } else {
+          emailToLogin = await resolveEmailFromWorkers(identifier);
+        }
+
+        if (!emailToLogin) {
+          alert("Account not found. Please check your input or register first.");
+          setLoading(false);
+          return;
+        }
+
+        const cred = await signInWithEmailAndPassword(auth, emailToLogin, password);
+        await routeByWorkerDoc(cred.user);
+      } catch (error) {
+        console.error(error);
+        alert("Login failed: " + (error.message || error.code));
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Google login
+    googleBtn.addEventListener("click", async () => {
+      setLoading(true);
+      try {
+        const provider = new GoogleAuthProvider();
+        const cred = await signInWithPopup(auth, provider);
+        await routeByWorkerDoc(cred.user);
+      } catch (error) {
+        console.error(error);
+        alert("Google login failed: " + (error.message || error.code));
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Facebook login
+    fbBtn.addEventListener("click", async () => {
+      setLoading(true);
+      try {
+        const provider = new FacebookAuthProvider();
+        const cred = await signInWithPopup(auth, provider);
+        await routeByWorkerDoc(cred.user);
+      } catch (error) {
+        console.error(error);
+        alert("Facebook login failed: " + (error.message || error.code));
+      } finally {
+        setLoading(false);
+      }
+    });
+  </script>
+</body>
+</html>

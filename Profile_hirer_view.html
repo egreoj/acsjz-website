@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beehire - Worker Profile</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #FFD700;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    header h1 { margin: 0; color: #222; }
+    .profile-wrapper {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 30px;
+    }
+    .sidebar {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .sidebar img {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 5px solid #FFD700;
+      object-fit: cover;
+    }
+    .verified-badge {
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    .progress-bar {
+      margin-top: 20px;
+      background: #e6e6e6;
+      border-radius: 20px;
+      height: 20px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #FFD700;
+      width: 0;
+      line-height: 20px;
+      text-align: center;
+      font-size: 0.8em;
+      font-weight: bold;
+      color: #222;
+    }
+    .contact-buttons {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95em;
+      background: #fff;
+      border: 1px solid #dcdcdc;
+      color: #222;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .btn:hover { border-color: #bdbdbd; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+    .main-content { display: flex; flex-direction: column; gap: 20px; }
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    .card h3 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 2px solid #FFD700;
+      padding-bottom: 8px;
+    }
+    .skill-badge {
+      display: inline-block;
+      background: #FFD700;
+      color: #222;
+      padding: 6px 12px;
+      border-radius: 20px;
+      margin: 5px;
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+    .document-list li {
+      background: #f9f9f9;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .document-list button {
+      background: #fff;
+      border: 1px solid #dcdcdc;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      color: #222;
+    }
+    .document-list button:hover { border-color: #bdbdbd; }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.8);
+    }
+    .modal-content {
+      margin: 40px auto;
+      width: 80%;
+      max-width: 700px;
+      height: 80%;
+      background: white;
+      border-radius: 10px;
+      overflow-y: auto;
+      position: relative;
+    }
+    .modal-content embed { width: 100%; height: 100%; }
+    .close {
+      position: absolute;
+      top: 10px; right: 20px;
+      color: black;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover { color: red; }
+    .watermark {
+      position: absolute;
+      top: 40%;
+      left: 10%;
+      transform: rotate(-25deg);
+      font-size: 28px;
+      color: rgba(180, 180, 180, 0.35);
+      font-weight: bold;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🐝 Beehire</h1>
+  </header>
+
+  <div class="profile-wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Neutral local placeholder by default -->
+      <img id="profilePhoto" src="images/profile_placeholder.png" alt="Profile Photo">
+      <h2 id="workerName">Juan Dela Cruz</h2>
+      <!-- Category • Location (preserved pattern) -->
+      <p><span id="skillCategory">Electrician</span> • <span id="locationText">Iloilo City</span></p>
+
+      <span class="verified-badge" id="verifiedBadge">Pending Verification</span>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill">0%</div>
+      </div>
+
+      <div class="contact-buttons">
+        <button class="btn" id="callBtn">Call</button>
+        <button class="btn" id="msgBtn">Message</button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="card">
+        <h3>Personal Information</h3>
+        <p><b>Age:</b> <span id="ageTxt">29</span></p>
+        <p><b>Gender:</b> <span id="genderTxt">Male</span></p>
+        <p><b>Civil Status:</b> <span id="statusTxt">Single</span></p>
+        <p><b>Email:</b> <span id="emailTxt">juan@beehire.com</span></p>
+        <p><b>Phone:</b> <span id="phoneTxt">+63 900 000 0000</span></p>
+        <p><b>Location:</b> <span id="locationPI">Iloilo City</span></p>
+      </div>
+
+      <div class="card">
+        <h3>About Me</h3>
+        <p id="bioTxt">
+          Passionate electrician with 5 years of experience in residential and commercial wiring, repair, and maintenance.
+          Dedicated to providing safe and reliable service.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Skills</h3>
+        <div id="skillsWrap">
+          <span class="skill-badge">Wiring</span>
+          <span class="skill-badge">Repair</span>
+          <span class="skill-badge">Installation</span>
+          <span class="skill-badge">Troubleshooting</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Service Details</h3>
+        <p><b>Rate:</b> <span id="rateTxt">₱350 per hour</span></p>
+        <p><b>Availability:</b> <span id="availTxt">Mon–Fri 6PM–10PM</span></p>
+      </div>
+
+      <div class="card">
+        <h3>Uploaded Documents</h3>
+        <ul class="document-list" id="docList">
+          <li>📄 Valid ID <button onclick="openModal('docs/juan_id.pdf')">View</button></li>
+          <li>📄 Police Clearance <button onclick="openModal('docs/clearance.png')">View</button></li>
+          <li>📄 Barangay Clearance <button onclick="openModal('docs/brgy_clearance.pdf')">View</button></li>
+          <li>📄 TESDA Certificate <button onclick="openModal('docs/tesda_cert.pdf')">View</button></li>
+          <li>📄 NBI Clearance <button onclick="openModal('docs/nbi_clearance.pdf')">View</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="docModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div class="watermark" id="dynamicWatermark"></div>
+      <embed id="docViewer" src="" type="application/pdf">
+    </div>
+  </div>
+
+  <!-- Original verification/progress + modal + protections -->
+  <script>
+    function recomputeVerificationProgress() {
+      const docListCount = document.querySelectorAll('#docList li').length;
+      const verifiedBadge = document.getElementById('verifiedBadge');
+      const progressFill = document.getElementById('progressFill');
+
+      const completion = Math.min((docListCount / 5) * 100, 100);
+      progressFill.style.width = completion + '%';
+      progressFill.textContent = Math.floor(completion) + '%';
+
+      if (docListCount >= 5) {
+        verifiedBadge.textContent = '✔ Verified';
+        verifiedBadge.style.background = '#28a745';
+      } else {
+        verifiedBadge.textContent = 'Pending Verification';
+        verifiedBadge.style.background = '#dc3545';
+      }
+    }
+    recomputeVerificationProgress();
+
+    function openModal(file) {
+      document.getElementById("docModal").style.display = "block";
+      document.getElementById("docViewer").src = file;
+      const name = document.getElementById("workerName").textContent || "Beehire Worker";
+      const email = document.getElementById("emailTxt").textContent || "";
+      document.getElementById("dynamicWatermark").textContent =
+        name + " | " + email + " — Beehire Verified Document";
+    }
+    function closeModal() {
+      document.getElementById("docModal").style.display = "none";
+      document.getElementById("docViewer").src = "";
+    }
+
+    // Light content protection
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.addEventListener('keyup', function(e) {
+      if (e.key === "PrintScreen") {
+        alert("Screenshots are disabled for security reasons.");
+        navigator.clipboard.writeText("");
+      }
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'p') {
+        e.preventDefault();
+        alert("Printing is disabled for security reasons.");
+      }
+    });
+
+    // Pro contact actions
+    document.getElementById('callBtn').onclick = () => {
+      const phone = document.getElementById('phoneTxt').textContent.trim();
+      if (phone) window.location.href = `tel:${phone}`;
+      else alert("No phone number available.");
+    };
+    document.getElementById('msgBtn').onclick = () => {
+      const name = document.getElementById('workerName').textContent.trim();
+      window.location.href = `chat.html?name=${encodeURIComponent(name)}`;
+    };
+  </script>
+
+  <!-- Firebase: fetch all details from workers -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+      authDomain: "myapp-96865.firebaseapp.com",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.appspot.com",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const $ = (id)=>document.getElementById(id);
+    const toHttps = (u)=>!u ? "" : (u.startsWith("http://") ? u.replace("http://","https://") : u);
+    const money = (v)=>!v ? "" : (/^\d+(\.\d+)?$/.test(v) ? `₱${v} per hour` : v);
+    const urlUid = new URLSearchParams(location.search).get("uid");
+
+    async function loadDocs(uid, data){
+      const list = $("docList");
+      // Keep existing static docs; append Firebase items if any
+      let docs = [];
+      if (Array.isArray(data?.documents)) {
+        docs = data.documents.filter(d=>d && d.url);
+      } else {
+        const sub = await getDocs(collection(doc(db, "workers", uid), "documents"));
+        docs = sub.docs.map(d=>d.data()).filter(d=>d && d.url);
+      }
+      const existing = new Set([...list.querySelectorAll('li')].map(li=>li.textContent.trim()));
+      docs.forEach(d=>{
+        const label = `📄 ${d.name || "Document"}`;
+        if ([...existing].some(t=>t.includes(d.name || "Document"))) return;
+        const li = document.createElement("li");
+        li.innerHTML = `${label} <button>View</button>`;
+        li.querySelector("button").onclick = ()=> openModal(toHttps(d.url));
+        list.appendChild(li);
+      });
+      if (window.recomputeVerificationProgress) recomputeVerificationProgress();
+    }
+
+    async function loadProfile(uid){
+      const ref = doc(db, "workers", uid);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return;
+
+      const d = snap.data();
+
+      // Name/category/location
+      $("workerName").textContent = d.fullName || d.name || d.username || $("workerName").textContent;
+      $("skillCategory").textContent = d.skillCategory || $("skillCategory").textContent;
+      $("locationText").textContent = d.location || $("locationText").textContent;
+      $("locationPI").textContent = d.location || $("locationPI").textContent;
+
+      // Photo: use Firebase, else keep neutral placeholder
+      const img = toHttps(d.profileImageUrl || d.photoUrl);
+      $("profilePhoto").src = img || "images/profile_placeholder.png";
+
+      // Personal
+      if (typeof d.age === "number") $("ageTxt").textContent = d.age;
+      if (d.gender) $("genderTxt").textContent = d.gender;
+      if (d.status) $("statusTxt").textContent = d.status;
+      if (d.email) $("emailTxt").textContent = d.email;
+      if (d.phone) $("phoneTxt").textContent = d.phone;
+
+      // About
+      if (d.bio) $("bioTxt").textContent = d.bio;
+
+      // Skills
+      if (Array.isArray(d.skills) && d.skills.length){
+        const wrap = $("skillsWrap");
+        wrap.innerHTML = "";
+        d.skills.forEach(s=>{
+          const span = document.createElement("span");
+          span.className = "skill-badge";
+          span.textContent = s;
+          wrap.appendChild(span);
+        });
+      }
+
+      // Service
+      if (d.pricing) $("rateTxt").textContent = money(d.pricing);
+      if (d.availability) $("availTxt").textContent = d.availability;
+
+      // Verified flag (also recalculated by docs progress)
+      if (d.verified === true) {
+        $("verifiedBadge").textContent = "✔ Verified";
+        $("verifiedBadge").style.background = "#28a745";
+      }
+
+      // Docs
+      await loadDocs(uid, d);
+    }
+
+    onAuthStateChanged(auth, async (user)=>{
+      const targetUid = urlUid || (user && user.uid);
+      if (targetUid) {
+        await loadProfile(targetUid);
+      }
+    });
+  </script>
+</body>
+</html>

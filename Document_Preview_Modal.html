@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beehire - Worker Profile</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #FFD700;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    header h1 { margin: 0; color: #222; }
+    .profile-wrapper {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 30px;
+    }
+    .sidebar {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .sidebar img {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 5px solid #FFD700;
+      object-fit: cover;
+    }
+    .verified-badge {
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    .progress-bar {
+      margin-top: 20px;
+      background: #e6e6e6;
+      border-radius: 20px;
+      height: 20px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #FFD700;
+      width: 0;
+      line-height: 20px;
+      text-align: center;
+      font-size: 0.8em;
+      font-weight: bold;
+      color: #222;
+    }
+    .contact-buttons {
+      margin-top: 20px;
+    }
+    .contact-buttons button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1em;
+    }
+    .call-btn { background: #28a745; color: white; }
+    .msg-btn { background: #007bff; color: white; }
+    .call-btn:hover { background: #218838; }
+    .msg-btn:hover { background: #0069d9; }
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    .card h3 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 2px solid #FFD700;
+      padding-bottom: 8px;
+    }
+    .skill-badge {
+      display: inline-block;
+      background: #FFD700;
+      color: #222;
+      padding: 6px 12px;
+      border-radius: 20px;
+      margin: 5px;
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+    .document-list li {
+      background: #f9f9f9;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .document-list button {
+      background: #FFD700;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: bold;
+      color: #222;
+    }
+    .document-list button:hover {
+      background: #e6c200;
+    }
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.8);
+    }
+    .modal-content {
+      margin: 40px auto;
+      width: 80%;
+      max-width: 700px;
+      height: 80%;
+      background: white;
+      border-radius: 10px;
+      overflow-y: auto;
+      position: relative;
+    }
+    .modal-content embed {
+      width: 100%;
+      height: 100%;
+    }
+    .close {
+      position: absolute;
+      top: 10px; right: 20px;
+      color: black;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover { color: red; }
+    /* Floating Watermark */
+    .watermark {
+      position: absolute;
+      top: 40%;
+      left: 20%;
+      transform: rotate(-30deg);
+      font-size: 32px;
+      color: rgba(200, 200, 200, 0.4);
+      font-weight: bold;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🐝 Beehire</h1>
+  </header>
+
+  <div class="profile-wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Profile Photo">
+      <h2>Juan Dela Cruz</h2>
+      <p>Electrician • Iloilo City</p>
+      <span class="verified-badge" id="verifiedBadge">Pending Verification</span>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill">0%</div>
+      </div>
+      <div class="contact-buttons">
+        <button class="call-btn">📞 Call</button>
+        <button class="msg-btn">💬 Message</button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="card">
+        <h3>Uploaded Documents</h3>
+        <ul class="document-list" id="docList">
+          <li>📄 Valid ID <button onclick="openModal('docs/juan_id.pdf')">View</button></li>
+          <li>📄 Police Clearance <button onclick="openModal('docs/clearance.png')">View</button></li>
+          <li>📄 Barangay Clearance <button onclick="openModal('docs/brgy_clearance.pdf')">View</button></li>
+          <li>📄 TESDA Certificate <button onclick="openModal('docs/tesda_cert.pdf')">View</button></li>
+          <li>📄 NBI Clearance <button onclick="openModal('docs/nbi_clearance.pdf')">View</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="docModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div class="watermark">Beehire Verified Document — For Hiring Use Only</div>
+      <embed id="docViewer" src="" type="application/pdf">
+    </div>
+  </div>
+
+  <script>
+    const docList = document.querySelectorAll('#docList li').length;
+    const verifiedBadge = document.getElementById('verifiedBadge');
+    const progressFill = document.getElementById('progressFill');
+
+    // 5 docs required
+    const completion = Math.min((docList / 5) * 100, 100);
+    progressFill.style.width = completion + '%';
+    progressFill.textContent = Math.floor(completion) + '%';
+
+    if (docList >= 5) {
+      verifiedBadge.textContent = '✔ Verified';
+      verifiedBadge.style.background = '#28a745';
+    } else {
+      verifiedBadge.textContent = 'Pending Verification';
+      verifiedBadge.style.background = '#dc3545';
+    }
+
+    function openModal(file) {
+      document.getElementById("docModal").style.display = "block";
+      document.getElementById("docViewer").src = file;
+    }
+    function closeModal() {
+      document.getElementById("docModal").style.display = "none";
+      document.getElementById("docViewer").src = "";
+    }
+  </script>
+</body>
+</html>

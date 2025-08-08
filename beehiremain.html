@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Beehire - Hire Skilled Workers Anytime</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #fdfdfd; color: #333; }
+    header { background: #FFD700; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .logo { font-size: 1.8em; font-weight: bold; color: #222; display: flex; align-items: center; }
+    .logo span { margin-left: 8px; }
+    .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .user-profile img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
+    nav { background: black; padding: 12px; text-align: center; }
+    nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; font-size: 1.1em; }
+    nav a:hover { color: #FFD700; }
+    .hero { background: linear-gradient(rgba(255,215,0,0.8), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1500&q=80'); background-size: cover; background-position: center; text-align: center; color: white; padding: 80px 20px; }
+    .hero h1 { font-size: 2.8em; margin-bottom: 15px; }
+    .hero p { font-size: 1.3em; margin-bottom: 25px; }
+    .hero-buttons { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+    .hero-buttons button { background: #222; color: white; padding: 15px 25px; font-size: 1.1em; border: none; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+    .hero-buttons button:hover { background: #FFD700; color: #222; }
+
+    section { padding: 40px 20px; max-width: 1200px; margin: auto; }
+    section h2 { color: #333; border-bottom: 2px solid #FFD700; padding-bottom: 10px; }
+
+    /* Uniform Popular Services buttons */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .service-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100px; /* uniform height */
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      border: 1px solid #eaeaea;
+      font-weight: 700;
+      font-size: 1em;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+      text-align: center;
+      user-select: none;
+    }
+    .service-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); border-color: #ffd84d; }
+    .service-btn.active { outline: 3px solid #FFD700; }
+
+    /* Custom search below services */
+    .service-search {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .service-search input {
+      flex: 1 1 320px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    .service-search .clear-btn {
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .service-search .clear-btn:hover { border-color: #bbb; }
+
+    #map { height: 450px; width: 100%; margin: 20px 0; border-radius: 15px; }
+    .ads { background: #fffbe6; padding: 40px 20px; text-align: center; border-radius: 15px; margin: 30px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .ads h3 { margin-bottom: 15px; }
+    .ads p { font-size: 1.1em; }
+    footer { background: #222; color: white; text-align: center; padding: 20px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo">🐝<span>Beehire</span></div>
+    <div class="user-profile" id="profileBtn" title="View Profile">
+      <img id="userPhoto" src="https://via.placeholder.com/45" alt="User Profile">
+      <span id="userName">Hi!</span>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="#">Home</a>
+    <a href="#services">Services</a>
+    <a href="#map">Map</a>
+    <a href="#ads">For You</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Find or Offer Skilled Work Instantly</h1>
+    <p>Whether you need help or want to earn, Beehire connects workers and hirers in one trusted platform.</p>
+    <div class="hero-buttons">
+      <button id="hireBtn">I Want to Hire</button>
+      <button id="workBtn">I Want to Work</button>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services">
+    <h2>Popular Services</h2>
+    <div class="services-grid" id="servicesGrid">
+      <div class="service-btn" data-cat="Electrician">🔌<br>Electricians</div>
+      <div class="service-btn" data-cat="Plumber">🚰<br>Plumbers</div>
+      <div class="service-btn" data-cat="Tutor">📚<br>Tutors</div>
+      <div class="service-btn" data-cat="Mechanic">🔧<br>Mechanics</div>
+      <div class="service-btn" data-cat="Virtual Services">💻<br>Virtual Services</div>
+      <div class="service-btn" data-cat="Legal Consultation">⚖️<br>Legal Consultations</div>
+      <div class="service-btn" data-cat="Cleaner">🧹<br>Cleaners</div>
+      <div class="service-btn" data-cat="Laborer">🧱<br>Laborers</div>
+      <div class="service-btn" data-cat="Driver">🚗<br>Drivers</div>
+      <div class="service-btn" data-cat="Carpenter">👷‍♂️<br>Carpenters</div>
+      <div class="service-btn" data-cat="Painter">🎨<br>Painters</div>
+      <div class="service-btn" data-cat="Cook">🍳<br>Cooks</div>
+    </div>
+
+    <!-- Search box (custom worker search) -->
+    <div class="service-search">
+      <input id="workerSearch" type="text" placeholder="Search workers by name, skill, or location…" />
+      <button class="clear-btn" id="clearFilters">Clear</button>
+    </div>
+  </section>
+
+  <!-- Map Section -->
+  <section>
+    <h2>Find Skilled Workers Near You</h2>
+    <div id="map"></div>
+  </section>
+
+  <!-- Ads -->
+  <section class="ads" id="ads">
+    <h3>Why Choose Beehire?</h3>
+    <p>✔ Verified Profiles with Secure Documents<br>
+       ✔ Instant Booking & Transparent Pricing<br>
+       ✔ Workers Can Promote Their Skills Professionally<br>
+       ✔ Hirers Find Trusted Help Without Worry of Scams</p>
+    <button id="getStartedBtn">Get Started Today</button>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <h2>Contact Us</h2>
+    <p>Email: bee.hire@acsjz.com</p>
+    <p>Phone: +966 (0)50-563-6243</p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Beehire. All rights reserved.</p>
+  </footer>
+
+  <!-- Leaflet -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Firebase + App Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+      authDomain: "myapp-96865.firebaseapp.com",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.appspot.com",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const userPhotoEl = document.getElementById('userPhoto');
+    const userNameEl = document.getElementById('userName');
+    const servicesGrid = document.getElementById('servicesGrid');
+    const workerSearch = document.getElementById('workerSearch');
+    const clearFilters = document.getElementById('clearFilters');
+
+    function toHttps(url) {
+      if (!url) return "";
+      return url.startsWith("http://") ? url.replace("http://", "https://") : url;
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        userNameEl.textContent = "Hi!";
+        userPhotoEl.src = "https://via.placeholder.com/45";
+        return;
+      }
+      try {
+        const ref = doc(db, "workers", user.uid);
+        const snap = await getDoc(ref);
+        let displayName = user.displayName || "Hi!";
+        let photo = user.photoURL || "";
+
+        if (snap.exists()) {
+          const data = snap.data();
+          displayName = data.fullName || data.name || displayName || "Hi!";
+          photo = data.profileImageUrl || data.photoUrl || photo || "";
+        }
+
+        const safePhoto = toHttps(photo) || "https://via.placeholder.com/45";
+        userNameEl.textContent = displayName || "Hi!";
+        userPhotoEl.src = safePhoto;
+      } catch (e) {
+        console.error("Header profile load error:", e);
+      }
+    });
+
+    // ---- Buttons binding ----
+    document.getElementById('hireBtn').addEventListener('click', () => {
+      window.location.href = "hirer-dashboard.html";
+    });
+    document.getElementById('workBtn').addEventListener('click', () => {
+      window.location.href = "profile-view.html";
+    });
+    document.getElementById('getStartedBtn').addEventListener('click', () => {
+      window.location.href = "login.html";
+    });
+    document.getElementById('profileBtn').addEventListener('click', () => {
+      window.location.href = "profile-view.html";
+    });
+
+    // ---- Leaflet Map ----
+    const map = L.map('map').setView([10.7202, 122.5621], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+
+    const markerLayer = L.layerGroup().addTo(map);
+    let ALL_WORKERS = [];
+
+    // Normalize skill to match service buttons
+    function normalizeSkill(val) {
+      if (!val) return "";
+      const s = String(val).toLowerCase();
+      if (s.includes("electric")) return "Electrician";
+      if (s.includes("plumb")) return "Plumber";
+      if (s.includes("tutor") || s.includes("teach")) return "Tutor";
+      if (s.includes("mechanic")) return "Mechanic";
+      if (s.includes("virtual")) return "Virtual Services";
+      if (s.includes("legal") || s.includes("law")) return "Legal Consultation";
+      if (s.includes("clean")) return "Cleaner";
+      if (s.includes("labor")) return "Laborer";
+      if (s.includes("driver")) return "Driver";
+      if (s.includes("carpent")) return "Carpenter";
+      if (s.includes("paint")) return "Painter";
+      if (s.includes("cook") || s.includes("chef")) return "Cook";
+      return val; // fallback
+    }
+
+    function renderMarkers({ category = null, search = "" } = {}) {
+      markerLayer.clearLayers();
+      const term = search.trim().toLowerCase();
+
+      const filtered = ALL_WORKERS.filter(w => {
+        if (category && normalizeSkill(w.skill) !== category) return false;
+        if (term) {
+          const blob = `${w.name} ${w.skill} ${w.location}`.toLowerCase();
+          if (!blob.includes(term)) return false;
+        }
+        return true;
+      });
+
+      filtered.forEach(w => {
+        const popupContent = `
+          <div style="text-align:center">
+            <img src="${w.photo}" style="width:80px;height:80px;border-radius:50%;border:2px solid #FFD700;margin-bottom:10px;object-fit:cover;">
+            <br><strong>${w.name}</strong><br>
+            ${w.skill}${w.availability ? " - " + w.availability : ""}
+          </div>
+        `;
+        L.marker([w.lat, w.lng]).addTo(markerLayer).bindPopup(popupContent);
+      });
+
+      if (filtered.length) {
+        try {
+          const group = L.featureGroup(markerLayer.getLayers());
+          map.fitBounds(group.getBounds().pad(0.25));
+        } catch (e) {}
+      }
+    }
+
+    // Load workers
+    (async function loadWorkers() {
+      try {
+        const workerRef = collection(db, "workers");
+        const snapshot = await getDocs(workerRef);
+
+        ALL_WORKERS = snapshot.docs.map(d => {
+          const data = d.data();
+          const lat = data.latitude ?? data.lat;
+          const lng = data.longitude ?? data.lng;
+          if (typeof lat !== "number" || typeof lng !== "number") return null;
+
+          const imgUrl = data.profileImageUrl || data.photoUrl || "https://via.placeholder.com/100";
+          const photo = toHttps(imgUrl) || "https://via.placeholder.com/100";
+          const name = data.fullName || data.name || "Worker";
+          const skill = data.skillCategory || (Array.isArray(data.skills) && data.skills.length ? data.skills[0] : "Skill");
+          const availability = data.availability || "";
+          const location = data.location || "";
+
+          return { uid: d.id, lat, lng, name, photo, skill, availability, location };
+        }).filter(Boolean);
+
+        renderMarkers({});
+      } catch (err) {
+        console.error("Map load error:", err);
+      }
+    })();
+
+    // Popular services click → filter map
+    let activeCategory = null;
+
+    servicesGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.service-btn');
+      if (!btn) return;
+
+      if (btn.classList.contains('active')) {
+        btn.classList.remove('active');
+        activeCategory = null;
+      } else {
+        servicesGrid.querySelectorAll('.service-btn.active').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeCategory = btn.dataset.cat;
+      }
+
+      renderMarkers({ category: activeCategory, search: workerSearch.value });
+    });
+
+    // Search (debounced)
+    let t = null;
+    workerSearch.addEventListener('input', () => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        renderMarkers({ category: activeCategory, search: workerSearch.value });
+      }, 250);
+    });
+
+    // Clear filters
+    clearFilters.addEventListener('click', () => {
+      workerSearch.value = "";
+      activeCategory = null;
+      servicesGrid.querySelectorAll('.service-btn.active').forEach(b => b.classList.remove('active'));
+      renderMarkers({});
+    });
+  </script>
+</body>
+</html>

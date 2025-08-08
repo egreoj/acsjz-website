@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Beehire Registration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff8dc;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #FFD700;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    header h1 { margin: 0; color: #222; }
+    .container {
+      max-width: 500px;
+      background: white;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    }
+    h2 { text-align: center; color: #333; }
+    form { display: flex; flex-direction: column; }
+    label { margin: 10px 0 5px; font-weight: bold; }
+    input, select {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+    button {
+      margin-top: 20px;
+      background: #FFD700;
+      color: #222;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover { background: #e6c200; }
+    .social-login {
+      text-align: center;
+      margin: 25px 0 10px;
+    }
+    .google-btn, .fb-btn {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 1em;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .google-btn {
+      background: white;
+      color: #444;
+      border: 2px solid #ccc;
+    }
+    .google-btn:hover { background: #f1f1f1; }
+    .fb-btn {
+      background: #1877f2;
+      color: white;
+    }
+    .fb-btn:hover { background: #145dbf; }
+    .login-link { text-align: center; margin-top: 15px; }
+    #otherSkill { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🐝 Beehire</h1>
+  </header>
+
+  <div class="container">
+    <h2>Create Your Account</h2>
+    <form id="registerForm">
+      <label for="fullname">Full Name</label>
+      <input type="text" id="fullname" required />
+
+      <label for="email">Email Address</label>
+      <input type="email" id="email" required />
+
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" required />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" required />
+
+      <label for="skill">Skill Category</label>
+      <select id="skill" required>
+        <option value="">-- Select Skill --</option>
+        <option value="Electrician">Electrician</option>
+        <option value="Plumber">Plumber</option>
+        <option value="Tutor">Tutor</option>
+        <option value="Mechanic">Mechanic</option>
+        <option value="Virtual">Virtual Services</option>
+        <option value="Legal">Legal Consultation</option>
+        <option value="Others">Others</option>
+      </select>
+
+      <input type="text" id="otherSkill" placeholder="Enter your skill" />
+
+      <button type="submit">Register</button>
+    </form>
+
+    <div class="social-login">
+      <p>or register with</p>
+      <button class="google-btn">Continue with Google</button>
+      <button class="fb-btn">Continue with Facebook</button>
+    </div>
+
+    <div class="login-link">
+      Already have an account? <a href="login.html">Login</a>
+    </div>
+  </div>
+
+  <script>
+    const skillSelect = document.getElementById('skill');
+    const otherInput = document.getElementById('otherSkill');
+
+    skillSelect.addEventListener('change', function () {
+      if (this.value === 'Others') {
+        otherInput.style.display = 'block';
+        otherInput.required = true;
+      } else {
+        otherInput.style.display = 'none';
+        otherInput.required = false;
+      }
+    });
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+      authDomain: "myapp-96865.firebaseapp.com",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.appspot.com",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("registerForm");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const fullName = document.getElementById("fullname").value.trim();
+      const email = document.getElementById("email").value.toLowerCase();
+      const phone = document.getElementById("phone").value.trim();
+      const password = document.getElementById("password").value;
+      const skill = document.getElementById("skill").value;
+      const otherSkill = document.getElementById("otherSkill").value.trim();
+      const finalSkill = (skill === "Others") ? otherSkill : skill;
+
+      try {
+        // Check if already registered in Firestore
+        const q = query(collection(db, "workers"), where("email", "==", email));
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          alert("Email already exists in workers collection. Please login.");
+          return;
+        }
+
+        // Create Firebase Auth user
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+
+        const workerData = {
+          uid,
+          fullName,
+          email,
+          phone,
+          skill: finalSkill,
+          createdAt: Date.now()
+        };
+
+        await setDoc(doc(db, "workers", uid), workerData);
+
+        alert("Registration successful!");
+        // window.location.href = "dashboard.html"; // optional
+      } catch (error) {
+        alert("Error: " + error.message);
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
