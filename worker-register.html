@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Beehire — Registration</title>
+
+  <!-- Corporate font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --ink:#0E2A32; --muted:#6B7B84; --bg:#F7F9FB; --card:#fff;
+      --brand:#FFC107; --line:#E6EDF2; --focus:#2C7BE5;
+    }
+    *{box-sizing:border-box}
+    body{font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);margin:0;color:var(--ink);}
+    header{background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(14,42,50,.04);position:sticky;top:0;z-index:10}
+    .nav{max-width:1100px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:center;gap:12px}
+    .nav img{width:40px;height:40px;object-fit:contain}
+    .nav h1{margin:0;font-size:1.05rem;font-weight:800;letter-spacing:.2px}
+    .container{max-width:520px;background:var(--card);margin:32px auto;padding:26px;border-radius:18px;border:1px solid var(--line);box-shadow:0 14px 30px rgba(14,42,50,.08)}
+    h2{text-align:center;margin:0 0 10px}
+    form{display:flex;flex-direction:column;gap:12px}
+    label{font-weight:800;font-size:.95rem;margin-bottom:4px}
+    input,select{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:1rem;color:var(--ink);transition:border-color .15s, box-shadow .15s}
+    input:focus,select:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(44,123,229,.15)}
+    .hint{font-size:.85rem;color:var(--muted)}
+    button{margin-top:6px;background:var(--brand);color:#111;padding:12px 16px;border:none;border-radius:12px;font-size:1rem;font-weight:800;cursor:pointer;
+      box-shadow:0 8px 20px rgba(255,193,7,.28);transition:filter .15s,transform .06s, box-shadow .15s}
+    button:hover{filter:brightness(.98);box-shadow:0 12px 26px rgba(255,193,7,.38)}
+    button:active{transform:translateY(1px)}
+    .loading{opacity:.65;pointer-events:none}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .social-login{margin:18px 0 6px;text-align:center}
+    .oauth{display:flex;flex-direction:column;gap:10px}
+    .oauth button{background:#fff;border:1px solid var(--line);box-shadow:none;color:#0E2A32}
+    .oauth .fb{background:#1877f2;color:#fff;border-color:#1877f2}
+    .login-link{text-align:center;margin-top:14px}
+    #otherSkill{display:none}
+    .error{background:#FEF2F2;border:1px solid #FECACA;color:#991b1b;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:none}
+    .ok{background:#ECFEFF;border:1px solid #A5F3FC;color:#075985;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:none}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <img src="BeeHire Logo.png" alt="Beehire logo">
+      <h1>Beehire CONNECT — Create Your Account</h1>
+    </div>
+  </header>
+
+  <div class="container">
+    <h2>Join Beehire</h2>
+    <p class="hint" style="text-align:center;margin-bottom:14px">Create a worker account. You can verify later to boost trust.</p>
+
+    <div id="err" class="error"></div>
+    <div id="ok" class="ok"></div>
+
+    <form id="registerForm" novalidate>
+      <div>
+        <label for="fullname">Full Name</label>
+        <input type="text" id="fullname" autocomplete="name" required />
+      </div>
+
+      <div class="row">
+        <div style="flex:1 1 240px">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" autocomplete="email" required />
+        </div>
+        <div style="flex:1 1 240px">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" placeholder="+63 9xx xxx xxxx" autocomplete="tel" required />
+        </div>
+      </div>
+
+      <div>
+        <label for="password">Password</label>
+        <input type="password" id="password" minlength="6" autocomplete="new-password" required />
+        <div class="hint">6+ characters</div>
+      </div>
+
+      <div>
+        <label for="skill">Skill Category</label>
+        <select id="skill" required>
+          <option value="">-- Select Skill --</option>
+          <option>Electrician</option><option>Plumber</option><option>Tutor</option>
+          <option>Mechanic</option><option>Virtual Assistant</option>
+          <option>Cook</option><option>Carpenter</option><option>Driver</option>
+          <option>Cleaner</option><option>Painter</option><option>IT Support</option>
+          <option value="Others">Others</option>
+        </select>
+      </div>
+
+      <input type="text" id="otherSkill" placeholder="Enter your skill" />
+
+      <button type="submit" id="submitBtn">Register</button>
+    </form>
+
+    <div class="social-login">
+      <p class="hint">or register with</p>
+      <div class="oauth">
+        <button id="googleBtn">Continue with Google</button>
+        <button class="fb" id="fbBtn">Continue with Facebook</button>
+      </div>
+    </div>
+
+    <div class="login-link">
+      Already have an account? <a href="login.html">Login</a>
+    </div>
+  </div>
+
+  <script>
+    const skillSelect = document.getElementById('skill');
+    const otherInput = document.getElementById('otherSkill');
+    const err = document.getElementById('err');
+    const ok = document.getElementById('ok');
+    const phone = document.getElementById('phone');
+
+    const PH_PHONE = /^(?:\+?63|0)?9\d{9}$/; // simple PH mobile check
+
+    function showErr(msg){ err.textContent = msg; err.style.display='block'; ok.style.display='none'; }
+    function showOk(msg){ ok.textContent = msg; ok.style.display='block'; err.style.display='none'; }
+    function clearAlerts(){ err.style.display='none'; ok.style.display='none'; }
+
+    skillSelect.addEventListener('change', function () {
+      const isOther = this.value === 'Others';
+      otherInput.style.display = isOther ? 'block' : 'none';
+      otherInput.required = isOther;
+    });
+
+    phone.addEventListener('blur', ()=>{
+      const v = phone.value.trim();
+      if (v && !PH_PHONE.test(v.replace(/\s+/g,''))) showErr('Please enter a valid PH mobile number.');
+      else clearAlerts();
+    });
+  </script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import {
+      getAuth, createUserWithEmailAndPassword, updateProfile,
+      GoogleAuthProvider, FacebookAuthProvider, signInWithPopup
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import {
+      getFirestore, collection, query, where, getDocs, doc, setDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+        authDomain: "myapp-96865.firebaseapp.com",
+        databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "myapp-96865",
+        // If Storage misbehaves, try: "myapp-96865.appspot.com"
+        storageBucket: "myapp-96865.firebasestorage.app",
+        messagingSenderId: "217431866794",
+        appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+        measurementId: "G-1T4M9PE1GD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const providers = {
+      google: new GoogleAuthProvider(),
+      facebook: new FacebookAuthProvider()
+    };
+
+    const $ = (id)=>document.getElementById(id);
+    const form = $("registerForm");
+    const submitBtn = $("submitBtn");
+
+    function toHttps(u){ return !u ? "" : (u.startsWith("http://") ? u.replace("http://","https://") : u); }
+    function setLoading(on){ const c=document.querySelector('.container'); c.classList.toggle('loading', !!on); submitBtn.disabled=!!on; }
+
+    async function emailExists(email){
+      const q = query(collection(db,"workers"), where("email","==", email));
+      const s = await getDocs(q);
+      return !s.empty;
+    }
+
+    function finalSkillValue(){
+      const sel = $("skill").value;
+      const other = $("otherSkill").value.trim();
+      return sel === "Others" ? other : sel;
+    }
+
+    function validateBasics(){
+      const fullName = $("fullname").value.trim();
+      const email = $("email").value.trim().toLowerCase();
+      const phone = $("phone").value.trim().replace(/\s+/g,'');
+      const pass = $("password").value;
+      const fskill = finalSkillValue();
+
+      if (!fullName || !email || !phone || !pass || !fskill) return "Please complete all required fields.";
+      if (pass.length < 6) return "Password must be at least 6 characters.";
+      const PH_PHONE = /^(?:\+?63|0)?9\d{9}$/;
+      if (!PH_PHONE.test(phone)) return "Please enter a valid PH mobile number.";
+      return null;
+    }
+
+    async function saveWorker(uid, data){
+      const payload = {
+        uid,
+        role: "worker",
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        skillCategory: data.skillCategory,   // keep consistent with other pages
+        skills: data.skillCategory ? [data.skillCategory] : [],
+        createdAt: serverTimestamp(),
+        lastLogin: serverTimestamp(),
+        verificationStatus: "unverified",
+        online: true
+      };
+      await setDoc(doc(db,"workers",uid), payload, { merge:true });
+    }
+
+    async function handleEmailSignup(e){
+      e.preventDefault();
+      clearAlerts();
+      const errMsg = validateBasics();
+      if (errMsg){ showErr(errMsg); return; }
+
+      const fullName = $("fullname").value.trim();
+      const email = $("email").value.trim().toLowerCase();
+      const phone = $("phone").value.trim();
+      const password = $("password").value;
+      const skillCategory = finalSkillValue();
+
+      try{
+        setLoading(true);
+
+        // Check Firestore duplicate BEFORE Auth creation
+        if (await emailExists(email)){
+          showErr("This email already exists. Please login instead.");
+          setLoading(false);
+          return;
+        }
+
+        // Create Auth
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: fullName });
+
+        await saveWorker(cred.user.uid, { fullName, email, phone, skillCategory });
+
+        showOk("Registration successful!");
+        // Redirect to dashboard/home
+        setTimeout(()=>{ window.location.href = "beehiremain.html"; }, 700);
+      }catch(error){
+        console.error(error);
+        showErr(error.message || "Registration failed. Please try again.");
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    async function handleOauth(providerName){
+      clearAlerts();
+      try{
+        setLoading(true);
+        const provider = providers[providerName];
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        const skillCategory = finalSkillValue(); // optional: may be empty
+        await saveWorker(user.uid, {
+          fullName: user.displayName || "",
+          email: (user.email || "").toLowerCase(),
+          phone: user.phoneNumber || "",
+          skillCategory
+        });
+
+        showOk("Registration successful!");
+        setTimeout(()=>{ window.location.href = "beehiremain.html"; }, 700);
+      }catch(error){
+        // If provider not enabled or blocked by popup
+        console.warn(error);
+        const readable = error?.customData?.email
+          ? `Sign-in failed for ${error.customData.email}. ${error.message || ''}`
+          : (error?.message || "Social sign-in is unavailable. Please use email & password.");
+        showErr(readable);
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    form.addEventListener("submit", handleEmailSignup);
+    $("googleBtn").addEventListener("click", ()=> handleOauth("google"));
+    $("fbBtn").addEventListener("click", ()=> handleOauth("facebook"));
+  </script>
+</body>
+</html>

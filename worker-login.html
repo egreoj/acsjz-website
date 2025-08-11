@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Beehire — Worker Login</title>
+
+  <!-- Corporate font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --ink:#0E2A32; --muted:#6B7B84; --bg:#F7F9FB; --card:#fff;
+      --brand:#FFC107; --line:#E6EDF2; --focus:#2C7BE5;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:linear-gradient(180deg,#fff 0%,#F8FBFF 60%,#F2F7FB 100%)}
+
+    header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 2px 12px rgba(0,0,0,.04)}
+    .nav{max-width:1100px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;gap:12px;justify-content:center}
+    .nav img{width:40px;height:40px;object-fit:contain}
+    .nav .title{font-weight:800;letter-spacing:.2px}
+
+    .wrap{max-width:520px;margin:38px auto;padding:0 18px}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 14px 30px rgba(14,42,50,.08)}
+    h2{margin:0 0 8px}
+    .sub{margin:0 0 16px;color:var(--muted)}
+
+    form{display:flex;flex-direction:column;gap:12px}
+    label{font-weight:800;font-size:.95rem}
+    .input{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;transition:border-color .15s, box-shadow .15s}
+    .input:focus-within{border-color:var(--focus);box-shadow:0 0 0 3px rgba(44,123,229,.15)}
+    .input input{border:0;outline:none;width:100%;font-size:1rem;background:transparent;color:var(--ink)}
+
+    .btn{margin-top:6px;background:var(--brand);color:#111;padding:12px 16px;border:0;border-radius:12px;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:0 8px 20px rgba(255,193,7,.28);transition:filter .15s,transform .06s,box-shadow .15s}
+    .btn:hover{filter:brightness(.98);box-shadow:0 12px 26px rgba(255,193,7,.38)}
+    .btn:active{transform:translateY(1px)}
+
+    .divider{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin:18px 0 10px;color:var(--muted);font-weight:700;letter-spacing:.15px}
+    .divider::before,.divider::after{content:"";height:1px;background:var(--line);display:block}
+
+    .oauth{display:flex;flex-direction:column;gap:10px}
+    .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:700;padding:12px 14px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .15s, box-shadow .15s, border-color .15s}
+    .btn-ghost:hover{background:#FAFCFF;border-color:#D8E3EE;box-shadow:0 6px 16px rgba(14,42,50,.06)}
+    .btn-fb{background:#1877F2;color:#fff;border-color:#1877F2}
+    .hint{font-size:.9rem;color:var(--muted)}
+    .register{text-align:center;margin-top:12px}
+    .register a{color:#0D6EFD;text-decoration:none;font-weight:700}
+    .register a:hover{text-decoration:underline}
+
+    .alert{display:none;border-radius:10px;padding:10px 12px;margin:8px 0;font-weight:600}
+    .alert.err{display:block;background:#FEF2F2;border:1px solid #FECACA;color:#991b1b}
+    .alert.ok{display:block;background:#ECFEFF;border:1px solid #A5F3FC;color:#075985}
+
+    .loading{opacity:.6;pointer-events:none}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <img src="BeeHire Logo.png" alt="Beehire logo">
+      <div class="title">Beehire CONNECT — Worker Login</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="panel" aria-labelledby="login-title">
+      <h2 id="login-title">Welcome back</h2>
+      <p class="sub">Sign in to manage your profile, documents, and bookings.</p>
+
+      <div id="msg" class="alert"></div>
+
+      <form id="loginForm" novalidate>
+        <label for="identifier">Username / Phone / Email</label>
+        <div class="input">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 1 0-5-5a5 5 0 0 0 5 5m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg>
+          <input type="text" id="identifier" placeholder="Enter username, phone or email" required>
+        </div>
+
+        <label for="password">Password</label>
+        <div class="input">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 17a2 2 0 0 1-2-2a2 2 0 1 1 2 2m6-6h-1V8a5 5 0 0 0-10 0v3H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2M8 8a4 4 0 0 1 8 0v3H8Z"/></svg>
+          <input type="password" id="password" placeholder="Enter password" required>
+        </div>
+
+        <button type="submit" id="loginBtn" class="btn">Sign in</button>
+        <div class="hint">Tip: Enter your <b>username</b> or <b>phone</b> and we’ll look up your email in workers.</div>
+      </form>
+
+      <div class="divider">or continue with</div>
+
+      <div class="oauth">
+        <button class="btn-ghost" id="googleBtn" aria-label="Continue with Google">
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42v-.1H24v7h11.3C33.9 31 29.4 34 24 34c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.3 0 6.3 1.2 8.6 3.3l5-5C34.7 3.1 29.6 1 24 1C11.8 1 2 10.8 2 23s9.8 22 22 22c12.1 0 21.7-8.8 21.7-22c0-1.4-.1-2.7-.3-4.5z"/><path fill="#FF3D00" d="M6.3 14.7l5.7 4.2C13.8 15.2 18.5 12 24 12c3.3 0 6.3 1.2 8.6 3.3l5-5C34.7 6.1 29.6 4 24 4C15 4 7.5 9.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 46c5.3 0 10.2-1.8 14-4.9l-6.5-5c-2 1.4-4.7 2.3-7.5 2.3c-5.4 0-9.9-3.6-11.5-8.5l-5.7 4.4C9 41.6 15.9 46 24 46z"/><path fill="#1976D2" d="M43.6 20.5H42v-.1H24v7h11.3c-1.3 3.2-4.6 5.6-8.3 5.6c-2.5 0-4.8-.9-6.6-2.5l-5.7 4.4C17.1 38.4 20.3 40 24 40c12.1 0 21.7-8.8 21.7-22c0-1.4-.1-2.7-.3-4.5z"/></svg>
+          Continue with Google
+        </button>
+        <button class="btn-ghost btn-fb" id="fbBtn" aria-label="Continue with Facebook">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.092 10.125 24v-8.437H7.078V12.07h3.047V9.413c0-3.007 1.793-4.668 4.533-4.668c1.312 0 2.686.235 2.686.235v2.953h-1.513c-1.492 0-1.956.929-1.956 1.882v2.255h3.328l-.532 3.492h-2.796V24C19.612 23.092 24 18.1 24 12.073"/></svg>
+          Continue with Facebook
+        </button>
+      </div>
+
+      <p class="register">Don’t have an account? <a href="worker-register.html">Register as Worker</a></p>
+    </section>
+  </main>
+
+  <!-- Firebase JS SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import {
+      getAuth, signInWithEmailAndPassword, onAuthStateChanged,
+      GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import {
+      getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+        authDomain: "myapp-96865.firebaseapp.com",
+        databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "myapp-96865",
+        // If Storage misbehaves, try: "myapp-96865.appspot.com"
+        storageBucket: "myapp-96865.firebasestorage.app",
+        messagingSenderId: "217431866794",
+        appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+        measurementId: "G-1T4M9PE1GD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const msg = document.getElementById("msg");
+    const form = document.getElementById("loginForm");
+    const googleBtn = document.getElementById("googleBtn");
+    const fbBtn = document.getElementById("fbBtn");
+
+    function show(type, text){
+      msg.className = "alert " + (type === "err" ? "err" : "ok");
+      msg.textContent = text;
+    }
+    function clearMsg(){ msg.className="alert"; msg.textContent=""; }
+    function setLoading(on){ document.querySelector('.panel').classList.toggle('loading', !!on); }
+
+    // Upsert worker doc
+    async function upsertWorkerProfile(user, source = "password") {
+      const ref = doc(db, "workers", user.uid);
+      const snap = await getDoc(ref);
+      const provider = (user.providerData && user.providerData[0]?.providerId) || source || "password";
+      const payload = {
+        uid: user.uid,
+        email: user.email || null,
+        fullName: user.displayName || null,
+        profileImageUrl: user.photoURL || null,
+        phone: user.phoneNumber || null,
+        provider,
+        role: "worker",
+        lastLogin: serverTimestamp()
+      };
+      if (!snap.exists()) {
+        payload.createdAt = serverTimestamp();
+        payload.verificationStatus = "unverified";
+      }
+      await setDoc(ref, payload, { merge: true });
+      return ref;
+    }
+
+    // Route
+    async function goToWorkerHome(user){
+      const ref = doc(db, "workers", user.uid);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) { window.location.href = "worker-register.html"; return; }
+      try { localStorage.setItem("workerProfile", JSON.stringify(snap.data())); } catch(_){}
+      window.location.href = "worker-profile.html";
+    }
+
+    // Resolve username/phone/email → email
+    async function resolveEmailFromWorkers(identifierRaw){
+      const workersRef = collection(db, "workers");
+      const id = identifierRaw.trim();
+      let s = await getDocs(query(workersRef, where("email","==", id.toLowerCase())));
+      if (!s.empty) return s.docs[0].data().email;
+      s = await getDocs(query(workersRef, where("username","==", id.toLowerCase())));
+      if (!s.empty) return s.docs[0].data().email;
+      s = await getDocs(query(workersRef, where("phone","==", id)));
+      if (!s.empty) return s.docs[0].data().email;
+      return null;
+    }
+
+    // Email/Password
+    form.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      clearMsg(); setLoading(true);
+      const identifier = document.getElementById("identifier").value.trim();
+      const password = document.getElementById("password").value;
+      try{
+        const email = identifier.includes("@") ? identifier.toLowerCase() : await resolveEmailFromWorkers(identifier);
+        if (!email){ show("err","Worker account not found. Please check your input or register first."); return; }
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        await upsertWorkerProfile(cred.user, "password");
+        await goToWorkerHome(cred.user);
+      }catch(err){
+        console.error(err);
+        show("err","Login failed: " + (err.message || err.code));
+      }finally{ setLoading(false); }
+    });
+
+    // OAuth helpers (popup → redirect fallback)
+    async function oauthFlow(provider){
+      clearMsg(); setLoading(true);
+      try{
+        const r = await signInWithPopup(auth, provider);
+        await upsertWorkerProfile(r.user, provider.providerId);
+        await goToWorkerHome(r.user);
+      }catch(err){
+        // unauthorized-domain / popup-blocked → try redirect
+        if (String(err?.code||"").includes("auth/unauthorized-domain")){
+          show("err","Unauthorized domain. See setup notes below.");
+        }else if (String(err?.code||"").includes("popup-blocked") || String(err?.message||"").toLowerCase().includes("popup")){
+          await signInWithRedirect(auth, provider);
+          return;
+        }else{
+          show("err",(err?.message) || "Social sign-in failed.");
+        }
+      }finally{ setLoading(false); }
+    }
+
+    // Handle redirect result (if any)
+    getRedirectResult(auth).then(async (res)=>{
+      if (res?.user){
+        await upsertWorkerProfile(res.user, res.providerId || res._tokenResponse?.providerId || "redirect");
+        await goToWorkerHome(res.user);
+      }
+    }).catch(e=>console.warn("redirect result", e));
+
+    googleBtn.addEventListener("click", ()=> oauthFlow(new GoogleAuthProvider()));
+    fbBtn.addEventListener("click", ()=> oauthFlow(new FacebookAuthProvider()));
+
+    // Auto-redirect if already signed in
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user) return;
+      setLoading(true);
+      try{
+        await upsertWorkerProfile(user, user.providerData?.[0]?.providerId || "session");
+        await goToWorkerHome(user);
+      }finally{ setLoading(false); }
+    });
+  </script>
+</body>
+</html>

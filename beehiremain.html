@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BeeHire CONNECT - Hire Skilled Workers Anytime</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- Corporate font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --ink:#1F2328;            /* charcoal/bee body */
+      --muted:#6F6354;          /* warm gray-brown */
+      --bg:#FFFDF6;             /* light honey cream */
+      --brand:#FFC12E;          /* honey gold primary */
+      --brand-ink:#3A2A09;      /* deep warm brown for accents */
+      --card:#ffffff;
+      --ring:#F3EAD2;           /* soft honey line */
+      --brand-ghost:#FFF6D8;    /* pale honey background */
+      --grad1:#1B1A17;          /* header/footer gradient */
+      --grad2:#4A3B1B;
+    }
+
+    /* Base */
+    *{box-sizing:border-box}
+    body{font-family:'Inter','Segoe UI',Arial,sans-serif;margin:0;background:var(--bg);color:var(--ink)}
+    a{color:inherit}
+
+    /* Shared container */
+    .container{max-width:1120px;margin:0 auto;padding:0 20px}
+
+    /* Header */
+    header{
+      background:var(--card);
+      position:sticky; top:0; z-index:50;
+      border-bottom:1px solid var(--ring);
+      backdrop-filter:saturate(1.05) blur(6px);
+    }
+    .header-inner{
+      height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{height:38px;width:auto;display:block}
+    .wordmark{line-height:1.05;display:flex;flex-direction:column}
+    .wordmark .title{font-weight:800;font-size:1.28rem;letter-spacing:.2px;color:var(--brand-ink)}
+    .wordmark .kicker{font-weight:700;font-size:.72rem;letter-spacing:.34em;color:var(--muted)}
+
+    /* Profile */
+    .user-profile{position:relative;display:flex;align-items:center;gap:10px;cursor:pointer}
+    .user-profile img{width:40px;height:40px;border-radius:50%;border:2px solid #fff;object-fit:cover;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+    .user-name{font-weight:600}
+    .menu{
+      position:absolute;right:0;top:54px;background:#fff;border:1px solid var(--ring);border-radius:14px;
+      box-shadow:0 18px 44px rgba(58,42,9,.12);min-width:260px;padding:8px;display:none
+    }
+    .menu.show{display:block}
+    .menu .group{padding:6px 8px;border-bottom:1px solid #f5efe1}
+    .menu .group:last-child{border-bottom:0}
+    .menu button,.menu a{
+      width:100%;text-align:left;padding:11px 12px;border:0;background:transparent;border-radius:10px;
+      font-size:.96em;cursor:pointer;display:block;color:#2A2520;text-decoration:none;font-weight:600
+    }
+    .menu button:hover,.menu a:hover{background:var(--brand-ghost)}
+    .menu .muted{color:#867a6b;font-size:.85em;padding:8px 12px 6px}
+    .user-profile.disabled{pointer-events:none;opacity:.55;cursor:not-allowed}
+
+    /* Navigation */
+    nav{
+      background:linear-gradient(90deg,var(--grad1) 0%,var(--grad2) 100%);
+      border-bottom:3px solid var(--brand)
+    }
+    .nav-inner{height:52px;display:flex;align-items:center;gap:24px;justify-content:center}
+    nav a{
+      color:#FFF7E0;text-decoration:none;font-weight:700;font-size:1rem;opacity:.95;position:relative;padding:4px 2px
+    }
+    nav a:after{
+      content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;background:transparent;transition:all .18s ease
+    }
+    nav a:hover{color:#fff}
+    nav a:hover:after{background:var(--brand);transform:translateY(-2px)}
+
+    /* Hero (with subtle hex pattern) */
+    .hero{
+      position:relative; isolation:isolate;
+      background:
+        linear-gradient(180deg, rgba(58,42,9,.86) 0%, rgba(27,26,23,.82) 50%, rgba(27,26,23,.78) 100%),
+        url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=2000&q=80') center/cover no-repeat;
+      color:#FFF7E0;border-bottom:1px solid var(--ring);
+      overflow:hidden;
+    }
+    /* Honeycomb overlay (very soft) */
+    .hero::after{
+      content:""; position:absolute; inset:0; z-index:0; opacity:.06; pointer-events:none;
+      background-image:url("data:image/svg+xml;utf8,\
+      <svg xmlns='http://www.w3.org/2000/svg' width='160' height='140' viewBox='0 0 160 140'>\
+        <defs>\
+          <pattern id='hex' width='20' height='34.64' patternUnits='userSpaceOnUse' patternTransform='scale(2)'>\
+            <g stroke='%23FFC12E' stroke-width='1' fill='none' stroke-linecap='round' stroke-linejoin='round'>\
+              <polygon points='10,0 20,5.77 20,17.32 10,23.09 0,17.32 0,5.77'/>\
+              <polygon points='10,17.32 20,23.09 20,34.64 10,40.41 0,34.64 0,23.09' transform='translate(10,0)'/>\
+            </g>\
+          </pattern>\
+        </defs>\
+        <rect width='100%' height='100%' fill='url(%23hex)'/>\
+      </svg>");
+      background-size: auto;
+      background-position:center;
+    }
+    .hero-inner{
+      position:relative; z-index:1;
+      padding: 90px 20px 100px; max-width: 920px; margin: 0 auto; text-align:center
+    }
+    .hero h1{font-size:clamp(2rem,4vw,3rem);margin:0 0 12px;font-weight:800;letter-spacing:.2px}
+    .hero p{font-size:1.12rem;margin:0 0 22px;opacity:.95}
+    .hero-buttons{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+    .btn{padding:14px 22px;font-size:1rem;font-weight:700;border-radius:14px;cursor:pointer;border:2px solid transparent;transition:.18s}
+    .btn-primary{background:var(--brand);color:#1A1304;box-shadow:0 12px 24px rgba(255,193,46,.22)}
+    .btn-primary:hover{transform:translateY(-1px);filter:brightness(1.02)}
+    .btn-outline{background:transparent;color:#FFF7E0;border-color:#FFF0C2}
+    .btn-outline:hover{background:#ffffff14;transform:translateY(-1px)}
+    .btn:focus{outline:3px solid #FFE08266;outline-offset:2px}
+
+    /* Sections */
+    section{padding:44px 0}
+    section h2{
+      color:#2D261C;border-bottom:2px solid var(--brand);
+      padding-bottom:10px;font-size:1.25rem;margin:0 0 16px
+    }
+
+    /* Services */
+    .services-grid{
+      display:grid;grid-template-columns:repeat(6,minmax(0,1fr));
+      gap:12px;margin-top:18px
+    }
+    .service-btn{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      height:100px;background:var(--card);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);
+      border:1px solid var(--ring);font-weight:700;font-size:.95em;cursor:pointer;
+      transition:transform .15s,box-shadow .15s,border-color .15s,background .15s;text-align:center;user-select:none
+    }
+    .service-btn .ico{font-size:22px;line-height:1}
+    .service-btn span{display:block;margin-top:6px;font-weight:700}
+    .service-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(58,42,9,.08);border-color:#F5E1A6;background:var(--brand-ghost)}
+    .service-btn.active{outline:3px solid #FFE082; background:#FFF9E8}
+    @media (max-width:1100px){.services-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+    @media (max-width:780px){.services-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media (max-width:560px){.services-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+    .service-search{
+      max-width:780px;margin:18px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center
+    }
+    .service-search input{
+      flex:1 1 320px;padding:12px 14px;border-radius:12px;border:1px solid #E9DBC0;font-size:1em;background:#fff
+    }
+    .service-search .clear-btn{
+      padding:12px 16px;border-radius:12px;border:1px solid #E9DBC0;background:#fff;cursor:pointer;font-weight:700
+    }
+    .service-search .clear-btn:hover{border-color:#E0CD9C;background:#FFFBF0}
+
+    /* Map */
+    #map{
+      height:460px;width:100%;margin:20px 0;border-radius:18px;position:relative;
+      box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid var(--ring)
+    }
+    .map-overlay{
+      position:absolute;inset:0;background:rgba(255,255,255,.78);display:flex;align-items:center;justify-content:center;
+      border-radius:18px;font-weight:700;color:#3a2f1d;text-align:center;padding:16px;pointer-events:none
+    }
+
+    /* Promo */
+    .ads{
+      background:linear-gradient(180deg,#ffffff 0%, #FFF7DE 100%);
+      padding:32px 20px;text-align:center;border-radius:18px;margin:30px 0;
+      box-shadow:0 6px 18px rgba(74,59,27,.08);border:1px solid #F0E0B8
+    }
+    .ads h3{margin:0 0 10px;font-size:1.2rem;color:var(--brand-ink)}
+    .ads p{font-size:1.03rem;margin:0 0 12px;color:#2f291f}
+
+    /* Footer */
+    footer{
+      background:linear-gradient(90deg,var(--grad1) 0%,var(--grad2) 100%);
+      color:#FFF7E0;text-align:center;padding:22px;border-top:3px solid var(--brand)
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container header-inner">
+      <div class="brand">
+        <img src="BeeHire Logo.png" alt="BeeHire Connect logo" />
+        <div class="wordmark">
+          <span class="title">BeeHire</span>
+          <span class="kicker">CONNECT</span>
+        </div>
+      </div>
+
+      <!-- Profile w/ dropdown -->
+      <div class="user-profile" id="profileBtn" aria-haspopup="true" aria-expanded="false" aria-disabled="true" title="Log in to access profile">
+        <img id="userPhoto" alt="User">
+        <span class="user-name" id="userName">Guest</span>
+
+        <div class="menu" id="profileMenu" role="menu" aria-label="Profile menu">
+          <!-- Logged-in group -->
+          <div class="group" id="menuLoggedIn" style="display:none;">
+            <div class="muted" id="menuGreeting">Signed in</div>
+            <a href="hirer-profile.html" id="hirerProfileItem">🧑‍💼 Hirer Profile</a>
+            <a href="worker-profile.html" id="workerProfileItem">🧑‍🔧 Worker Profile</a>
+            <a href="edit_profile.html" id="editProfileItem">✏️ Edit Profile</a>
+            <button id="logoutItem">🚪 Log out</button>
+          </div>
+          <!-- Logged-out group -->
+          <div class="group" id="menuLoggedOut" style="display:none;">
+            <div class="muted">Welcome to BeeHire CONNECT</div>
+            <a href="login.html" id="loginItem">🔐 Log in</a>
+            <a href="hirer-register.html" id="registerItem">🆕 Register</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="container nav-inner">
+      <a href="#">Home</a>
+      <a href="#services">Services</a>
+      <a href="#map">Map</a>
+      <a href="#ads">For You</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>Find or Offer Skilled Work Instantly</h1>
+      <p>Whether you need help or want to earn, BeeHire CONNECT links workers and hirers in one trusted, global-ready platform.</p>
+      <div class="hero-buttons">
+        <button id="hireBtn" class="btn btn-primary">I Want to Hire</button>
+        <button id="workBtn" class="btn btn-outline">I Want to Work</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services">
+    <div class="container">
+      <h2>Popular Services</h2>
+
+      <div class="services-grid" id="servicesGrid">
+        <div class="service-btn" data-cat="Electrician"><span class="ico">🔌</span><span>Electricians</span></div>
+        <div class="service-btn" data-cat="Plumber"><span class="ico">🚰</span><span>Plumbers</span></div>
+        <div class="service-btn" data-cat="Tutor"><span class="ico">📚</span><span>Tutors</span></div>
+        <div class="service-btn" data-cat="Mechanic"><span class="ico">🔧</span><span>Mechanics</span></div>
+        <div class="service-btn" data-cat="Virtual Services"><span class="ico">💻</span><span>Virtual Services</span></div>
+        <div class="service-btn" data-cat="Legal Consultation"><span class="ico">⚖️</span><span>Legal</span></div>
+        <div class="service-btn" data-cat="Cleaner"><span class="ico">🧹</span><span>Cleaners</span></div>
+        <div class="service-btn" data-cat="Laborer"><span class="ico">🧱</span><span>Laborers</span></div>
+        <div class="service-btn" data-cat="Driver"><span class="ico">🚗</span><span>Drivers</span></div>
+        <div class="service-btn" data-cat="Carpenter"><span class="ico">👷‍♂️</span><span>Carpenters</span></div>
+        <div class="service-btn" data-cat="Painter"><span class="ico">🎨</span><span>Painters</span></div>
+        <div class="service-btn" data-cat="Cook"><span class="ico">🍳</span><span>Cooks</span></div>
+      </div>
+
+      <div class="service-search">
+        <input id="workerSearch" type="text" placeholder="Search workers by name, skill, or location…" />
+        <button class="clear-btn" id="clearFilters">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Map Section -->
+  <section>
+    <div class="container">
+      <h2>Find Skilled Workers Near You</h2>
+      <div id="map"></div>
+    </div>
+  </section>
+
+  <!-- Ads / Value prop -->
+  <section class="ads" id="ads">
+    <div class="container" style="max-width:900px">
+      <h3>Why Choose BeeHire CONNECT?</h3>
+      <p>✔ Verified Profiles with Secure Documents<br>
+         ✔ Instant Booking & Transparent Pricing<br>
+         ✔ Workers Can Promote Their Skills Professionally<br>
+         ✔ Hirers Find Trusted Help Without Worry of Scams</p>
+      <button id="getStartedBtn" class="btn btn-primary">Get Started Today</button>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="container" style="max-width:900px">
+      <h2>Contact Us</h2>
+      <p>Email: beehire_connect@acsjz.com</p>
+      <p>Phone: +966 (0)50-563-6243</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 BeeHire CONNECT. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+        authDomain: "myapp-96865.firebaseapp.com",
+        databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "myapp-96865",
+        // If Storage misbehaves, try: "myapp-96865.appspot.com"
+        storageBucket: "myapp-96865.firebasestorage.app",
+        messagingSenderId: "217431866794",
+        appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+        measurementId: "G-1T4M9PE1GD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const userPhotoEl = document.getElementById('userPhoto');
+    const userNameEl = document.getElementById('userName');
+    const profileBtn = document.getElementById('profileBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    const groupIn = document.getElementById('menuLoggedIn');
+    const groupOut = document.getElementById('menuLoggedOut');
+    const menuGreeting = document.getElementById('menuGreeting');
+    const editProfileItem = document.getElementById('editProfileItem');
+
+    const servicesGrid = document.getElementById('servicesGrid');
+    const workerSearch = document.getElementById('workerSearch');
+    const clearFilters = document.getElementById('clearFilters');
+
+    function guestAvatarURI(size = 45) {
+      const svg = `
+        <svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>
+          <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+            <stop offset='0%' stop-color='#FFE480'/><stop offset='100%' stop-color='#FFB300'/>
+          </linearGradient></defs>
+          <circle cx='${size/2}' cy='${size/2}' r='${size/2}' fill='url(#g)'/>
+          <text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle'
+            font-family='Inter, Segoe UI, Arial' font-weight='800' font-size='10' fill='#1F1502'>Guest</text>
+        </svg>`;
+      return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+    }
+    function toHttps(url){ if(!url) return ""; return url.startsWith("http://") ? url.replace("http://","https://") : url; }
+
+    // Map
+    const map = L.map('map').setView([10.7202, 122.5621], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap contributors' }).addTo(map);
+    const markerLayer = L.layerGroup().addTo(map);
+
+    function ensureOverlay(){
+      let ov = document.querySelector('#map .map-overlay');
+      if(!ov){
+        ov = document.createElement('div');
+        ov.className = 'map-overlay';
+        ov.textContent = 'Please log in to explore the map.';
+        document.getElementById('map').appendChild(ov);
+      }
+      return ov;
+    }
+    function removeOverlay(){ const ov = document.querySelector('#map .map-overlay'); if(ov) ov.remove(); }
+
+    function setGuestMode(){
+      userNameEl.textContent = "Guest";
+      userPhotoEl.src = guestAvatarURI(45);
+      groupIn.style.display = "none";
+      groupOut.style.display = "block";
+      markerLayer.clearLayers();
+
+      // Disable interactions for guests
+      profileBtn.classList.add('disabled');
+      profileBtn.setAttribute('aria-disabled','true');
+      profileMenu.classList.remove('show');
+
+      map.dragging.disable(); map.scrollWheelZoom.disable(); map.touchZoom.disable(); map.doubleClickZoom.disable(); map.boxZoom.disable(); map.keyboard.disable();
+      ensureOverlay();
+    }
+    function setUserMode(){
+      profileBtn.classList.remove('disabled');
+      profileBtn.setAttribute('aria-disabled','false');
+      profileBtn.removeAttribute('title');
+
+      removeOverlay();
+      map.dragging.enable(); map.scrollWheelZoom.enable(); map.touchZoom.enable(); map.doubleClickZoom.enable(); map.boxZoom.enable(); map.keyboard.enable();
+    }
+
+    // Load workers for map
+    let ALL_WORKERS = [];
+    async function loadWorkers(){
+      try{
+        const workerRef = collection(db,"workers");
+        const snapshot = await getDocs(workerRef);
+        ALL_WORKERS = snapshot.docs.map(d=>{
+          const data = d.data();
+          const lat = data.latitude ?? data.lat;
+          const lng = data.longitude ?? data.lng;
+          if (typeof lat !== "number" || typeof lng !== "number") return null;
+          const imgUrl = data.profileImageUrl || data.photoUrl || "";
+          const photo = toHttps(imgUrl) || "https://via.placeholder.com/100";
+          const name = data.fullName || data.name || "Worker";
+          const skill = data.skillCategory || (Array.isArray(data.skills)&&data.skills.length ? data.skills[0] : "Skill");
+          const availability = data.availability || "";
+          const location = data.location || "";
+          return { uid:d.id, lat, lng, name, photo, skill, availability, location };
+        }).filter(Boolean);
+      }catch(err){ console.error("Map load error:", err); }
+    }
+    function normalizeSkill(val){
+      if(!val) return "";
+      const s = String(val).toLowerCase();
+      if (s.includes("electric")) return "Electrician";
+      if (s.includes("plumb")) return "Plumber";
+      if (s.includes("tutor")||s.includes("teach")) return "Tutor";
+      if (s.includes("mechanic")) return "Mechanic";
+      if (s.includes("virtual")) return "Virtual Services";
+      if (s.includes("legal")||s.includes("law")) return "Legal Consultation";
+      if (s.includes("clean")) return "Cleaner";
+      if (s.includes("labor")) return "Laborer";
+      if (s.includes("driver")) return "Driver";
+      if (s.includes("carpent")) return "Carpenter";
+      if (s.includes("paint")) return "Painter";
+      if (s.includes("cook")||s.includes("chef")) return "Cook";
+      return val;
+    }
+    function renderMarkers({category=null, search=""}={}){
+      markerLayer.clearLayers();
+      const term = search.trim().toLowerCase();
+      const filtered = ALL_WORKERS.filter(w=>{
+        if (category && normalizeSkill(w.skill) !== category) return false;
+        if (term){
+          const blob = `${w.name} ${w.skill} ${w.location}`.toLowerCase();
+          if (!blob.includes(term)) return false;
+        }
+        return true;
+      });
+      filtered.forEach(w=>{
+        const popup = `
+          <div style="text-align:center">
+            <img src="${w.photo}" style="width:80px;height:80px;border-radius:50%;border:2px solid #FFC12E;margin-bottom:10px;object-fit:cover;">
+            <br><strong>${w.name}</strong><br>
+            ${w.skill}${w.availability ? " - " + w.availability : ""}
+          </div>`;
+        L.marker([w.lat,w.lng]).addTo(markerLayer).bindPopup(popup);
+      });
+      if (filtered.length){
+        try{ const group = L.featureGroup(markerLayer.getLayers()); map.fitBounds(group.getBounds().pad(0.25)); }catch(e){}
+      }
+    }
+
+    // Role-aware profile fetch
+    let CURRENT_USER = null;
+    let CURRENT_ROLE = null;
+    async function getRoleProfile(uid){
+      const hirerRef = doc(db,"hirers",uid);
+      const hirerSnap = await getDoc(hirerRef);
+      if (hirerSnap.exists()) return { type:'hirer', data:hirerSnap.data() };
+      const workerRef = doc(db,"workers",uid);
+      const workerSnap = await getDoc(workerRef);
+      if (workerSnap.exists()) return { type:'worker', data:workerSnap.data() };
+      return { type:null, data:null };
+    }
+
+    onAuthStateChanged(auth, async (user)=>{
+      CURRENT_USER = user || null;
+      if (!user){ setGuestMode(); return; }
+
+      try{
+        const { type, data } = await getRoleProfile(user.uid);
+        CURRENT_ROLE = type;
+
+        let displayName = user.displayName || "User";
+        let photo = user.photoURL || "";
+        if (data){
+          displayName = data.fullName || data.name || displayName || "User";
+          photo = data.profileImageUrl || data.photoUrl || photo || "";
+        }
+
+        document.getElementById('userName').textContent = displayName;
+        document.getElementById('userPhoto').src = toHttps(photo) || guestAvatarURI(45);
+        document.getElementById('menuGreeting').textContent = `Signed in as ${displayName}`;
+        document.getElementById('menuLoggedIn').style.display = "block";
+        document.getElementById('menuLoggedOut').style.display = "none";
+
+        setUserMode();
+        await loadWorkers();
+        renderMarkers({});
+      }catch(e){
+        console.error("Profile load error:", e);
+        setGuestMode();
+      }
+    });
+
+    // Dropdown toggle
+    document.getElementById('profileBtn').addEventListener('click',(e)=>{
+      e.stopPropagation();
+      if (profileBtn.classList.contains('disabled')) return;
+      profileMenu.classList.toggle('show');
+      profileBtn.setAttribute('aria-expanded', profileMenu.classList.contains('show') ? 'true' : 'false');
+    });
+    document.addEventListener('click',()=> profileMenu.classList.remove('show'));
+
+    // Guard Edit Profile
+    document.getElementById('editProfileItem').addEventListener('click',(e)=>{
+      if (!CURRENT_USER){ e.preventDefault(); window.location.href="login.html"; }
+    });
+
+    // Logout
+    document.getElementById('logoutItem')?.addEventListener('click', async ()=>{
+      try{ await signOut(auth); profileMenu.classList.remove('show'); window.location.reload(); }
+      catch(err){ console.error("Logout failed:", err); alert("Failed to log out. Please try again."); }
+    });
+
+    // CTA routing
+    document.getElementById('hireBtn').addEventListener('click', async ()=>{
+      if (!CURRENT_USER){ window.location.href="hirer-login.html"; return; }
+      try{
+        const hRef = doc(db,"hirers",CURRENT_USER.uid);
+        const hSnap = await getDoc(hRef);
+        if (hSnap.exists()) window.location.href="hirer-dashboard.html";
+        else window.location.href="hirer-login.html";
+      }catch(e){ console.error(e); window.location.href="hirer-login.html"; }
+    });
+
+    document.getElementById('workBtn').addEventListener('click', async ()=>{
+      if (!CURRENT_USER){ window.location.href="worker-login.html"; return; }
+      try{
+        const wRef = doc(db,"workers",CURRENT_USER.uid);
+        const wSnap = await getDoc(wRef);
+        if (wSnap.exists()) window.location.href=`profile-view.html?uid=${encodeURIComponent(CURRENT_USER.uid)}`;
+        else window.location.href="worker-login.html";
+      }catch(e){ console.error(e); window.location.href="worker-login.html"; }
+    });
+
+    // Quick profile double-click
+    document.getElementById('userPhoto').addEventListener('dblclick',()=>{
+      if (!CURRENT_USER) return;
+      if (CURRENT_ROLE==='hirer') window.location.href="hirer-dashboard.html";
+      else if (CURRENT_ROLE==='worker') window.location.href=`profile-view.html?uid=${encodeURIComponent(CURRENT_USER.uid)}`;
+      else window.location.href="hirer-register.html";
+    });
+    document.getElementById('userName').addEventListener('dblclick',()=>{
+      if (!CURRENT_USER) return;
+      if (CURRENT_ROLE==='hirer') window.location.href="hirer-dashboard.html";
+      else if (CURRENT_ROLE==='worker') window.location.href=`profile-view.html?uid=${encodeURIComponent(CURRENT_USER.uid)}`;
+      else window.location.href="hirer-register.html";
+    });
+
+    // Services filtering
+    let activeCategory = null;
+    servicesGrid.addEventListener('click',(e)=>{
+      const btn = e.target.closest('.service-btn'); if (!btn) return;
+      if (btn.classList.contains('active')){ btn.classList.remove('active'); activeCategory = null; }
+      else {
+        servicesGrid.querySelectorAll('.service-btn.active').forEach(b=> b.classList.remove('active'));
+        btn.classList.add('active'); activeCategory = btn.dataset.cat;
+      }
+      renderMarkers({ category:activeCategory, search:workerSearch.value });
+      document.getElementById('map').scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+
+    let t=null;
+    workerSearch.addEventListener('input',()=>{
+      clearTimeout(t);
+      t=setTimeout(()=> renderMarkers({ category:activeCategory, search:workerSearch.value }), 250);
+    });
+    clearFilters.addEventListener('click',()=>{
+      workerSearch.value=""; activeCategory=null;
+      servicesGrid.querySelectorAll('.service-btn.active').forEach(b=> b.classList.remove('active'));
+      renderMarkers({});
+    });
+
+    // Preload guest avatar
+    userPhotoEl.src = guestAvatarURI(45);
+  </script>
+</body>
+</html>

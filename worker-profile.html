@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Beehire — Worker Verification</title>
+
+  <!-- Corporate font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --ink:#0E2A32; --muted:#6B7B84; --bg:#F7F9FB; --card:#ffffff;
+      --brand:#FFC107; --line:#E6EDF2; --focus:#2C7BE5;
+      --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--ink); background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 60%,#F2F7FB 100%)}
+    header{position:sticky; top:0; z-index:30; background:var(--card); border-bottom:1px solid var(--line); box-shadow:0 2px 12px rgba(0,0,0,.04)}
+    .nav{max-width:1100px; margin:0 auto; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none}
+    .brand-logo{width:42px; height:42px; object-fit:contain}
+    .brand-title{display:flex; flex-direction:column; line-height:1.1}
+    .brand-title .name{font-weight:800; letter-spacing:.2px; font-size:1.12rem; color:var(--ink)}
+    .brand-title .tag{font-size:.78rem; color:var(--muted); font-weight:700; letter-spacing:.3px}
+    .status{display:inline-flex; gap:8px; align-items:center}
+    .badge{padding:6px 10px; border-radius:999px; font-weight:800; font-size:.85rem; border:1px solid var(--line); background:#fff}
+    .b-verified{background:#dcfce7;color:#166534;border-color:#86efac}
+    .b-pending{background:#fffbeb;color:#92400e;border-color:#fde68a}
+    .b-incomplete{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+    main{max-width:1100px;margin:22px auto 88px;padding:0 20px}
+    .card{background:var(--card); border:1px solid var(--line); border-radius:18px; margin-bottom:16px; padding:0; box-shadow:0 12px 28px rgba(14,42,50,.08)}
+    .card h2{margin:0; padding:16px 18px; border-bottom:1px solid var(--line)}
+    .card .body{padding:18px}
+    .grid{display:grid; gap:14px; grid-template-columns:repeat(12,1fr)}
+    .col-12{grid-column:span 12}
+    .col-6{grid-column:span 12}
+    @media(min-width:720px){.col-6{grid-column:span 6}}
+    label{font-weight:800; font-size:.95rem; margin-bottom:6px; display:block}
+    input,select,textarea{width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:12px; font-size:1rem; background:#fff; color:var(--ink); transition:border-color .15s, box-shadow .15s}
+    input:focus,select:focus,textarea:focus{border-color:var(--focus); box-shadow:0 0 0 3px rgba(44,123,229,.15)}
+    textarea{min-height:90px; resize:vertical}
+    .muted{color:var(--muted); font-size:.9rem}
+    .hint{font-size:.9rem; color:#555; margin-top:6px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; padding:16px; border-top:1px solid var(--line); position:sticky; bottom:0; background:#fff; z-index:10; border-bottom-left-radius:18px; border-bottom-right-radius:18px}
+    button{border:0; border-radius:12px; padding:12px 16px; font-weight:800; cursor:pointer}
+    .btn{background:var(--brand); color:#111; box-shadow:0 8px 20px rgba(255,193,7,.28); transition:transform .06s, box-shadow .15s, filter .15s}
+    .btn:hover{ filter:brightness(.98); box-shadow:0 12px 26px rgba(255,193,7,.38) }
+    .btn:active{ transform:translateY(1px) }
+    .btn-ghost{background:#fff; border:1px solid var(--line); color:var(--ink)}
+    .warn{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;border-radius:12px;padding:12px 14px;margin-bottom:14px}
+    .success{background:#ecfeff;border:1px solid #a5f3fc;color:#075985;border-radius:12px;padding:12px 14px;margin-bottom:14px}
+    .meter{height:10px;background:#f1f5f9;border-radius:999px;overflow:hidden;margin-top:8px}
+    .meter > span{display:block;height:100%;background:linear-gradient(90deg,#f59e0b,#fbbf24,#84cc16)}
+    .kv{display:flex;gap:10px;align-items:center}
+    .kv .dot{width:10px;height:10px;border-radius:50%}
+    .dot.ok{background:var(--ok)} .dot.mid{background:#f59e0b} .dot.bad{background:var(--bad)}
+    .file-note{font-size:.85rem; color:#555; margin-top:6px}
+    .hide{display:none !important}
+    .readonly-note{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:10px 12px;border-radius:10px;margin:12px 18px}
+
+    /* Upload UI */
+    .upload-row{display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap}
+    .btn-mini{padding:8px 12px; font-size:.9rem; border-radius:10px}
+    .pill{border:1px solid var(--line); border-radius:999px; padding:6px 10px; font-size:.85rem}
+    .pill.ok{background:#dcfce7; color:#166534; border-color:#86efac}
+    .pill.warn{background:#fffbeb; color:#92400e; border-color:#fde68a}
+    .pill.bad{background:#fef2f2; color:#991b1b; border-color:#fecaca}
+    .bar{width:160px; height:10px; background:#f1f5f9; border-radius:999px; overflow:hidden}
+    .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,#60a5fa,#34d399); transition:width .15s}
+    .tiny{font-size:.85rem; color:#555}
+    .avatar{width:80px;height:80px;border-radius:16px;object-fit:cover;border:1px solid var(--line)}
+    .starline{display:flex;gap:8px;align-items:center}
+    .stars button{background:none;border:0;font-size:18px;opacity:.3}
+    .stars button.on{opacity:1}
+    .fab-home{position:fixed;right:18px;bottom:18px;background:#fff;border:1px solid var(--line);padding:10px 12px;border-radius:14px;text-decoration:none;color:inherit;display:flex;gap:8px;align-items:center;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="nav">
+      <a class="brand" href="beehiremain.html">
+        <img class="brand-logo" src="BeeHire Logo.png" alt="Beehire logo">
+        <span class="brand-title">
+          <span class="name">Beehire CONNECT</span>
+          <span class="tag">Worker Verification</span>
+        </span>
+      </a>
+      <div class="status">
+        <strong>Status:</strong>
+        <span id="statusBadge" class="badge b-incomplete">Not Verified</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="alertBox" class="warn" style="display:none"></div>
+    <div id="okBox" class="success" style="display:none"></div>
+    <div id="readonlyNote" class="readonly-note hide">✅ Verified profile — read-only. Contact support or an admin to make changes.</div>
+
+    <!-- Public Card -->
+    <div class="card">
+      <h2>Your Public Card</h2>
+      <div class="body">
+        <div class="profile-head" style="display:flex;gap:14px;align-items:center">
+          <img id="avatar" class="avatar" alt="Profile photo" src="https://via.placeholder.com/160?text=Beehire">
+          <div class="ph-meta">
+            <div id="phName" style="font-weight:800;">—</div>
+            <div id="phSkill" class="muted">—</div>
+            <div class="starline">
+              <div class="stars" id="aggStars" aria-label="Average rating"></div>
+              <div id="aggLabel" class="muted">No ratings yet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completeness -->
+    <div class="card">
+      <h2>Profile Completeness</h2>
+      <div class="body">
+        <div class="row" style="justify-content:space-between">
+          <div class="kv"><span class="dot bad" id="meterDot"></span> <span id="meterLabel" class="muted">Incomplete</span></div>
+          <div class="muted"><span id="meterPct">0%</span> complete</div>
+        </div>
+        <div class="meter" aria-hidden="true"><span id="meterBar" style="width:0%"></span></div>
+        <p class="hint">
+          To hit <b>100%</b>: fill <b>Basic</b>, <b>Work Details</b>, <b>Location</b>, and <b>either Identity</b> <i>or</i> <b>Community/Social Proof</b> (Barangay/NBI or Facebook/TikTok + portfolio).<br>
+          Add at least one <b>Reference</b> (Name + Phone) to reach <b>110%</b> for faster approval.
+        </p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form id="form" novalidate>
+      <!-- BASIC -->
+      <div class="card">
+        <h2>Basic Information</h2>
+        <div class="body grid">
+          <div class="col-6">
+            <label for="fullName">Full Name</label>
+            <input id="fullName" placeholder="Juan D. Dela Cruz">
+          </div>
+          <div class="col-6">
+            <label for="phone">Phone (PH mobile)</label>
+            <input id="phone" placeholder="+63 9xx xxx xxxx" inputmode="tel">
+          </div>
+          <div class="col-6">
+            <label for="email">Email (optional)</label>
+            <input id="email" type="email" placeholder="juan@email.com" inputmode="email">
+          </div>
+          <div class="col-6">
+            <label for="role">Role</label>
+            <input id="role" value="worker">
+            <div class="tiny">Tip: You can also set <code>?role=hirer</code> in the URL.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WORK DETAILS -->
+      <div class="card">
+        <h2>Work Details</h2>
+        <div class="body grid">
+          <div class="col-6">
+            <label for="primarySkill">Primary Skill</label>
+            <select id="primarySkill">
+              <option value="">Select…</option>
+              <option>Electrician</option><option>Plumber</option><option>Carpenter</option>
+              <option>Mechanic</option><option>Cleaner</option><option>Driver</option>
+              <option>Painter</option><option>Cook</option><option>Tutor</option>
+              <option>Virtual Assistant</option><option>Laborer</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label for="yearsExp">Years of Experience</label>
+            <input id="yearsExp" type="number" min="0" placeholder="e.g., 3">
+          </div>
+          <div class="col-6">
+            <label for="rate">Rate (per day or per job)</label>
+            <input id="rate" placeholder="e.g., ₱800/day or ₱X per job">
+          </div>
+          <div class="col-6">
+            <label for="availability">Availability</label>
+            <select id="availability">
+              <option value="">Select…</option>
+              <option>Weekdays</option><option>Weekends</option><option>Anytime</option><option>Evenings Only</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label for="bio">About Your Work (short bio)</label>
+            <textarea id="bio" placeholder="Tools you use, typical jobs, areas you serve…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOCATION -->
+      <div class="card">
+        <h2>Location</h2>
+        <div class="body grid">
+          <div class="col-12">
+            <label for="address1">Address Line</label>
+            <input id="address1" placeholder="House/Unit, Street, Barangay">
+          </div>
+          <div class="col-6">
+            <label for="barangay">Barangay</label>
+            <input id="barangay" placeholder="Barangay">
+          </div>
+          <div class="col-3">
+            <label for="city">City/Municipality</label>
+            <input id="city" placeholder="City">
+          </div>
+          <div class="col-3">
+            <label for="province">Province</label>
+            <input id="province" placeholder="Province">
+          </div>
+          <div class="col-6">
+            <label for="zip">Zip</label>
+            <input id="zip" placeholder="e.g., 5000" inputmode="numeric">
+          </div>
+        </div>
+      </div>
+
+      <!-- IDENTITY -->
+      <div class="card">
+        <h2>Identity (any valid ID or selfie with tool)</h2>
+        <div class="body grid" id="idSection">
+          <div class="col-6">
+            <label for="idType">Valid ID Type</label>
+            <select id="idType">
+              <option value="">Select…</option>
+              <option>PhilSys National ID</option><option>Driver’s License</option>
+              <option>Passport</option><option>UMID/SSS</option><option>TIN</option>
+              <option>PRC</option><option>Postal ID</option><option>Voter’s ID</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label for="idNumber">ID Number</label>
+            <input id="idNumber" placeholder="Exact as shown on the ID">
+          </div>
+
+          <!-- ID Front -->
+          <div class="col-6">
+            <label for="idFront">Upload ID (Front)</label>
+            <input id="idFront" type="file" accept="image/*" class="upload-control">
+            <div class="upload-row">
+              <button type="button" class="btn btn-mini" id="btnUploadIdFront">Upload</button>
+              <div class="bar" aria-hidden="true"><span id="barIdFront"></span></div>
+              <span id="statusIdFront" class="pill warn">Waiting file…</span>
+            </div>
+            <div class="tiny" id="linkIdFront"></div>
+            <div class="file-note">JPEG/PNG only.</div>
+          </div>
+
+          <!-- Selfie -->
+          <div class="col-6">
+            <label for="selfieTool">Selfie w/ tool or ID</label>
+            <input id="selfieTool" type="file" accept="image/*" class="upload-control">
+            <div class="upload-row">
+              <button type="button" class="btn btn-mini" id="btnUploadSelfie">Upload</button>
+              <div class="bar" aria-hidden="true"><span id="barSelfie"></span></div>
+              <span id="statusSelfie" class="pill warn">Waiting file…</span>
+            </div>
+            <div class="tiny" id="linkSelfie"></div>
+            <div class="file-note">Show your face and your work tool or ID.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMMUNITY / SOCIAL PROOF -->
+      <div class="card">
+        <h2>Community / Social Proof (any)</h2>
+        <div class="body grid">
+          <!-- Brgy -->
+          <div class="col-6">
+            <label for="brgyClearance">Barangay Clearance</label>
+            <input id="brgyClearance" type="file" accept="image/*,application/pdf" class="upload-control">
+            <div class="upload-row">
+              <button type="button" class="btn btn-mini" id="btnUploadBrgy">Upload</button>
+              <div class="bar" aria-hidden="true"><span id="barBrgy"></span></div>
+              <span id="statusBrgy" class="pill warn">Waiting file…</span>
+            </div>
+            <div class="tiny" id="linkBrgy"></div>
+          </div>
+          <!-- NBI -->
+          <div class="col-6">
+            <label for="nbiClearance">NBI Clearance</label>
+            <input id="nbiClearance" type="file" accept="image/*,application/pdf" class="upload-control">
+            <div class="upload-row">
+              <button type="button" class="btn btn-mini" id="btnUploadNbi">Upload</button>
+              <div class="bar" aria-hidden="true"><span id="barNbi"></span></div>
+              <span id="statusNbi" class="pill warn">Waiting file…</span>
+            </div>
+            <div class="tiny" id="linkNbi"></div>
+          </div>
+
+          <div class="col-6">
+            <label for="fb">Facebook Profile/Page</label>
+            <input id="fb" placeholder="https://facebook.com/yourprofile">
+          </div>
+          <div class="col-6">
+            <label for="tiktok">TikTok (optional)</label>
+            <input id="tiktok" placeholder="https://tiktok.com/@yourhandle">
+          </div>
+
+          <!-- Portfolio -->
+          <div class="col-12">
+            <label for="portfolio">Portfolio Photo (best work)</label>
+            <input id="portfolio" type="file" accept="image/*" class="upload-control">
+            <div class="upload-row">
+              <button type="button" class="btn btn-mini" id="btnUploadPortfolio">Upload</button>
+              <div class="bar" aria-hidden="true"><span id="barPortfolio"></span></div>
+              <span id="statusPortfolio" class="pill warn">Waiting file…</span>
+            </div>
+            <div class="tiny" id="linkPortfolio"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REFERENCES -->
+      <div class="card">
+        <h2>References</h2>
+        <div class="body grid">
+          <div class="col-6">
+            <label for="ref1Name">Reference 1 — Name</label>
+            <input id="ref1Name" placeholder="Client/Neighbor">
+          </div>
+          <div class="col-6">
+            <label for="ref1Phone">Reference 1 — Phone</label>
+            <input id="ref1Phone" placeholder="+63 9xx xxx xxxx">
+          </div>
+          <div class="col-6">
+            <label for="ref2Name">Reference 2 — Name</label>
+            <input id="ref2Name" placeholder="Client/Barangay Officer">
+          </div>
+          <div class="col-6">
+            <label for="ref2Phone">Reference 2 — Phone</label>
+            <input id="ref2Phone" placeholder="+63 9xx xxx xxxx">
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTES -->
+      <div class="card">
+        <h2>Notes</h2>
+        <div class="body">
+          <p class="muted">You can submit even if some fields are blank. Pero mas kompleto = mas dasig ma-verify.</p>
+          <textarea id="notes" placeholder="Anything we should know? (optional)"></textarea>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn-ghost" id="saveDraft">Save Draft</button>
+          <button type="button" class="btn" id="requestVerify">Request Verification</button>
+          <button type="button" class="btn hide" id="adminUnlock">🔓 Edit (Admin)</button>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <!-- Floating Home FAB -->
+  <a class="fab-home" href="beehiremain.html" aria-label="Back to Home">
+    <span class="icon">🏠</span>
+    <span class="label">Back to Home</span>
+  </a>
+
+  <!-- Firebase SDKs + Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+    import { 
+      getStorage, ref as sref, uploadBytesResumable, getDownloadURL 
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+      authDomain: "myapp-96865.firebaseapp.com",
+      databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.appspot.com",            // ✅ correct bucket (NOT .firebasestorage.app)
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+      measurementId: "G-1T4M9PE1GD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app, "gs://myapp-96865.appspot.com"); // ✅ force exact bucket
+
+    const alertBox = document.getElementById('alertBox');
+    const okBox = document.getElementById('okBox');
+    const statusBadge = document.getElementById('statusBadge');
+    const meterDot = document.getElementById('meterDot');
+    const meterLabel = document.getElementById('meterLabel');
+    const meterBar = document.getElementById('meterBar');
+    const meterPct = document.getElementById('meterPct');
+    const readonlyNote = document.getElementById('readonlyNote');
+
+    const $ = (id) => document.getElementById(id);
+    const fallbackAvatar = 'https://via.placeholder.com/160?text=Beehire';
+    const toHttps = (u)=> !u ? "" : (u.startsWith('http://') ? u.replace('http://','https://') : u);
+    const isFilled = (v)=> v && String(v).trim().length>0;
+
+    const fields = [
+      'fullName','phone','email',
+      'primarySkill','yearsExp','rate','availability','bio',
+      'address1','barangay','city','province','zip',
+      'fb','tiktok','notes',
+      'ref1Name','ref1Phone','ref2Name','ref2Phone'
+    ];
+
+    // ---- Folder naming helpers ----
+    const qp = new URLSearchParams(location.search);
+    function detectRole(){
+      const roleFromUrl = (qp.get('role')||'').toLowerCase();
+      const roleFromField = ($('role')?.value||'').toLowerCase();
+      return (roleFromUrl==='hirer' || roleFromField==='hirer') ? 'hirer' : 'worker';
+    }
+    function slugify(s){
+      return (s||'user').toLowerCase()
+        .normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
+        .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')
+        .slice(0,50) || 'user';
+    }
+    function sanitizeFileName(n){
+      const dot = n.lastIndexOf('.');
+      const base = dot>0 ? n.slice(0,dot) : n;
+      const ext  = dot>0 ? n.slice(dot+1) : '';
+      const cleanBase = slugify(base);
+      const cleanExt  = ext.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,10);
+      return cleanExt ? `${cleanBase}.${cleanExt}` : cleanBase;
+    }
+
+    let filePaths = {};
+    let userFolderPath = null;   // e.g. users/worker/juan-d-dela-cruz_UID
+
+    async function ensureUserFolder(uid, name){
+      if (userFolderPath) return userFolderPath;
+      const role = detectRole();
+      const slug = slugify(name || auth.currentUser?.displayName || auth.currentUser?.email || 'user');
+      userFolderPath = `users/${role}/${slug}_${uid}`;  // ✅ human + unique
+      // store on their doc for reference
+      const coll = role === 'hirer' ? 'hirers' : 'workers';
+      await setDoc(doc(db, coll, uid), { storageFolder: userFolderPath, role }, { merge: true });
+      return userFolderPath;
+    }
+
+    function setStatusBadge(status){
+      if (status === 'verified'){ statusBadge.className='badge b-verified'; statusBadge.textContent='Verified'; }
+      else if (status === 'pending'){ statusBadge.className='badge b-pending'; statusBadge.textContent='Pending Review'; }
+      else { statusBadge.className='badge b-incomplete'; statusBadge.textContent='Not Verified'; }
+    }
+
+    function showWarn(msg){ alertBox.textContent = msg; alertBox.style.display='block'; okBox.style.display='none'; }
+    function showOk(msg){ okBox.textContent = msg; okBox.style.display='block'; alertBox.style.display='none'; }
+    function hideAlerts(){ alertBox.style.display='none'; okBox.style.display='none'; }
+
+    async function resolveAvatar(uid, workerDocData, authUser){
+      const fromDoc = toHttps(workerDocData?.profileImageUrl || workerDocData?.photoUrl || "");
+      if (fromDoc) return fromDoc;
+      try{
+        const guessRef = sref(storage, `users/${detectRole()}/${slugify(workerDocData?.fullName||authUser?.displayName||'user')}_${uid}/avatar.jpg`);
+        const url = await getDownloadURL(guessRef);
+        if (url) return toHttps(url);
+      }catch(_){}
+      if (authUser?.photoURL) return toHttps(authUser.photoURL);
+      return fallbackAvatar;
+    }
+
+    // rating header (kept same)
+    function mountAggregate(uid, authUser){
+      const starWrap = document.getElementById('aggStars');
+      const label = document.getElementById('aggLabel');
+      starWrap.innerHTML = '';
+      const btns = [];
+      for(let i=1;i<=5;i++){ const b=document.createElement('button'); b.type='button'; b.textContent='★'; b.disabled=true; starWrap.appendChild(b); btns.push(b); }
+
+      const ref = doc(db,'workers',uid); // ratings we keep under workers for now
+      onSnapshot(ref, async (snap)=>{
+        const d = snap.data() || {};
+        const avg = Number(d.averageRating || 0);
+        const cnt = Number(d.ratingCount || 0);
+        btns.forEach((b,i)=> b.classList.toggle('on', i < Math.round(avg)));
+        label.textContent = cnt ? `${avg.toFixed(1)} (${cnt} review${cnt>1?'s':''})` : 'No ratings yet';
+
+        document.getElementById('phName').textContent = d.fullName || d.name || 'Your Name';
+        document.getElementById('phSkill').textContent = d.primarySkill ? d.primarySkill : (Array.isArray(d.skills)&&d.skills[0]? d.skills[0] : '—');
+
+        const resolved = await resolveAvatar(uid, d, authUser);
+        document.getElementById('avatar').src = resolved;
+      }, (err)=> console.error('rating/profile listen failed', err));
+    }
+
+    // completeness (unchanged)
+    function computeCompleteness(doc){
+      const basicOk = isFilled(doc.fullName) && isFilled(doc.phone);
+      const workOk  = isFilled(doc.primarySkill) && (isFilled(doc.bio) || isFilled(doc.yearsExp) || isFilled(doc.rate));
+      const locOk   = isFilled(doc.barangay) && isFilled(doc.city) && isFilled(doc.province);
+
+      const identityOk  = (isFilled(doc.idType) && isFilled(doc.idFrontUrl)) || isFilled(doc.selfieToolUrl);
+      const communityOk = isFilled(doc.brgyClearanceUrl) || isFilled(doc.nbiClearanceUrl) || isFilled(doc.fb) || isFilled(doc.portfolioUrl);
+      const proofOk = identityOk || communityOk;
+
+      let pct = 0;
+      pct += basicOk ? 35 : ((isFilled(doc.fullName)?15:0) + (isFilled(doc.phone)?20:0));
+      pct += workOk  ? 35 : ((isFilled(doc.primarySkill)?20:0) + ((isFilled(doc.bio)||isFilled(doc.yearsExp)||isFilled(doc.rate))?10:0) + (isFilled(doc.rate)?5:0));
+      pct += locOk   ? 20 : ((isFilled(doc.barangay)?8:0) + (isFilled(doc.city)?6:0) + (isFilled(doc.province)?6:0));
+      pct += proofOk ? 10 : (identityOk?10:(communityOk?8:0));
+
+      const hasRef = (isFilled(doc.ref1Name) && isFilled(doc.ref1Phone)) || (isFilled(doc.ref2Name) && isFilled(doc.ref2Phone));
+      const displayPct = Math.min(110, Math.round(pct + (hasRef ? 10 : 0)));
+
+      meterBar.style.width = Math.min(100, displayPct) + '%';
+      meterPct.textContent = displayPct + '%';
+
+      if (displayPct >= 100){ meterDot.className='dot ok'; meterLabel.textContent='Ready for verification'; }
+      else if (displayPct >= 50){ meterDot.className='dot mid'; meterLabel.textContent='Partial — add more to reach 100%'; }
+      else { meterDot.className='dot bad'; meterLabel.textContent='Incomplete — add key info'; }
+
+      return { displayPct, basicOk, workOk, locOk, proofOk, hasRef };
+    }
+
+    // ---------- UPLOAD HELPERS (progress + per-user folder) ----------
+    function setPill(el, cls, text){ el.className = `pill ${cls}`; el.textContent = text; }
+
+    function wireUploader({inputId, buttonId, barId, statusId, linkId, fileKey}){
+      const input = $(inputId), btn = $(buttonId), bar = $(barId), status = $(statusId), link = $(linkId);
+      const disable = (on)=>{ btn.disabled = on; input.disabled = on; };
+
+      btn.addEventListener('click', async ()=>{
+        const user = auth.currentUser;
+        if (!user){ showWarn('Please log in first.'); return; }
+        if (!input.files || !input.files.length){ setPill(status, 'bad', 'No file selected'); return; }
+
+        const file = input.files[0];
+        const safeName = sanitizeFileName(file.name || 'upload.bin');
+        const role = detectRole();
+        const fullName = $('fullName')?.value?.trim() || user.displayName || user.email || 'user';
+        const baseFolder = await ensureUserFolder(user.uid, fullName); // e.g. users/worker/juan-d-dela-cruz_UID
+
+        // Example paths:
+        //   users/worker/juan-d-dela-cruz_UID/id-front/BeeHire_Logo-removebg-preview.png
+        //   users/hirer/acme-corp_UID/nbi-clearance/clearance.pdf
+        const sub = fileKeyToSubfolder(fileKey); // neat grouping
+        const objectPath = `${baseFolder}/${sub}/${safeName}`;
+        const ref = sref(storage, objectPath);
+
+        console.log('[UPLOAD start]', { objectPath, type: file.type, size: file.size });
+
+        try{
+          disable(true);
+          setPill(status,'warn','Uploading…');
+          bar.style.width = '0%';
+
+          const task = uploadBytesResumable(ref, file, {
+            contentType: file.type || undefined,
+            cacheControl: 'public,max-age=3600',
+            customMetadata: {
+              uploadedBy: user.uid,
+              originalName: file.name || '',
+              role,
+              fieldKey: fileKey
+            }
+          });
+
+          task.on('state_changed', (snap)=>{
+            const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+            bar.style.width = pct + '%';
+            status.textContent = `Uploading… ${pct}% (${snap.state})`;
+          }, (err)=>{
+            console.error('[UPLOAD error]', err);
+            setPill(status,'bad', err.code || err.message || 'Upload failed');
+            disable(false);
+          }, async ()=>{
+            const url = await getDownloadURL(ref);
+            setPill(status,'ok','Uploaded ✓');
+            link.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${safeName}</a>`;
+            filePaths[fileKey] = url;
+            console.log('[UPLOAD done]', objectPath);
+            disable(false);
+          });
+
+        }catch(e){
+          console.error(e);
+          setPill(status,'bad', e.message || 'Upload failed');
+          disable(false);
+        }
+      });
+    }
+
+    function fileKeyToSubfolder(k){
+      switch(k){
+        case 'idFrontUrl': return 'id-front';
+        case 'selfieToolUrl': return 'selfie-tool';
+        case 'brgyClearanceUrl': return 'brgy-clearance';
+        case 'nbiClearanceUrl': return 'nbi-clearance';
+        case 'portfolioUrl': return 'portfolio';
+        default: return 'misc';
+      }
+    }
+
+    // ---------- SAVE DRAFT / REQUEST VERIFY ----------
+    async function saveDraft(uid, alsoRequest=false){
+      try{
+        hideAlerts();
+
+        const role = detectRole();
+        const coll = role === 'hirer' ? 'hirers' : 'workers';
+
+        const payload = {
+          ...collectForm(),
+          ...filePaths,
+          uid, role,
+          storageFolder: userFolderPath || await ensureUserFolder(uid, $('fullName')?.value),
+          updatedAt: serverTimestamp()
+        };
+        if (alsoRequest){
+          payload.verificationStatus = 'pending';
+          payload.verificationRequestedAt = serverTimestamp();
+        }
+
+        await setDoc(doc(db, coll, uid), payload, { merge:true });
+
+        const { displayPct } = computeCompleteness(payload);
+        if (alsoRequest){
+          setStatusBadge('pending');
+          if (displayPct < 100){
+            showWarn('Submitted for review. Tip: add more details to reach 100% for faster approval.');
+          } else {
+            showOk('Submitted for verification. Looks complete — we’ll review shortly.');
+          }
+        } else {
+          showOk('Draft saved.');
+        }
+      }catch(e){
+        console.error(e);
+        showWarn('Save failed: ' + (e.message || e.code));
+      }
+    }
+
+    function collectForm(){
+      const data = {};
+      fields.forEach(f=> data[f] = $(f)?.value?.trim() || '');
+      // carry over file URLs (if any)
+      ['idFrontUrl','selfieToolUrl','brgyClearanceUrl','nbiClearanceUrl','portfolioUrl','idType','idNumber'].forEach(k=>{
+        if (data[k] === undefined && filePaths[k] !== undefined) data[k] = filePaths[k];
+      });
+      return data;
+    }
+
+    function fillForm(doc){
+      fields.forEach(f=>{ if ($(f) && doc?.[f] !== undefined) $(f).value = doc[f]; });
+      document.getElementById('phName').textContent = doc.fullName || doc.name || 'Your Name';
+      document.getElementById('phSkill').textContent = doc.primarySkill ? doc.primarySkill : (Array.isArray(doc.skills)&&doc.skills[0]? doc.skills[0] : '—');
+    }
+
+    function setReadOnly(lock){
+      fields.forEach(f=>{ const el = $(f); if (el) el.disabled = !!lock; });
+      document.querySelectorAll('.upload-control').forEach(inp=>{ inp.classList.toggle('hide', !!lock); });
+      document.getElementById('saveDraft').classList.toggle('hide', !!lock);
+      document.getElementById('requestVerify').classList.toggle('hide', !!lock);
+      readonlyNote.classList.toggle('hide', !lock);
+    }
+
+    async function isAdmin(uid){
+      try{ const a = await getDoc(doc(db,'Admin',uid)); return a.exists(); }catch(_){ return false; }
+    }
+
+    // ---------- INIT ----------
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user){
+        showWarn('Please log in first. Redirecting to login…');
+        setTimeout(()=>{ window.location.href='login.html'; }, 1200);
+        return;
+      }
+      try{
+        const role = detectRole();
+        const coll = role === 'hirer' ? 'hirers' : 'workers';
+
+        const [adm, snap] = await Promise.all([ isAdmin(user.uid), getDoc(doc(db,coll,user.uid)) ]);
+
+        let data = {};
+        if (snap.exists()) data = snap.data();
+        else {
+          data = {
+            fullName: user.displayName || '',
+            email: user.email || '',
+            phone: user.phoneNumber || '',
+            role,
+            verificationStatus: 'unverified'
+          };
+          await setDoc(doc(db,coll,user.uid), { uid:user.uid, ...data, createdAt: serverTimestamp() }, { merge:true });
+        }
+
+        // ensure folder path exists (based on current full name)
+        await ensureUserFolder(user.uid, data.fullName || user.displayName || user.email);
+
+        // Wire the per-file uploaders (after we know UID)
+        wireUploader({inputId:'idFront',      buttonId:'btnUploadIdFront',  barId:'barIdFront',   statusId:'statusIdFront',   linkId:'linkIdFront',   fileKey:'idFrontUrl'});
+        wireUploader({inputId:'selfieTool',   buttonId:'btnUploadSelfie',   barId:'barSelfie',    statusId:'statusSelfie',    linkId:'linkSelfie',    fileKey:'selfieToolUrl'});
+        wireUploader({inputId:'brgyClearance',buttonId:'btnUploadBrgy',     barId:'barBrgy',      statusId:'statusBrgy',      linkId:'linkBrgy',      fileKey:'brgyClearanceUrl'});
+        wireUploader({inputId:'nbiClearance', buttonId:'btnUploadNbi',      barId:'barNbi',       statusId:'statusNbi',       linkId:'linkNbi',       fileKey:'nbiClearanceUrl'});
+        wireUploader({inputId:'portfolio',    buttonId:'btnUploadPortfolio',barId:'barPortfolio', statusId:'statusPortfolio', linkId:'linkPortfolio', fileKey:'portfolioUrl'});
+
+        fillForm(data);
+        setStatusBadge(data.verificationStatus || 'unverified');
+
+        ['idFrontUrl','selfieToolUrl','brgyClearanceUrl','nbiClearanceUrl','portfolioUrl','idType','idNumber']
+          .forEach(k=>{ if (data[k]) filePaths[k]=data[k]; });
+
+        document.getElementById('avatar').src = await resolveAvatar(user.uid, data, user);
+
+        computeCompleteness(data);
+
+        const verified = (data.verificationStatus === 'verified');
+        setReadOnly(verified && !adm);
+
+        // live rating & header (workers collection for now)
+        if (role === 'worker') mountAggregate(user.uid, user);
+
+        if (adm){
+          const btn = document.getElementById('adminUnlock');
+          btn.classList.remove('hide');
+          let unlocked = !verified;
+          btn.addEventListener('click', ()=>{
+            unlocked = !unlocked;
+            setReadOnly(!unlocked);
+            btn.textContent = unlocked ? '🔒 Lock (Admin)' : '🔓 Edit (Admin)';
+          });
+        }
+      }catch(e){
+        console.error(e);
+        showWarn('Could not load your profile. Please refresh the page.');
+      }
+    });
+
+    // Actions
+    document.getElementById('saveDraft').addEventListener('click', async ()=>{
+      const user = auth.currentUser; if (!user) return;
+      await saveDraft(user.uid,false);
+    });
+    document.getElementById('requestVerify').addEventListener('click', async ()=>{
+      const user = auth.currentUser; if (!user) return;
+      const role = detectRole();
+      const coll = role === 'hirer' ? 'hirers' : 'workers';
+      const snap = await getDoc(doc(db,coll,user.uid));
+      const d = snap.exists()? snap.data() : collectForm();
+      const { basicOk, workOk, locOk, proofOk } = computeCompleteness({ ...d, ...filePaths, ...collectForm() });
+      if (!(basicOk && workOk && locOk && proofOk)){
+        showWarn('Heads up: to reach 100%, complete Basic + Work + Location + (Identity or Community/Social proof). You can still submit now, but verification may be delayed.');
+      }
+      await saveDraft(user.uid,true);
+    });
+  </script>
+</body>
+</html>

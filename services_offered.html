@@ -1,0 +1,332 @@
+<!-- ===== ACSJZ • Beginner Web & App Product (Turquoise Theme) ===== -->
+<section id="acsjz-beginner-offer" class="bh-wrap" aria-label="Beginner Websites and Apps">
+  <style>
+    /* --- Scoped styles so it won't clash --- */
+    #acsjz-beginner-offer{
+      --ink:#0E2A32;
+      --muted:#55727a;
+      --brand:#14B8A6;      /* turquoise core */
+      --brand-ink:#064E4A;  /* deep teal for text accents */
+      --bg:#F4FBFA;         /* very light aqua */
+      --card:#ffffff;
+      --line:#e4f2f1;       /* soft aqua line */
+    }
+    #acsjz-beginner-offer *{box-sizing:border-box}
+    #acsjz-beginner-offer .bh-wrap{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#fff}
+    #acsjz-beginner-offer .bh-container{max-width:1160px;margin:0 auto;padding:56px 20px}
+    #acsjz-beginner-offer h1,#acsjz-beginner-offer h2{letter-spacing:.2px;margin:0 0 12px}
+    #acsjz-beginner-offer p{margin:0 0 10px;color:var(--muted)}
+
+    /* Badge switched from gold to aqua */
+    #acsjz-beginner-offer .bh-badge{
+      display:inline-flex;gap:8px;align-items:center;
+      background:#E6FFFB;border:1px solid #A7F3EF;color:var(--brand-ink);
+      border-radius:999px;padding:6px 12px;font-weight:600;font-size:12px
+    }
+
+    /* Hero gradient now crisp aqua */
+    #acsjz-beginner-offer .bh-hero{
+      background:linear-gradient(180deg,#ffffff 0%,#E9FFFB 100%);
+      border-bottom:1px solid var(--line)
+    }
+
+    #acsjz-beginner-offer .bh-hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:32px;align-items:center}
+    #acsjz-beginner-offer .bh-title{font-size:44px;line-height:1.1;color:#0b2f33}
+    #acsjz-beginner-offer .bh-sub{font-size:18px;color:#27494f}
+
+    #acsjz-beginner-offer .bh-cta{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+    #acsjz-beginner-offer .bh-btn{border:0;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer}
+    #acsjz-beginner-offer .bh-btn-primary{
+      background:var(--brand);color:#ffffff;
+      box-shadow:0 10px 18px rgba(20,184,166,.25)
+    }
+    #acsjz-beginner-offer .bh-btn-ghost{
+      background:#fff;color:var(--brand-ink);border:1px solid var(--line)
+    }
+
+    #acsjz-beginner-offer .bh-metrics{display:flex;gap:24px;margin-top:22px;flex-wrap:wrap}
+    #acsjz-beginner-offer .bh-metric{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:160px}
+    #acsjz-beginner-offer .bh-metric b{display:block;font-size:20px;color:#0b3f42}
+
+    #acsjz-beginner-offer .bh-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+    #acsjz-beginner-offer .bh-sec{padding:44px 0}
+    #acsjz-beginner-offer .bh-sec h2{font-size:28px}
+
+    #acsjz-beginner-offer .bh-services{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}
+    #acsjz-beginner-offer .bh-service{display:grid;gap:8px}
+    #acsjz-beginner-offer .bh-service h3{font-size:16px;margin:0;color:#0f2f34}
+    #acsjz-beginner-offer .bh-service p{font-size:14px}
+
+    #acsjz-beginner-offer .bh-pricing-head{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:14px}
+    #acsjz-beginner-offer .bh-currency{display:flex;align-items:center;gap:10px}
+    #acsjz-beginner-offer select{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#fff}
+
+    #acsjz-beginner-offer .bh-pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    #acsjz-beginner-offer .bh-price{font-size:30px;font-weight:800;color:#0f2a31}
+
+    /* Bullets flip to turquoise accent */
+    #acsjz-beginner-offer ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+    #acsjz-beginner-offer li{padding-left:26px;position:relative;font-size:14px;color:#24444a}
+    #acsjz-beginner-offer li:before{content:"";width:14px;height:14px;border-radius:4px;background:var(--brand);position:absolute;left:0;top:2px}
+
+    #acsjz-beginner-offer .bh-reassure{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}
+    #acsjz-beginner-offer .bh-grid{display:grid;gap:16px}
+    #acsjz-beginner-offer .bh-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+    #acsjz-beginner-offer .bh-step h3{margin:0 0 6px;font-size:16px}
+
+    #acsjz-beginner-offer .bh-contact{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:18px}
+    #acsjz-beginner-offer .bh-form{display:grid;gap:10px}
+    #acsjz-beginner-offer .bh-form input,#acsjz-beginner-offer .bh-form textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font:inherit}
+    #acsjz-beginner-offer .bh-form button{padding:12px 16px;border-radius:10px;border:0;background:var(--brand);font-weight:800;cursor:pointer;color:#fff}
+
+    #acsjz-beginner-offer .bh-faq details{border:1px solid var(--line);border-radius:12px;padding:12px}
+    #acsjz-beginner-offer .bh-faq summary{font-weight:700;cursor:pointer}
+    #acsjz-beginner-offer .bh-footnote{font-size:12px;color:var(--muted);margin-top:10px}
+
+    @media (max-width: 980px){
+      #acsjz-beginner-offer .bh-hero-grid{grid-template-columns:1fr}
+      #acsjz-beginner-offer .bh-services{grid-template-columns:1fr 1fr}
+      #acsjz-beginner-offer .bh-pricing{grid-template-columns:1fr}
+      #acsjz-beginner-offer .bh-reassure{grid-template-columns:1fr 1fr}
+      #acsjz-beginner-offer .bh-steps{grid-template-columns:1fr}
+      #acsjz-beginner-offer .bh-contact{grid-template-columns:1fr}
+    }
+  </style>
+
+  <!-- HERO -->
+  <div class="bh-hero">
+    <div class="bh-container">
+      <div class="bh-hero-grid">
+        <div>
+          <span class="bh-badge" aria-label="Beginner friendly badge">Beginner-Friendly • International</span>
+          <h1 class="bh-title">Simple, Affordable Websites & Apps</h1>
+          <p class="bh-sub">We build starter websites and basic mobile apps to get your business online fast. No tech skills needed — we handle everything.</p>
+          <div class="bh-cta" role="group" aria-label="Primary actions">
+            <a class="bh-btn bh-btn-primary" href="https://wa.me/+966564106248?text=Hello%20ACSJZ%2C%20I%20want%20a%20beginner%20website%2Fapp." target="_blank" rel="noopener">Chat on WhatsApp</a>
+            <a class="bh-btn bh-btn-ghost" href="#bh-contact">Get a Free Quote</a>
+          </div>
+          <div class="bh-metrics">
+            <div class="bh-metric"><b>3–7 days</b><small>Typical launch time</small></div>
+            <div class="bh-metric"><b>Global</b><small>USD, SAR, AED, EUR, PHP</small></div>
+            <div class="bh-metric"><b>All-inclusive</b><small>Design • Build • Publish</small></div>
+          </div>
+        </div>
+        <div class="bh-card bh-grid" aria-hidden="true">
+          <div class="bh-card">
+            <b>What you get</b>
+            <ul>
+              <li>Modern, mobile-friendly design</li>
+              <li>Contact form & WhatsApp hook</li>
+              <li>Basic SEO & analytics</li>
+              <li>1 month post-launch support</li>
+            </ul>
+          </div>
+          <div class="bh-card">
+            <b>Add-ons</b>
+            <ul>
+              <li>Logo & social branding kit</li>
+              <li>Extra pages & languages</li>
+              <li>Play Store publishing (Android)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <div class="bh-container bh-sec" id="bh-services">
+    <h2>Starter Services</h2>
+    <div class="bh-services">
+      <div class="bh-card bh-service">
+        <h3>Basic Website</h3>
+        <p>1–5 pages, mobile-friendly, with contact form and basic SEO.</p>
+      </div>
+      <div class="bh-card bh-service">
+        <h3>Brand & Social Kit</h3>
+        <p>Logo refresh, Facebook/Instagram profile, cover, and post template.</p>
+      </div>
+      <div class="bh-card bh-service">
+        <h3>Starter Mobile App</h3>
+        <p>Simple Android app for product list or booking form. Store upload included.</p>
+      </div>
+      <div class="bh-card bh-service">
+        <h3>Updates & Support</h3>
+        <p>Content edits, security patches, and uptime checks for peace of mind.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICING -->
+  <div class="bh-container bh-sec" id="bh-pricing">
+    <div class="bh-pricing-head">
+      <h2>Simple Pricing</h2>
+      <div class="bh-currency">
+        <label for="bh-currency-select"><small>Currency:</small></label>
+        <select id="bh-currency-select" aria-label="Choose currency">
+          <option value="USD" selected>USD $</option>
+          <option value="SAR">SAR ﷼</option>
+          <option value="AED">AED د.إ</option>
+          <option value="EUR">EUR €</option>
+          <option value="PHP">PHP ₱</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="bh-pricing">
+      <!-- Starter Website -->
+      <div class="bh-card">
+        <h3>Starter Website</h3>
+        <div class="bh-price" data-usd="150">$150</div>
+        <ul>
+          <li>1–3 pages (Home, About, Contact)</li>
+          <li>Responsive design</li>
+          <li>Basic analytics (GA4)</li>
+          <li>1 free update after launch</li>
+        </ul>
+        <div class="bh-cta" style="margin-top:12px">
+          <a class="bh-btn bh-btn-primary" href="#bh-contact">Choose Starter</a>
+        </div>
+      </div>
+
+      <!-- Business Starter -->
+      <div class="bh-card">
+        <h3>Business Starter</h3>
+        <div class="bh-price" data-usd="300">$300</div>
+        <ul>
+          <li>Up to 5 pages + blog</li>
+          <li>Basic SEO & speed tuning</li>
+          <li>Social media integration</li>
+          <li>1 month support</li>
+        </ul>
+        <div class="bh-cta" style="margin-top:12px">
+          <a class="bh-btn bh-btn-primary" href="#bh-contact">Choose Business</a>
+        </div>
+      </div>
+
+      <!-- Starter Mobile App -->
+      <div class="bh-card">
+        <h3>Starter Mobile App</h3>
+        <div class="bh-price" data-usd="400">$400</div>
+        <ul>
+          <li>Android app (catalog or booking)</li>
+          <li>Basic auth & form handling</li>
+          <li>Play Store submission</li>
+          <li>1 month support</li>
+        </ul>
+        <div class="bh-cta" style="margin-top:12px">
+          <a class="bh-btn bh-btn-primary" href="#bh-contact">Choose App</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="bh-footnote">* Prices shown are entry estimates. Final quote depends on scope and add-ons.</div>
+  </div>
+
+  <!-- WHY & PROCESS -->
+  <div class="bh-container bh-sec">
+    <div class="bh-reassure">
+      <div class="bh-card">
+        <b>Beginner-Friendly</b>
+        <p>We explain in plain English and keep the process simple.</p>
+      </div>
+      <div class="bh-card">
+        <b>Fast Turnaround</b>
+        <p>Most projects ship within 3–7 days after content is ready.</p>
+      </div>
+      <div class="bh-card">
+        <b>All-Inclusive</b>
+        <p>Design, build, publish, and initial support in one package.</p>
+      </div>
+      <div class="bh-card">
+        <b>Global Payments</b>
+        <p>Invoice in your preferred currency and method.</p>
+      </div>
+    </div>
+
+    <div class="bh-steps">
+      <div class="bh-card bh-step">
+        <h3>1) Share your idea</h3>
+        <p>Tell us the pages/features you need and your deadline.</p>
+      </div>
+      <div class="bh-card bh-step">
+        <h3>2) See a sample</h3>
+        <p>We prepare a quick draft so you can approve the look.</p>
+      </div>
+      <div class="bh-card bh-step">
+        <h3>3) Launch & Support</h3>
+        <p>We publish your site/app and support you after launch.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="bh-container bh-sec" id="bh-contact">
+    <h2>Get a Free Quote</h2>
+    <div class="bh-contact">
+      <div class="bh-card">
+        <form class="bh-form" action="https://formspree.io/f/movlyybk" method="POST">
+          <input type="text" name="name" placeholder="Your Name" required aria-label="Your Name">
+          <input type="email" name="email" placeholder="Email" required aria-label="Your Email">
+          <input type="text" name="whatsapp" placeholder="WhatsApp (optional)" aria-label="WhatsApp Number">
+          <select name="service" aria-label="Service Needed" required>
+            <option value="" disabled selected>Service Needed</option>
+            <option>Starter Website</option>
+            <option>Business Starter</option>
+            <option>Starter Mobile App</option>
+            <option>Brand & Social Kit</option>
+            <option>Updates & Support</option>
+          </select>
+          <textarea name="message" rows="5" placeholder="Tell us a bit about your project…" aria-label="Project Details"></textarea>
+          <button type="submit" class="bh-btn-primary">Send Request</button>
+        </form>
+        <div class="bh-footnote">By submitting, you agree to be contacted by ACSJZ about this request.</div>
+      </div>
+
+      <div class="bh-grid">
+        <div class="bh-card bh-faq">
+          <details>
+            <summary>Do I need any technical knowledge?</summary>
+            <p>No. We handle everything from design to publishing.</p>
+          </details>
+        </div>
+        <div class="bh-card bh-faq">
+          <details>
+            <summary>How fast can we launch?</summary>
+            <p>Usually 3–7 days after content is ready, depending on scope.</p>
+          </details>
+        </div>
+        <div class="bh-card bh-faq">
+          <details>
+            <summary>Do I own the work?</summary>
+            <p>Yes. You own your website/app and assets after full payment.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tiny JS: currency switcher -->
+  <script>
+    (function(){
+      const select = document.querySelector('#bh-currency-select');
+      const priceEls = document.querySelectorAll('#acsjz-beginner-offer .bh-price');
+
+      // Base USD prices are stored in data-usd
+      // Lightweight static rates (adjust anytime):
+      const rates = { USD:1, SAR:3.75, AED:3.67, EUR:0.92, PHP:58.0 };
+      const symbols = { USD:'$', SAR:'﷼', AED:'د.إ', EUR:'€', PHP:'₱' };
+
+      function updatePrices(cur){
+        priceEls.forEach(el=>{
+          const usd = parseFloat(el.getAttribute('data-usd')||'0');
+          const converted = Math.round(usd * (rates[cur]||1));
+          el.textContent = symbols[cur] + converted.toLocaleString();
+        });
+      }
+      select.addEventListener('change', e=>updatePrices(e.target.value));
+      updatePrices(select.value);
+    })();
+  </script>
+</section>
+<!-- ===== /ACSJZ • Beginner Web & App Product (Turquoise Theme) ===== -->

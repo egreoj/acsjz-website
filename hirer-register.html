@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Beehire — Hirer Registration</title>
+
+  <!-- Corporate font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --brand:#FFC107;         /* honey gold */
+      --brand-ink:#0E2A32;     /* deep navy */
+      --ink:#0E2A32;
+      --muted:#6B7B84;
+      --bg:#F6F9FC;
+      --card:#ffffff;
+      --line:#E6EDF2; --line-strong:#D7E1EA;
+      --focus:#2C7BE5;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--ink); background:linear-gradient(180deg,#FFFFFF 0%, var(--bg) 70%);
+    }
+
+    /* Header */
+    header{
+      position:sticky; top:0; z-index:30;
+      background:var(--card); border-bottom:1px solid var(--line);
+      box-shadow:0 2px 10px rgba(14,42,50,.04);
+    }
+    .nav{
+      max-width:1000px; margin:0 auto; padding:14px 18px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none}
+    .brand-logo{width:42px; height:42px; object-fit:contain; filter:drop-shadow(0 2px 8px rgba(0,0,0,.06))}
+    .brand-title{display:flex; flex-direction:column; line-height:1.1}
+    .brand-title .name{font-weight:800; font-size:1.12rem; color:var(--brand-ink); letter-spacing:.2px}
+    .brand-title .tag{font-size:.8rem; color:var(--muted); font-weight:700; letter-spacing:.3px}
+    .badge{padding:6px 10px; border:1px solid var(--line-strong); border-radius:999px; color:var(--brand-ink); font-weight:800; font-size:.8rem}
+
+    /* Layout */
+    .wrap{max-width:1000px; margin:36px auto 80px; padding:0 18px; display:grid; grid-template-columns:1.1fr 1fr; gap:28px}
+    @media (max-width:980px){ .wrap{grid-template-columns:1fr} .hero{order:2} .panel{order:1} }
+
+    .hero{
+      background:linear-gradient(135deg,#FFF4C5 0%,#FFF 40%,#F6FAFF 100%);
+      border:1px solid var(--line); border-radius:18px; padding:24px;
+      box-shadow:0 10px 24px rgba(14,42,50,.06);
+    }
+    .hero h2{margin:6px 0 6px; font-size:1.5rem}
+    .hero p{margin:0; color:var(--muted)}
+    .bullets{margin-top:14px; display:grid; gap:8px}
+    .bullets li{list-style:none; display:flex; gap:10px; align-items:flex-start}
+    .dot{width:8px; height:8px; border-radius:2px; background:var(--brand); margin-top:.45rem}
+
+    .panel{
+      background:var(--card); border:1px solid var(--line); border-radius:18px; padding:22px;
+      box-shadow:0 12px 28px rgba(14,42,50,.08);
+    }
+    .panel h3{margin:0 0 6px; font-size:1.3rem}
+    .panel .sub{margin:0 0 16px; color:var(--muted)}
+
+    form{display:flex; flex-direction:column; gap:14px}
+    label{font-weight:800; font-size:.92rem; color:var(--brand-ink)}
+    .input{
+      display:flex; align-items:center; gap:10px; background:#fff;
+      border:1px solid var(--line-strong); border-radius:12px; padding:12px 14px;
+      transition:border-color .15s, box-shadow .15s, background .15s;
+    }
+    .input:focus-within{ border-color:var(--focus); box-shadow:0 0 0 3px rgba(44,123,229,.15) }
+    .input input{
+      outline:none; border:0; width:100%; font-size:1rem; background:transparent; color:var(--ink)
+    }
+    .input .suffix-btn{
+      border:0; background:transparent; cursor:pointer; font-weight:800; color:var(--muted)
+    }
+
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .hint{font-size:.9rem; color:#4b5563}
+
+    .btn{
+      background:var(--brand); color:#111; border:0; border-radius:12px;
+      padding:14px 16px; font-weight:800; cursor:pointer;
+      box-shadow:0 8px 20px rgba(255,193,7,.28);
+      transition:transform .06s, box-shadow .15s, filter .15s;
+    }
+    .btn:hover{filter:brightness(.98); box-shadow:0 12px 26px rgba(255,193,7,.38)}
+    .btn:active{transform:translateY(1px)}
+    .loading{opacity:.6; pointer-events:none}
+
+    .legal{margin-top:12px; font-size:.85rem; color:var(--muted); text-align:center}
+    .legal a{color:#0D6EFD; text-decoration:none; font-weight:700}
+    .legal a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <img class="brand-logo" src="BeeHire Logo.png" alt="Beehire logo">
+        <span class="brand-title">
+          <span class="name">Beehire</span>
+          <span class="tag">Hirer Registration</span>
+        </span>
+      </a>
+      <span class="badge">Create account</span>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="wrap">
+    <!-- Trust/benefits -->
+    <section class="hero">
+      <h2>Why create a Beehire Hirer account?</h2>
+      <p class="sub">Book trusted workers faster with a verified profile.</p>
+      <ul class="bullets">
+        <li><span class="dot"></span><span>Post and manage <b>job requests</b> in minutes</span></li>
+        <li><span class="dot"></span><span><b>Chat</b> and schedule with candidates securely</span></li>
+        <li><span class="dot"></span><span>Build trust with <b>verification</b> and references</span></li>
+      </ul>
+    </section>
+
+    <!-- Registration card -->
+    <section class="panel" aria-labelledby="reg-title">
+      <h3 id="reg-title">Register as a Hirer</h3>
+      <p class="sub">Use your email to create an account.</p>
+
+      <form id="registerForm" novalidate>
+        <label for="fullName">Full Name</label>
+        <div class="input">
+          <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" autocomplete="name" required>
+        </div>
+
+        <label for="email">Email</label>
+        <div class="input">
+          <input type="email" id="email" name="email" placeholder="you@company.com" autocomplete="email" required>
+        </div>
+
+        <label for="phone">Phone Number</label>
+        <div class="input">
+          <input type="tel" id="phone" name="phone" placeholder="+63 9xx xxx xxxx" autocomplete="tel" required>
+        </div>
+
+        <label for="password">Password</label>
+        <div class="input">
+          <input type="password" id="password" name="password" placeholder="Minimum 6 characters" minlength="6" required>
+          <button type="button" id="togglePw" class="suffix-btn" aria-label="Show password">Show</button>
+        </div>
+
+        <button type="submit" id="registerBtn" class="btn">Create account</button>
+
+        <p class="legal">
+          By continuing you agree to our <a href="privacy.html">Privacy Policy</a> and <a href="terms.html">Terms</a>.
+        </p>
+
+        <div class="legal">
+          Already have an account? <a href="hirer-login.html">Login</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- Firebase + Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+        authDomain: "myapp-96865.firebaseapp.com",
+        databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "myapp-96865",
+        // If Storage misbehaves, try: "myapp-96865.appspot.com"
+        storageBucket: "myapp-96865.firebasestorage.app",
+        messagingSenderId: "217431866794",
+        appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+        measurementId: "G-1T4M9PE1GD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("registerForm");
+    const btn  = document.getElementById("registerBtn");
+    const togglePw = document.getElementById("togglePw");
+
+    function setLoading(loading){
+      const panel = document.querySelector(".panel");
+      if (loading) panel.classList.add("loading"); else panel.classList.remove("loading");
+      if (btn) btn.disabled = !!loading;
+    }
+
+    // Show/Hide password
+    togglePw.addEventListener("click", ()=>{
+      const pw = document.getElementById("password");
+      const is = pw.type === "password";
+      pw.type = is ? "text" : "password";
+      togglePw.textContent = is ? "Hide" : "Show";
+      togglePw.setAttribute("aria-label", is ? "Hide password" : "Show password");
+    });
+
+    // Basic validators
+    function normalizePhone(ph){
+      // keep digits and + only, trim spaces
+      return (ph || "").replace(/[^\d+]/g,"").trim();
+    }
+    function validEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+    form.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      setLoading(true);
+
+      const fullName = document.getElementById("fullName").value.trim();
+      const email    = document.getElementById("email").value.trim().toLowerCase();
+      const phoneRaw = document.getElementById("phone").value.trim();
+      const phone    = normalizePhone(phoneRaw);
+      const password = document.getElementById("password").value;
+
+      if (!fullName || !validEmail(email) || !phone || password.length < 6){
+        alert("Please complete the form correctly (valid email, phone, and min 6-char password).");
+        setLoading(false);
+        return;
+      }
+
+      try{
+        // Create account
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: fullName });
+
+        // seed Firestore profile
+        const payload = {
+          uid: cred.user.uid,
+          fullName,
+          email,
+          phone,
+          role: "hirer",
+          provider: "password",
+          createdAt: serverTimestamp(),
+          lastLogin: serverTimestamp(),
+          verificationStatus: "unverified"
+        };
+        await setDoc(doc(db, "hirers", cred.user.uid), payload, { merge:true });
+
+        alert("Registration successful!");
+        // Go straight to verification page to complete details
+        window.location.href = "hirer-verification.html";
+      }catch(err){
+        console.error(err);
+        alert("Registration failed: " + (err.message || err.code));
+      }finally{
+        setLoading(false);
+      }
+    });
+  </script>
+</body>
+</html>
