@@ -5,126 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Beehire — Hirer Login</title>
 
-  <!-- Corporate font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --ink:#0E2A32;           /* deep navy */
-      --muted:#6B7B84;
-      --bg:#F7F9FB;
-      --card:#ffffff;
-      --brand:#FFC107;         /* corporate honey gold */
-      --brand-ink:#1A1A1A;
-      --line:#E7EDF2;
-      --focus:#2C7BE5;
+      --ink:#0E2A32; --muted:#6B7B84; --bg:#F7F9FB; --card:#ffffff;
+      --brand:#FFC107; --brand-ink:#1A1A1A; --line:#E7EDF2; --focus:#2C7BE5;
     }
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; font-family:"Inter",system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--ink); background:linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 60%, #F2F7FB 100%);
+      margin:0; font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--ink); background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 60%,#F2F7FB 100%);
     }
-
-    header{
-      position:sticky; top:0; z-index:20;
-      background:var(--card);
-      border-bottom:1px solid var(--line);
-      box-shadow:0 2px 12px rgba(0,0,0,.04);
-    }
-    .nav{
-      max-width:1100px; margin:0 auto; padding:16px 20px;
-      display:flex; align-items:center; justify-content:space-between;
-    }
+    header{position:sticky; top:0; z-index:20; background:var(--card); border-bottom:1px solid var(--line); box-shadow:0 2px 12px rgba(0,0,0,.04)}
+    .nav{max-width:1100px; margin:0 auto; padding:16px 20px; display:flex; align-items:center; justify-content:space-between}
     .brand{display:flex; align-items:center; gap:12px; text-decoration:none}
-    .brand-logo{
-      width:42px; height:42px; object-fit:contain; display:block;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,.06));
-    }
+    .brand-logo{width:42px; height:42px; object-fit:contain; display:block; filter: drop-shadow(0 2px 8px rgba(0,0,0,.06))}
     .brand-title{display:flex; flex-direction:column; line-height:1.1}
     .brand-title .name{font-weight:800; letter-spacing:.2px; font-size:1.1rem; color:var(--brand-ink)}
     .brand-title .tag{font-size:.78rem; color:var(--muted); font-weight:600; letter-spacing:.3px}
-    .badge{
-      padding:6px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted);
-      font-size:.78rem; font-weight:600; background:#fff;
-    }
-
-    .wrap{
-      max-width:1100px; margin:42px auto; padding:0 20px;
-      display:grid; grid-template-columns: 1.1fr 1fr; gap:28px;
-    }
-    @media (max-width: 980px){
-      .wrap{grid-template-columns: 1fr}
-      .hero{order:2}
-      .panel{order:1}
-    }
-
-    .hero{
-      background:linear-gradient(135deg, #FFF4C5 0%, #FFF 40%, #F6FAFF 100%);
-      border:1px solid var(--line); border-radius:20px; padding:28px;
-      box-shadow:0 10px 24px rgba(14,42,50,.06);
-    }
+    .badge{padding:6px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:.78rem; font-weight:600; background:#fff}
+    .wrap{max-width:1100px; margin:42px auto; padding:0 20px; display:grid; grid-template-columns:1.1fr 1fr; gap:28px}
+    @media (max-width:980px){.wrap{grid-template-columns:1fr}.hero{order:2}.panel{order:1}}
+    .hero{background:linear-gradient(135deg,#FFF4C5 0%,#FFF 40%,#F6FAFF 100%); border:1px solid var(--line); border-radius:20px; padding:28px; box-shadow:0 10px 24px rgba(14,42,50,.06)}
     .hero h2{margin:8px 0 6px; font-size:1.6rem}
     .hero p{margin:0; color:var(--muted)}
     .hero-bullets{margin-top:18px; display:grid; gap:8px}
     .hero-bullets li{list-style:none; display:flex; gap:10px; align-items:flex-start; color:var(--ink)}
     .dot{width:8px; height:8px; border-radius:2px; background:var(--brand); margin-top:.45rem}
-
-    .panel{
-      background:var(--card); border:1px solid var(--line);
-      border-radius:20px; padding:28px;
-      box-shadow:0 12px 28px rgba(14,42,50,.08);
-    }
+    .panel{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:28px; box-shadow:0 12px 28px rgba(14,42,50,.08)}
     .panel h3{margin:0 0 6px; font-size:1.35rem; letter-spacing:.2px}
     .panel .sub{margin:0 0 18px; color:var(--muted); font-size:.95rem}
-
     form{display:flex; flex-direction:column; gap:14px}
     label{font-weight:700; font-size:.92rem}
-    .input{
-      display:flex; align-items:center; gap:10px;
-      border:1px solid var(--line); border-radius:12px; padding:12px 14px;
-      background:#fff; transition:border-color .15s, box-shadow .15s;
-    }
-    .input:focus-within{ border-color:var(--focus); box-shadow:0 0 0 3px rgba(44,123,229,.15) }
+    .input{display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:#fff; transition:border-color .15s, box-shadow .15s}
+    .input:focus-within{border-color:var(--focus); box-shadow:0 0 0 3px rgba(44,123,229,.15)}
     .input svg{flex:0 0 18px}
     .input input{outline:none; border:0; width:100%; font-size:1rem; background:transparent; color:var(--ink)}
-
-    .btn{
-      margin-top:6px; background:var(--brand); color:var(--ink);
-      padding:14px 16px; border:0; border-radius:12px; font-size:1rem; font-weight:800; cursor:pointer;
-      box-shadow:0 6px 16px rgba(255,193,7,.35);
-      transition:transform .06s ease, box-shadow .15s ease, filter .15s ease;
-    }
-    .btn:hover{ filter:saturate(1.03) brightness(.98); box-shadow:0 8px 20px rgba(255,193,7,.45) }
-    .btn:active{ transform:translateY(1px) }
+    .btn{margin-top:6px; background:var(--brand); color:var(--ink); padding:14px 16px; border:0; border-radius:12px; font-size:1rem; font-weight:800; cursor:pointer; box-shadow:0 6px 16px rgba(255,193,7,.35); transition:transform .06s ease, box-shadow .15s ease, filter .15s ease}
+    .btn:hover{filter:saturate(1.03) brightness(.98); box-shadow:0 8px 20px rgba(255,193,7,.45)}
+    .btn:active{transform:translateY(1px)}
     .hint{font-size:.9rem; color:var(--muted)}
-
-    .divider{
-      display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px;
-      margin:18px 0 10px; color:var(--muted); font-weight:600; letter-spacing:.15px;
-    }
+    .divider{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px; margin:18px 0 10px; color:var(--muted); font-weight:600; letter-spacing:.15px}
     .divider::before,.divider::after{content:""; height:1px; background:var(--line); display:block}
-
     .oauth{display:flex; flex-direction:column; gap:10px}
-    .btn-ghost{
-      background:#fff; border:1px solid var(--line); color:var(--ink); font-weight:700;
-      padding:12px 14px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;
-      transition:background .15s, box-shadow .15s, border-color .15s;
-    }
-    .btn-ghost:hover{ background:#FAFCFF; border-color:#D8E3EE; box-shadow:0 6px 16px rgba(14,42,50,.06) }
-
+    .btn-ghost{background:#fff; border:1px solid var(--line); color:var(--ink); font-weight:700; padding:12px 14px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:background .15s, box-shadow .15s, border-color .15s}
+    .btn-ghost:hover{background:#FAFCFF; border-color:#D8E3EE; box-shadow:0 6px 16px rgba(14,42,50,.06)}
     .register{text-align:center; margin-top:14px; color:var(--muted)}
     .register a{color:#0D6EFD; text-decoration:none; font-weight:700}
     .register a:hover{text-decoration:underline}
-
     .loading{opacity:.6; pointer-events:none}
   </style>
 </head>
 <body>
-
   <header>
     <div class="nav">
       <a class="brand" href="#">
@@ -167,7 +103,7 @@
         </div>
 
         <button type="submit" id="loginBtn" class="btn">Sign in</button>
-        <div class="hint">Tip: You can enter your <b>username</b> or <b>phone</b> and we’ll look up the registered email.</div>
+        <div class="hint">Tip: If username/phone fails, enter your <b>email</b> directly (security rules may block lookups).</div>
       </form>
 
       <div class="divider">or continue with</div>
@@ -189,19 +125,23 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+    import {
+      getAuth, signInWithEmailAndPassword, GoogleAuthProvider, FacebookAuthProvider,
+      signInWithPopup, onAuthStateChanged, sendEmailVerification
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import {
+      getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
-        authDomain: "myapp-96865.firebaseapp.com",
-        databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "myapp-96865",
-        // If Storage misbehaves, try: "myapp-96865.appspot.com"
-        storageBucket: "myapp-96865.firebasestorage.app",
-        messagingSenderId: "217431866794",
-        appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
-        measurementId: "G-1T4M9PE1GD"
+      authDomain: "myapp-96865.firebaseapp.com",
+      databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.firebasestorage.app",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+      measurementId: "G-1T4M9PE1GD"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -217,100 +157,181 @@
       const panel = document.querySelector('.panel');
       if (loading) panel.classList.add('loading'); else panel.classList.remove('loading');
       if (loginBtn) loginBtn.disabled = !!loading;
+      if (googleBtn) googleBtn.disabled = !!loading;
+      if (fbBtn) fbBtn.disabled = !!loading;
     }
 
+    // ✅ Upsert profile to /hirers/{uid} with fields required by your Firestore rules
     async function upsertHirerProfile(user, source = "password") {
       const ref = doc(db, "hirers", user.uid);
       const snap = await getDoc(ref);
       const provider = (user.providerData && user.providerData[0]?.providerId) || source || "password";
-      const payload = {
+
+      // Ensure strings for rule checks
+      const email = (user.email ?? "").toLowerCase();
+      const fullName = user.displayName ?? "Hirer";
+      const phone = user.phoneNumber ? String(user.phoneNumber) : "";
+
+      const base = {
         uid: user.uid,
-        email: user.email || null,
-        displayName: user.displayName || null,
-        photoURL: user.photoURL || null,
-        phone: user.phoneNumber || null,
-        provider, role: "hirer",
+        role: "hirer",
+        email,
+        fullName,
+        // optional fields (rules allow extras)
+        phone,
+        photoURL: user.photoURL ?? null,
+        provider,
         lastLogin: serverTimestamp()
       };
-      if (!snap.exists()) payload.createdAt = serverTimestamp();
-      await setDoc(ref, payload, { merge: true });
+      if (!snap.exists()) base.createdAt = serverTimestamp();
+
+      // Write exactly to uid doc (allowed by rules)
+      await setDoc(ref, base, { merge: true });
       return ref;
     }
 
-    async function fetchHirerOrRoute(user) {
+    // Route based on presence of /hirers/{uid}
+    async function routeToCorrectPage(user) {
       try {
         const ref = doc(db, "hirers", user.uid);
         const snap = await getDoc(ref);
-        if (!snap.exists()) { window.location.href = "hirer-register.html"; return; }
-        try { localStorage.setItem("hirerProfile", JSON.stringify(snap.data())); } catch (_) {}
-        window.location.href = "beehiremain.html";
+        if (snap.exists()) {
+          try { localStorage.setItem("hirerProfile", JSON.stringify(snap.data())); } catch {}
+          window.location.href = "hirer-profile.html";
+          return;
+        }
+        window.location.href = "hirer-register.html";
       } catch (err) {
-        console.error("Fetch/route error:", err);
+        console.error("Route error:", err);
         alert("Could not load your profile. Please try again.");
       }
     }
 
+    // Lookups for username/phone -> email (may be blocked by rules; we handle gracefully)
     async function resolveEmailFromHirers(identifierRaw) {
       const hirersRef = collection(db, "hirers");
       const identifier = identifierRaw.trim();
-      let q = query(hirersRef, where("email", "==", identifier.toLowerCase()));
-      let snap = await getDocs(q); if (!snap.empty) return snap.docs[0].data().email;
-      q = query(hirersRef, where("username", "==", identifier.toLowerCase()));
-      snap = await getDocs(q); if (!snap.empty) return snap.docs[0].data().email;
-      q = query(hirersRef, where("phone", "==", identifier));
-      snap = await getDocs(q); if (!snap.empty) return snap.docs[0].data().email;
+      try {
+        let q = query(hirersRef, where("email", "==", identifier.toLowerCase()));
+        let snap = await getDocs(q); if (!snap.empty) return snap.docs[0].data().email;
+
+        // These may be blocked unless your rules allow them; safe try/catch.
+        q = query(hirersRef, where("username", "==", identifier.toLowerCase()));
+        snap = await getDocs(q); if (!snap.empty) return snap.docs[0].data().email;
+
+        q = query(hirersRef, where("phone", "==", identifier));
+        snap = await getDocs(q); if (!snap.empty) return snap.docs[0].data().email;
+      } catch (e) {
+        if (e?.code === "permission-denied") {
+          console.warn("Lookup blocked by rules; ask for email directly.");
+        } else {
+          console.warn("Lookup error:", e);
+        }
+      }
       return null;
     }
 
-    // Warn if opened via file:// (OAuth can't whitelist that)
     if (location.protocol === 'file:') {
-      console.warn('Open this page via http(s)://, not file://, or Google/Facebook will fail with auth/unauthorized-domain.');
+      console.warn('Open via http(s)://, not file:// (otherwise Google/Facebook will fail).');
     }
 
+    // Email/password login — require email verification
     form.addEventListener("submit", async (e) => {
       e.preventDefault(); setLoading(true);
       const identifier = document.getElementById("identifier").value.trim();
       const password = document.getElementById("password").value;
       try {
         let emailToLogin = identifier.includes("@") ? identifier.toLowerCase() : await resolveEmailFromHirers(identifier);
-        if (!emailToLogin) { alert("Account not found. Please check your input or register first."); setLoading(false); return; }
+        if (!emailToLogin) {
+          alert("For security, please enter your email address to sign in.");
+          setLoading(false);
+          return;
+        }
         const cred = await signInWithEmailAndPassword(auth, emailToLogin, password);
+
+        // If not verified, send/redirect to verify page
+        if (!cred.user.emailVerified) {
+          try { await sendEmailVerification(cred.user); } catch {}
+          window.location.href = "email_verify.html";
+          return;
+        }
+
         await upsertHirerProfile(cred.user, "password");
-        await fetchHirerOrRoute(cred.user);
+        await routeToCorrectPage(cred.user);
       } catch (error) {
-        console.error(error); alert("Login failed: " + (error.message || error.code));
+        console.error(error);
+        alert("Login failed: " + (error.message || error.code));
       } finally { setLoading(false); }
     });
 
+    // Google sign-in
     googleBtn.addEventListener("click", async () => {
       setLoading(true);
       try {
         const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: "select_account" });
         const cred = await signInWithPopup(auth, provider);
+
+        // For Google, email is typically verified; keep the same flow just in case.
+        if (!cred.user.emailVerified) {
+          try { await sendEmailVerification(cred.user); } catch {}
+          window.location.href = "email_verify.html";
+          return;
+        }
+
         await upsertHirerProfile(cred.user, "google.com");
-        await fetchHirerOrRoute(cred.user);
+        await routeToCorrectPage(cred.user);
       } catch (error) {
-        console.error(error); alert("Google login failed: " + (error.message || error.code));
+        console.error(error);
+        const code = error?.code || "";
+        if (code === "auth/operation-not-allowed") {
+          alert("Google Sign-In is disabled in Firebase. Enable it in Authentication > Sign-in method.");
+        } else if (code === "auth/unauthorized-domain") {
+          alert("This domain is not authorized in Firebase Auth. Add your domain in Authentication > Settings > Authorized domains.");
+        } else if (code === "auth/popup-blocked") {
+          alert("Popup blocked by the browser. Allow popups for this site and try again.");
+        } else if (code === "auth/popup-closed-by-user") {
+          alert("Popup closed before completing sign in.");
+        } else {
+          alert("Google login failed: " + (error.message || code));
+        }
       } finally { setLoading(false); }
     });
 
+    // Facebook sign-in
     fbBtn.addEventListener("click", async () => {
       setLoading(true);
       try {
         const provider = new FacebookAuthProvider();
         const cred = await signInWithPopup(auth, provider);
+
+        if (!cred.user.emailVerified) {
+          try { await sendEmailVerification(cred.user); } catch {}
+          window.location.href = "email_verify.html";
+          return;
+        }
+
         await upsertHirerProfile(cred.user, "facebook.com");
-        await fetchHirerOrRoute(cred.user);
+        await routeToCorrectPage(cred.user);
       } catch (error) {
-        console.error(error); alert("Facebook login failed: " + (error.message || error.code));
+        console.error(error);
+        alert("Facebook login failed: " + (error.message || error.code));
       } finally { setLoading(false); }
     });
 
+    // Guard: any signed-in but unverified user goes to verify page
     onAuthStateChanged(auth, async (user) => {
       if (user) {
+        if (!user.emailVerified) {
+          try { await sendEmailVerification(user); } catch {}
+          window.location.href = "email_verify.html";
+          return;
+        }
         setLoading(true);
-        try { await upsertHirerProfile(user, user.providerData?.[0]?.providerId || "session"); await fetchHirerOrRoute(user); }
-        finally { setLoading(false); }
+        try {
+          await upsertHirerProfile(user, user.providerData?.[0]?.providerId || "session");
+          await routeToCorrectPage(user);
+        } finally { setLoading(false); }
       }
     });
   </script>

@@ -12,43 +12,29 @@
 
   <style>
     :root{
-      --ink:#1F2328;            /* charcoal/bee body */
-      --muted:#6F6354;          /* warm gray-brown */
-      --bg:#FFFDF6;             /* light honey cream */
-      --brand:#FFC12E;          /* honey gold primary */
-      --brand-ink:#3A2A09;      /* deep warm brown for accents */
-      --card:#ffffff;
-      --ring:#F3EAD2;           /* soft honey line */
-      --brand-ghost:#FFF6D8;    /* pale honey background */
-      --grad1:#1B1A17;          /* header/footer gradient */
-      --grad2:#4A3B1B;
+      --ink:#1F2328; --muted:#6F6354; --bg:#FFFDF6; --brand:#FFC12E; --brand-ink:#3A2A09;
+      --card:#ffffff; --ring:#F3EAD2; --brand-ghost:#FFF6D8; --grad1:#1B1A17; --grad2:#4A3B1B;
     }
 
-    /* Base */
     *{box-sizing:border-box}
     body{font-family:'Inter','Segoe UI',Arial,sans-serif;margin:0;background:var(--bg);color:var(--ink)}
     a{color:inherit}
 
-    /* Shared container */
     .container{max-width:1120px;margin:0 auto;padding:0 20px}
 
-    /* Header */
     header{
       background:var(--card);
       position:sticky; top:0; z-index:50;
       border-bottom:1px solid var(--ring);
       backdrop-filter:saturate(1.05) blur(6px);
     }
-    .header-inner{
-      height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px
-    }
+    .header-inner{height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px}
     .brand{display:flex;align-items:center;gap:12px}
     .brand img{height:38px;width:auto;display:block}
     .wordmark{line-height:1.05;display:flex;flex-direction:column}
     .wordmark .title{font-weight:800;font-size:1.28rem;letter-spacing:.2px;color:var(--brand-ink)}
     .wordmark .kicker{font-weight:700;font-size:.72rem;letter-spacing:.34em;color:var(--muted)}
 
-    /* Profile */
     .user-profile{position:relative;display:flex;align-items:center;gap:10px;cursor:pointer}
     .user-profile img{width:40px;height:40px;border-radius:50%;border:2px solid #fff;object-fit:cover;box-shadow:0 1px 2px rgba(0,0,0,.06)}
     .user-name{font-weight:600}
@@ -67,7 +53,6 @@
     .menu .muted{color:#867a6b;font-size:.85em;padding:8px 12px 6px}
     .user-profile.disabled{pointer-events:none;opacity:.55;cursor:not-allowed}
 
-    /* Navigation */
     nav{
       background:linear-gradient(90deg,var(--grad1) 0%,var(--grad2) 100%);
       border-bottom:3px solid var(--brand)
@@ -82,7 +67,6 @@
     nav a:hover{color:#fff}
     nav a:hover:after{background:var(--brand);transform:translateY(-2px)}
 
-    /* Hero (with subtle hex pattern) */
     .hero{
       position:relative; isolation:isolate;
       background:
@@ -91,7 +75,6 @@
       color:#FFF7E0;border-bottom:1px solid var(--ring);
       overflow:hidden;
     }
-    /* Honeycomb overlay (very soft) */
     .hero::after{
       content:""; position:absolute; inset:0; z-index:0; opacity:.06; pointer-events:none;
       background-image:url("data:image/svg+xml;utf8,\
@@ -109,10 +92,7 @@
       background-size: auto;
       background-position:center;
     }
-    .hero-inner{
-      position:relative; z-index:1;
-      padding: 90px 20px 100px; max-width: 920px; margin: 0 auto; text-align:center
-    }
+    .hero-inner{position:relative; z-index:1; padding: 90px 20px 100px; max-width: 920px; margin: 0 auto; text-align:center}
     .hero h1{font-size:clamp(2rem,4vw,3rem);margin:0 0 12px;font-weight:800;letter-spacing:.2px}
     .hero p{font-size:1.12rem;margin:0 0 22px;opacity:.95}
     .hero-buttons{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
@@ -123,18 +103,10 @@
     .btn-outline:hover{background:#ffffff14;transform:translateY(-1px)}
     .btn:focus{outline:3px solid #FFE08266;outline-offset:2px}
 
-    /* Sections */
     section{padding:44px 0}
-    section h2{
-      color:#2D261C;border-bottom:2px solid var(--brand);
-      padding-bottom:10px;font-size:1.25rem;margin:0 0 16px
-    }
+    section h2{color:#2D261C;border-bottom:2px solid var(--brand);padding-bottom:10px;font-size:1.25rem;margin:0 0 16px}
 
-    /* Services */
-    .services-grid{
-      display:grid;grid-template-columns:repeat(6,minmax(0,1fr));
-      gap:12px;margin-top:18px
-    }
+    .services-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-top:18px}
     .service-btn{
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       height:100px;background:var(--card);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);
@@ -149,41 +121,20 @@
     @media (max-width:780px){.services-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
     @media (max-width:560px){.services-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-    .service-search{
-      max-width:780px;margin:18px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center
-    }
-    .service-search input{
-      flex:1 1 320px;padding:12px 14px;border-radius:12px;border:1px solid #E9DBC0;font-size:1em;background:#fff
-    }
-    .service-search .clear-btn{
-      padding:12px 16px;border-radius:12px;border:1px solid #E9DBC0;background:#fff;cursor:pointer;font-weight:700
-    }
+    .service-search{max-width:780px;margin:18px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .service-search input{flex:1 1 320px;padding:12px 14px;border-radius:12px;border:1px solid #E9DBC0;font-size:1em;background:#fff}
+    .service-search .clear-btn{padding:12px 16px;border-radius:12px;border:1px solid #E9DBC0;background:#fff;cursor:pointer;font-weight:700}
     .service-search .clear-btn:hover{border-color:#E0CD9C;background:#FFFBF0}
 
-    /* Map */
-    #map{
-      height:460px;width:100%;margin:20px 0;border-radius:18px;position:relative;
-      box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid var(--ring)
-    }
-    .map-overlay{
-      position:absolute;inset:0;background:rgba(255,255,255,.78);display:flex;align-items:center;justify-content:center;
-      border-radius:18px;font-weight:700;color:#3a2f1d;text-align:center;padding:16px;pointer-events:none
-    }
+    #map{height:460px;width:100%;margin:20px 0;border-radius:18px;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid var(--ring)}
+    .map-overlay{position:absolute;inset:0;background:rgba(255,255,255,.78);display:flex;align-items:center;justify-content:center;border-radius:18px;font-weight:700;color:#3a2f1d;text-align:center;padding:16px;pointer-events:none}
 
-    /* Promo */
-    .ads{
-      background:linear-gradient(180deg,#ffffff 0%, #FFF7DE 100%);
-      padding:32px 20px;text-align:center;border-radius:18px;margin:30px 0;
-      box-shadow:0 6px 18px rgba(74,59,27,.08);border:1px solid #F0E0B8
-    }
+    .ads{background:linear-gradient(180deg,#ffffff 0%, #FFF7DE 100%);padding:32px 20px;text-align:center;border-radius:18px;margin:30px 0;
+      box-shadow:0 6px 18px rgba(74,59,27,.08);border:1px solid #F0E0B8}
     .ads h3{margin:0 0 10px;font-size:1.2rem;color:var(--brand-ink)}
     .ads p{font-size:1.03rem;margin:0 0 12px;color:#2f291f}
 
-    /* Footer */
-    footer{
-      background:linear-gradient(90deg,var(--grad1) 0%,var(--grad2) 100%);
-      color:#FFF7E0;text-align:center;padding:22px;border-top:3px solid var(--brand)
-    }
+    footer{background:linear-gradient(90deg,var(--grad1) 0%,var(--grad2) 100%);color:#FFF7E0;text-align:center;padding:22px;border-top:3px solid var(--brand)}
   </style>
 </head>
 <body>
@@ -210,6 +161,8 @@
             <a href="hirer-profile.html" id="hirerProfileItem">🧑‍💼 Hirer Profile</a>
             <a href="worker-profile.html" id="workerProfileItem">🧑‍🔧 Worker Profile</a>
             <a href="edit_profile.html" id="editProfileItem">✏️ Edit Profile</a>
+            <!-- Admin item (hidden by default; shown if user is admin) -->
+            <a href="god_mode.html" id="adminItem" style="display:none;">🛡️ Admin</a>
             <button id="logoutItem">🚪 Log out</button>
           </div>
           <!-- Logged-out group -->
@@ -317,14 +270,13 @@
 
     const firebaseConfig = {
       apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
-        authDomain: "myapp-96865.firebaseapp.com",
-        databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "myapp-96865",
-        // If Storage misbehaves, try: "myapp-96865.appspot.com"
-        storageBucket: "myapp-96865.firebasestorage.app",
-        messagingSenderId: "217431866794",
-        appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
-        measurementId: "G-1T4M9PE1GD"
+      authDomain: "myapp-96865.firebaseapp.com",
+      databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.firebasestorage.app",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+      measurementId: "G-1T4M9PE1GD"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -338,7 +290,7 @@
     const groupIn = document.getElementById('menuLoggedIn');
     const groupOut = document.getElementById('menuLoggedOut');
     const menuGreeting = document.getElementById('menuGreeting');
-    const editProfileItem = document.getElementById('editProfileItem');
+    const adminItem = document.getElementById('adminItem');
 
     const servicesGrid = document.getElementById('servicesGrid');
     const workerSearch = document.getElementById('workerSearch');
@@ -380,9 +332,9 @@
       userPhotoEl.src = guestAvatarURI(45);
       groupIn.style.display = "none";
       groupOut.style.display = "block";
+      adminItem.style.display = "none";
       markerLayer.clearLayers();
 
-      // Disable interactions for guests
       profileBtn.classList.add('disabled');
       profileBtn.setAttribute('aria-disabled','true');
       profileMenu.classList.remove('show');
@@ -475,9 +427,36 @@
       return { type:null, data:null };
     }
 
+    // Email verification guard
+    async function guardEmailVerification(user){
+      try{ await user.reload(); }catch(_e){}
+      if (!user.emailVerified){
+        try{ sessionStorage.setItem('postVerifyRedirect', location.pathname + location.search + location.hash); }catch(_e){}
+        window.location.href = "email_verify.html";
+        return false;
+      }
+      return true;
+    }
+
+    // --- Admin check helper ---
+    async function isUserAdmin(uid, profileData){
+      // 1) explicit flag on the user doc
+      if (profileData && profileData.isAdmin === true) return true;
+      // 2) Admin/{uid} document exists
+      try{
+        const adminRef = doc(db, "Admin", uid);
+        const adminSnap = await getDoc(adminRef);
+        if (adminSnap.exists()) return true;
+      }catch(_e){}
+      return false;
+    }
+
     onAuthStateChanged(auth, async (user)=>{
       CURRENT_USER = user || null;
       if (!user){ setGuestMode(); return; }
+
+      const ok = await guardEmailVerification(user);
+      if (!ok) return;
 
       try{
         const { type, data } = await getRoleProfile(user.uid);
@@ -495,6 +474,10 @@
         document.getElementById('menuGreeting').textContent = `Signed in as ${displayName}`;
         document.getElementById('menuLoggedIn').style.display = "block";
         document.getElementById('menuLoggedOut').style.display = "none";
+
+        // ADMIN: show/hide Admin button
+        const admin = await isUserAdmin(user.uid, data);
+        adminItem.style.display = admin ? "block" : "none";
 
         setUserMode();
         await loadWorkers();

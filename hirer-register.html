@@ -21,15 +21,12 @@
       --line:#E6EDF2; --line-strong:#D7E1EA;
       --focus:#2C7BE5;
     }
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
       color:var(--ink); background:linear-gradient(180deg,#FFFFFF 0%, var(--bg) 70%);
     }
-
-    /* Header */
     header{
       position:sticky; top:0; z-index:30;
       background:var(--card); border-bottom:1px solid var(--line);
@@ -45,11 +42,8 @@
     .brand-title .name{font-weight:800; font-size:1.12rem; color:var(--brand-ink); letter-spacing:.2px}
     .brand-title .tag{font-size:.8rem; color:var(--muted); font-weight:700; letter-spacing:.3px}
     .badge{padding:6px 10px; border:1px solid var(--line-strong); border-radius:999px; color:var(--brand-ink); font-weight:800; font-size:.8rem}
-
-    /* Layout */
     .wrap{max-width:1000px; margin:36px auto 80px; padding:0 18px; display:grid; grid-template-columns:1.1fr 1fr; gap:28px}
     @media (max-width:980px){ .wrap{grid-template-columns:1fr} .hero{order:2} .panel{order:1} }
-
     .hero{
       background:linear-gradient(135deg,#FFF4C5 0%,#FFF 40%,#F6FAFF 100%);
       border:1px solid var(--line); border-radius:18px; padding:24px;
@@ -60,14 +54,12 @@
     .bullets{margin-top:14px; display:grid; gap:8px}
     .bullets li{list-style:none; display:flex; gap:10px; align-items:flex-start}
     .dot{width:8px; height:8px; border-radius:2px; background:var(--brand); margin-top:.45rem}
-
     .panel{
       background:var(--card); border:1px solid var(--line); border-radius:18px; padding:22px;
       box-shadow:0 12px 28px rgba(14,42,50,.08);
     }
     .panel h3{margin:0 0 6px; font-size:1.3rem}
     .panel .sub{margin:0 0 16px; color:var(--muted)}
-
     form{display:flex; flex-direction:column; gap:14px}
     label{font-weight:800; font-size:.92rem; color:var(--brand-ink)}
     .input{
@@ -82,10 +74,8 @@
     .input .suffix-btn{
       border:0; background:transparent; cursor:pointer; font-weight:800; color:var(--muted)
     }
-
     .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
     .hint{font-size:.9rem; color:#4b5563}
-
     .btn{
       background:var(--brand); color:#111; border:0; border-radius:12px;
       padding:14px 16px; font-weight:800; cursor:pointer;
@@ -95,15 +85,12 @@
     .btn:hover{filter:brightness(.98); box-shadow:0 12px 26px rgba(255,193,7,.38)}
     .btn:active{transform:translateY(1px)}
     .loading{opacity:.6; pointer-events:none}
-
     .legal{margin-top:12px; font-size:.85rem; color:var(--muted); text-align:center}
     .legal a{color:#0D6EFD; text-decoration:none; font-weight:700}
     .legal a:hover{text-decoration:underline}
   </style>
 </head>
 <body>
-
-  <!-- Header -->
   <header>
     <div class="nav">
       <a class="brand" href="#">
@@ -117,9 +104,7 @@
     </div>
   </header>
 
-  <!-- Content -->
   <main class="wrap">
-    <!-- Trust/benefits -->
     <section class="hero">
       <h2>Why create a Beehire Hirer account?</h2>
       <p class="sub">Book trusted workers faster with a verified profile.</p>
@@ -130,7 +115,6 @@
       </ul>
     </section>
 
-    <!-- Registration card -->
     <section class="panel" aria-labelledby="reg-title">
       <h3 id="reg-title">Register as a Hirer</h3>
       <p class="sub">Use your email to create an account.</p>
@@ -170,22 +154,20 @@
     </section>
   </main>
 
-  <!-- Firebase + Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
-        authDomain: "myapp-96865.firebaseapp.com",
-        databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "myapp-96865",
-        // If Storage misbehaves, try: "myapp-96865.appspot.com"
-        storageBucket: "myapp-96865.firebasestorage.app",
-        messagingSenderId: "217431866794",
-        appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
-        measurementId: "G-1T4M9PE1GD"
+      authDomain: "myapp-96865.firebaseapp.com",
+      databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.firebasestorage.app",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+      measurementId: "G-1T4M9PE1GD"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -202,7 +184,6 @@
       if (btn) btn.disabled = !!loading;
     }
 
-    // Show/Hide password
     togglePw.addEventListener("click", ()=>{
       const pw = document.getElementById("password");
       const is = pw.type === "password";
@@ -211,9 +192,7 @@
       togglePw.setAttribute("aria-label", is ? "Hide password" : "Show password");
     });
 
-    // Basic validators
     function normalizePhone(ph){
-      // keep digits and + only, trim spaces
       return (ph || "").replace(/[^\d+]/g,"").trim();
     }
     function validEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
@@ -235,11 +214,10 @@
       }
 
       try{
-        // Create account
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(cred.user, { displayName: fullName });
+        await sendEmailVerification(cred.user);
 
-        // seed Firestore profile
         const payload = {
           uid: cred.user.uid,
           fullName,
@@ -253,9 +231,8 @@
         };
         await setDoc(doc(db, "hirers", cred.user.uid), payload, { merge:true });
 
-        alert("Registration successful!");
-        // Go straight to verification page to complete details
-        window.location.href = "hirer-verification.html";
+        alert("Registration successful! Please verify your email.");
+        window.location.href = "email_verify.html";
       }catch(err){
         console.error(err);
         alert("Registration failed: " + (err.message || err.code));

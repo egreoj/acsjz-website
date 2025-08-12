@@ -12,17 +12,10 @@
 
   <style>
     :root{
-      --brand:#FFC107;           /* honey gold */
-      --ink:#0E2A32;             /* deep navy */
-      --muted:#6B7B84;
-      --bg:#F6F9FC;              /* soft gray-blue */
-      --card:#ffffff;
-      --line:#E6EDF2;
-      --line-strong:#D7E1EA;
-      --focus:#2C7BE5;
+      --brand:#FFC107; --ink:#0E2A32; --muted:#6B7B84; --bg:#F6F9FC; --card:#ffffff;
+      --line:#E6EDF2; --line-strong:#D7E1EA; --focus:#2C7BE5;
       --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
     }
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -30,119 +23,63 @@
       color:var(--ink); background:linear-gradient(180deg,#fff 0%, var(--bg) 70%);
     }
 
-    /* Header */
-    header{
-      position:sticky; top:0; z-index:40;
-      background:var(--card); border-bottom:1px solid var(--line);
-      box-shadow:0 2px 10px rgba(14,42,50,.04);
-    }
-    .nav{
-      max-width:1100px; margin:0 auto; padding:14px 20px;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-    }
+    header{position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+      box-shadow:0 2px 10px rgba(14,42,50,.04)}
+    .nav{max-width:1100px; margin:0 auto; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px}
     .brand{display:flex; align-items:center; gap:12px; text-decoration:none}
     .brand-logo{width:42px; height:42px; object-fit:contain; filter:drop-shadow(0 2px 8px rgba(0,0,0,.06))}
     .brand-title{display:flex; flex-direction:column; line-height:1.1}
     .brand-title .name{font-weight:800; font-size:1.12rem; color:var(--ink)}
     .brand-title .tag{font-size:.8rem; color:var(--muted); font-weight:700; letter-spacing:.3px}
-    .badge{
-      padding:6px 10px; border:1px solid var(--line-strong); border-radius:999px; color:var(--ink);
-      font-size:.8rem; font-weight:800; background:#fff;
-    }
+    .badge{padding:6px 10px; border:1px solid var(--line-strong); border-radius:999px; color:var(--ink); font-size:.8rem; font-weight:800; background:#fff}
 
-    /* Container */
-    .container{
-      max-width:1100px; background:var(--card);
-      margin:26px auto 34px; padding:26px; border-radius:18px;
-      border:1px solid var(--line);
-      box-shadow:0 12px 28px rgba(14,42,50,.08);
-    }
-    h2{
-      margin:0 0 18px; text-align:center; color:var(--ink); font-size:1.35rem; letter-spacing:.2px;
-    }
+    .container{max-width:1100px; background:var(--card); margin:26px auto 34px; padding:26px; border-radius:18px;
+      border:1px solid var(--line); box-shadow:0 12px 28px rgba(14,42,50,.08)}
+    h2{margin:0 0 18px; text-align:center; color:var(--ink); font-size:1.35rem; letter-spacing:.2px}
 
     form{display:flex; flex-direction:column; gap:20px}
     label{font-weight:800; margin-bottom:6px; font-size:.95rem}
-
     .row{display:flex; gap:18px; flex-wrap:wrap}
     .row > div{flex:1; min-width:260px}
 
-    .input{
-      display:flex; align-items:center; gap:10px;
-      border:1px solid var(--line); border-radius:12px; padding:12px 14px;
-      background:#fff; transition:border-color .15s, box-shadow .15s;
-    }
-    .input:focus-within{ border-color:var(--focus); box-shadow:0 0 0 3px rgba(44,123,229,.15) }
-    .input input, .input select, .input textarea{
-      outline:none; border:0; width:100%; font-size:1rem; background:transparent; color:var(--ink);
-    }
+    .input{display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:#fff; transition:border-color .15s, box-shadow .15s}
+    .input:focus-within{border-color:var(--focus); box-shadow:0 0 0 3px rgba(44,123,229,.15)}
+    .input input, .input select, .input textarea{outline:none; border:0; width:100%; font-size:1rem; background:transparent; color:var(--ink)}
     textarea{resize:vertical}
 
-    /* Profile photo */
-    .profile-photo{
-      text-align:center; display:grid; place-items:center; gap:10px;
-    }
-    .profile-photo img{
-      width:150px; height:150px; border-radius:50%; object-fit:cover;
-      border:5px solid var(--brand); background:#fff;
-      box-shadow:0 6px 16px rgba(14,42,50,.08);
-    }
+    .profile-photo{text-align:center; display:grid; place-items:center; gap:10px}
+    .profile-photo img{width:150px; height:150px; border-radius:50%; object-fit:cover; border:5px solid var(--brand); background:#fff; box-shadow:0 6px 16px rgba(14,42,50,.08)}
 
-    /* Skills editor */
-    .skills-editor{
-      display:grid; grid-template-columns: 1.1fr 1.2fr auto; gap:10px; align-items:center;
-    }
+    .skills-editor{display:grid; grid-template-columns: 1.1fr 1.2fr auto; gap:10px; align-items:center}
     @media (max-width: 720px){ .skills-editor{ grid-template-columns:1fr } }
     .chips{ display:flex; flex-wrap:wrap; gap:8px }
-    .chip{
-      display:inline-flex; align-items:center; gap:8px;
-      background:#fff; border:1px solid var(--line-strong); color:#111;
-      padding:6px 10px; border-radius:999px; box-shadow:0 1px 2px rgba(0,0,0,.04);
-      font-weight:700; font-size:.9rem;
-    }
-    .chip .x{ cursor:pointer; font-weight:800 }
-    .chip .star{ cursor:pointer; filter:grayscale(1) }
-    .chip.primary{ border-color:#F3D66A; background:#FFF6D6 }
-    .chip.primary .star{ filter:grayscale(0) }
-    .hint{ font-size:.9rem; color:var(--muted) }
+    .chip{display:inline-flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line-strong); color:#111;
+      padding:6px 10px; border-radius:999px; box-shadow:0 1px 2px rgba(0,0,0,.04); font-weight:700; font-size:.9rem}
+    .chip .x{cursor:pointer; font-weight:800}
+    .chip .star{cursor:pointer; filter:grayscale(1)}
+    .chip.primary{border-color:#F3D66A; background:#FFF6D6}
+    .chip.primary .star{filter:grayscale(0)}
+    .hint{font-size:.9rem; color:var(--muted)}
 
-    /* Buttons */
-    .btn{
-      background:var(--brand); color:#111; padding:14px 16px;
-      border:0; border-radius:12px; font-size:1rem; font-weight:800; cursor:pointer;
-      align-self:center; width:220px;
-      box-shadow:0 8px 20px rgba(255,193,7,.28);
-      transition:transform .06s, box-shadow .15s, filter .15s;
-    }
-    .btn:hover{ filter:brightness(.98); box-shadow:0 12px 26px rgba(255,193,7,.38) }
-    .btn:active{ transform:translateY(1px) }
+    .btn{background:var(--brand); color:#111; padding:12px 16px; border:0; border-radius:12px; font-size:1rem; font-weight:800; cursor:pointer;
+      align-self:center; width:auto; min-width:160px; box-shadow:0 8px 20px rgba(255,193,7,.28); transition:transform .06s, box-shadow .15s, filter .15s}
+    .btn:hover{filter:brightness(.98); box-shadow:0 12px 26px rgba(255,193,7,.38)}
+    .btn:active{transform:translateY(1px)}
 
-    /* Docs */
-    .docs{ margin-top:28px; border-top:1px dashed var(--line-strong); padding-top:18px }
-    .docs h3{ margin:0 0 12px; text-align:center; font-size:1.1rem }
-    .doc-item{
-      display:grid; grid-template-columns: 1fr auto; gap:12px; align-items:center; margin-bottom:12px;
-      background:#fbfdff; border:1px solid var(--line); border-radius:12px; padding:12px;
-    }
-    .doc-meta{ display:flex; flex-direction:column; gap:8px }
-    .doc-title{ font-weight:800; color:#222; display:flex; align-items:center; gap:8px }
-    .doc-actions{ display:flex; gap:8px; align-items:center }
-    .doc-actions a{ text-decoration:none; color:#0D6EFD; font-weight:800 }
-    .doc-note{ font-size:.9rem; color:var(--muted) }
-    .prog{ width:160px; height:10px }
-    .danger{ background:#dc2626; color:#fff; border:0; padding:10px 14px; border-radius:10px; font-weight:800; cursor:pointer }
-    .danger:hover{ filter:brightness(.95) }
-
-    /* Small icons in inputs (optional) */
+    .docs{margin-top:28px; border-top:1px dashed var(--line-strong); padding-top:18px}
+    .docs h3{margin:0 0 12px; text-align:center; font-size:1.1rem}
+    .doc-item{display:grid; grid-template-columns: 1fr auto; gap:12px; align-items:center; margin-bottom:12px; background:#fbfdff; border:1px solid var(--line); border-radius:12px; padding:12px}
+    .doc-meta{display:flex; flex-direction:column; gap:8px}
+    .doc-title{font-weight:800; color:#222; display:flex; align-items:center; gap:8px}
+    .doc-actions{display:flex; gap:8px; align-items:center}
+    .doc-actions a{text-decoration:none; color:#0D6EFD; font-weight:800}
+    .doc-note{font-size:.9rem; color:var(--muted)}
+    .status{font-size:.9rem; color:var(--muted)}
     .ico{flex:0 0 18px; opacity:.7}
-
-    /* Focus ring for buttons/links */
-    button:focus, a:focus{ outline:none; box-shadow:0 0 0 3px rgba(44,123,229,.2) }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <header>
     <div class="nav">
       <a class="brand" href="beehiremain.html">
@@ -163,10 +100,14 @@
       <!-- Photo -->
       <div class="profile-photo">
         <img id="profileImage" src="https://via.placeholder.com/150" alt="Profile Photo">
-        <div class="input" style="width:min(420px,100%)">
-          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 2l1.5 2H14l1.5-2H18l2 3h2v15a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5h2l2-3h3Zm3 16a5 5 0 1 0 0-10a5 5 0 0 0 0 10Zm0-2a3 3 0 1 1 0-6a3 3 0 0 1 0 6Z"/></svg>
-          <input type="file" id="photoUpload" accept="image/*">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center">
+          <button type="button" id="btnUploadPhoto" class="btn">Upload Photo</button>
+          <div class="input" style="width:min(420px,100%)">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 2l1.5 2H14l1.5-2H18l2 3h2v15a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5h2l2-3h3Zm3 16a5 5 0 1 0 0-10a5 5 0 0 0 0 10Zm0-2a3 3 0 1 1 0-6a3 3 0 0 1 0 6Z"/></svg>
+            <input type="file" id="photoUpload" accept="image/*">
+          </div>
         </div>
+        <div class="hint">Tip: Use the <b>Upload Photo</b> button to send directly to Cloudinary.</div>
       </div>
 
       <!-- Identity -->
@@ -236,7 +177,7 @@
             <div class="input"><input id="skillCustom" placeholder="Type custom skill then Add"></div>
             <button type="button" id="addSkillBtn" class="btn" style="width:auto; padding:10px 16px">Add</button>
           </div>
-          <div class="hint" style="margin-top:6px">Tip: Click the ★ on a chip to set your <b>Primary Skill</b>.</div>
+          <div class="hint" style="margin-top:6px">Click ★ on a chip to set your <b>Primary Skill</b>.</div>
           <div id="skillsChips" class="chips" style="margin-top:10px;"></div>
         </div>
         <div>
@@ -270,20 +211,18 @@
     <div class="docs" id="docsSection">
       <h3>Upload Documents</h3>
       <p class="hint" style="text-align:center;margin-bottom:14px;">
-        Accepted: Images (JPG/PNG/WEBP) or PDF · Images auto-compressed ≤ 500 KB · Max raw 5 MB
+        Accepted: Images (JPG/PNG/WEBP) or PDF · Max 5 MB · Uploaded via Cloudinary
       </p>
 
       <!-- Valid ID -->
       <div class="doc-item" data-kind="validId">
         <div class="doc-meta">
           <div class="doc-title">📄 Valid ID <a class="view" target="_blank" rel="noopener" href="#" style="display:none;">View</a></div>
-          <input type="file" accept="image/*,application/pdf" class="file">
-          <div class="doc-note">Gov’t ID (best quality). If front/back separate, i-merge sa PDF kung possible.</div>
+          <div class="doc-note">Gov’t ID (front/back ok; PDF or image).</div>
+          <div class="status"></div>
         </div>
         <div class="doc-actions">
-          <progress class="prog" value="0" max="100"></progress>
           <button class="upload btn" style="width:auto; padding:10px 14px">Upload</button>
-          <button class="delete danger" style="display:none;">Delete</button>
         </div>
       </div>
 
@@ -291,13 +230,11 @@
       <div class="doc-item" data-kind="policeClearance">
         <div class="doc-meta">
           <div class="doc-title">📄 Police Clearance <a class="view" target="_blank" rel="noopener" href="#" style="display:none;">View</a></div>
-          <input type="file" accept="image/*,application/pdf" class="file">
           <div class="doc-note">Latest police clearance.</div>
+          <div class="status"></div>
         </div>
         <div class="doc-actions">
-          <progress class="prog" value="0" max="100"></progress>
           <button class="upload btn" style="width:auto; padding:10px 14px">Upload</button>
-          <button class="delete danger" style="display:none;">Delete</button>
         </div>
       </div>
 
@@ -305,13 +242,11 @@
       <div class="doc-item" data-kind="barangayClearance">
         <div class="doc-meta">
           <div class="doc-title">📄 Barangay Clearance <a class="view" target="_blank" rel="noopener" href="#" style="display:none;">View</a></div>
-          <input type="file" accept="image/*,application/pdf" class="file">
           <div class="doc-note">Recent barangay clearance.</div>
+          <div class="status"></div>
         </div>
         <div class="doc-actions">
-          <progress class="prog" value="0" max="100"></progress>
           <button class="upload btn" style="width:auto; padding:10px 14px">Upload</button>
-          <button class="delete danger" style="display:none;">Delete</button>
         </div>
       </div>
 
@@ -319,13 +254,11 @@
       <div class="doc-item" data-kind="tesdaCertificate">
         <div class="doc-meta">
           <div class="doc-title">📄 TESDA Certificate <a class="view" target="_blank" rel="noopener" href="#" style="display:none;">View</a></div>
-          <input type="file" accept="image/*,application/pdf" class="file">
           <div class="doc-note">TESDA NC/Certificate related to your skills.</div>
+          <div class="status"></div>
         </div>
         <div class="doc-actions">
-          <progress class="prog" value="0" max="100"></progress>
           <button class="upload btn" style="width:auto; padding:10px 14px">Upload</button>
-          <button class="delete danger" style="display:none;">Delete</button>
         </div>
       </div>
 
@@ -333,41 +266,43 @@
       <div class="doc-item" data-kind="nbiClearance">
         <div class="doc-meta">
           <div class="doc-title">📄 NBI Clearance <a class="view" target="_blank" rel="noopener" href="#" style="display:none;">View</a></div>
-          <input type="file" accept="image/*,application/pdf" class="file">
           <div class="doc-note">Latest NBI clearance.</div>
+          <div class="status"></div>
         </div>
         <div class="doc-actions">
-          <progress class="prog" value="0" max="100"></progress>
           <button class="upload btn" style="width:auto; padding:10px 14px">Upload</button>
-          <button class="delete danger" style="display:none;">Delete</button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Cloudinary Upload Widget -->
+  <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+
   <!-- Firebase + Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-storage.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    // --- Cloudinary config (SET THESE) ---
+    const CLOUD_NAME = "dutarfbgp";            // ← your cloud name
+    const UPLOAD_PRESET = "MyApp_uploads";  // ← your unsigned preset name
 
     const firebaseConfig = {
       apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
-        authDomain: "myapp-96865.firebaseapp.com",
-        databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "myapp-96865",
-        // If Storage misbehaves, try: "myapp-96865.appspot.com"
-        storageBucket: "myapp-96865.firebasestorage.app",
-        messagingSenderId: "217431866794",
-        appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
-        measurementId: "G-1T4M9PE1GD"
+      authDomain: "myapp-96865.firebaseapp.com",
+      databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.firebasestorage.app",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+      measurementId: "G-1T4M9PE1GD"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const storage = getStorage(app);
 
     const form = document.getElementById("profileForm");
     const birthdateInput = document.getElementById('birthdate');
@@ -416,7 +351,7 @@
       ageInput.value = age;
     });
 
-    // ---------- Docs helpers ----------
+    // ---------- Cloudinary helpers ----------
     const DOC_FIELDS = {
       validId: 'validIdUrl',
       policeClearance: 'policeClearanceUrl',
@@ -425,163 +360,72 @@
       nbiClearance: 'nbiClearanceUrl'
     };
 
-    function extOf(name){ const m = (name||'').match(/\.([a-z0-9]+)$/i); return m ? m[1].toLowerCase() : 'bin'; }
-    function isAllowedType(file){
-      if (!file) return false;
-      const t = file.type;
-      return t.startsWith('image/') || t === 'application/pdf';
-    }
-
-    // Image compression to ≤ 500KB
-    async function compressImageFile(file, targetBytes = 500 * 1024) {
-      const img = await new Promise((resolve, reject) => {
-        const url = URL.createObjectURL(file);
-        const i = new Image();
-        i.onload = () => { URL.revokeObjectURL(url); resolve(i); };
-        i.onerror = (e) => { URL.revokeObjectURL(url); reject(e); };
-        i.src = url;
-      });
-
-      let maxW = 1600, maxH = 1600;
-      let quality = 0.85;
-
-      async function renderBlob(scale=1.0) {
-        const w = Math.min(img.width, Math.round(img.width * scale), maxW);
-        const h = Math.min(img.height, Math.round(img.height * scale), maxH);
-        const canvas = document.createElement('canvas');
-        const ratio = Math.min(w / img.width, h / img.height);
-        canvas.width = Math.max(1, Math.round(img.width * ratio));
-        canvas.height = Math.max(1, Math.round(img.height * ratio));
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', quality));
-        return blob;
-      }
-
-      let scale = 1.0;
-      let blob = await renderBlob(scale);
-      let tries = 0;
-      while (blob && blob.size > targetBytes && tries < 10) {
-        if (quality > 0.55) quality -= 0.08; else scale *= 0.9;
-        blob = await renderBlob(scale);
-        tries++;
-      }
-
-      const finalBlob = blob || file;
-      return new File([finalBlob], (file.name.replace(/\.[^.]+$/,'') || 'image') + '.jpg', { type: 'image/jpeg' });
-    }
-
-    async function uploadDoc(user, kind, file, ui, existingPath){
-      if (!file){ alert("Please select a file."); return; }
-      if (!isAllowedType(file)){ alert("File must be an image or PDF."); return; }
-      if (file.size > 5 * 1024 * 1024){ alert("Max 5 MB per file."); return; }
-
-      let uploadFile = file;
-      let ext = extOf(file.name);
-      let contentType = file.type;
-      if (file.type.startsWith('image/')) {
-        uploadFile = await compressImageFile(file, 500 * 1024);
-        ext = 'jpg'; contentType = 'image/jpeg';
-      }
-
-      const path = `workers/${user.uid}/docs/${kind}-${Date.now()}.${ext}`;
-      const storageRef = ref(storage, path);
-      const task = uploadBytesResumable(storageRef, uploadFile, { contentType });
-
-      ui.prog.value = 0; ui.prog.style.opacity = 1; ui.upload.disabled = true;
-
-      return new Promise((resolve,reject)=>{
-        task.on('state_changed',
-          (snap)=>{
-            const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-            ui.prog.value = pct;
-          },
-          (err)=>{
-            console.error(err); ui.upload.disabled = false; reject(err);
-          },
-          async ()=>{
-            try{
-              const url = await getDownloadURL(task.snapshot.ref);
-
-              // delete old file if present
-              if (existingPath){
-                try { await deleteObject(ref(storage, existingPath)); } catch(e){ /* ignore */ }
-              }
-
-              const userRef = doc(db, "workers", user.uid);
-              const field = DOC_FIELDS[kind];
-              const dataToUpdate = {};
-              dataToUpdate[field] = url;
-              dataToUpdate[field.replace(/Url$/,'Path')] = path;
-              await updateDoc(userRef, dataToUpdate);
-
-              ui.view.href = url; ui.view.style.display = 'inline';
-              ui.del.style.display = 'inline-block';
-              ui.upload.disabled = false; ui.prog.style.opacity = 0.6;
-              resolve(url);
-            }catch(e){
-              ui.upload.disabled = false;
-              reject(e);
-            }
-          }
-        );
-      });
-    }
-
-    async function deleteDoc(user, kind, ui, docSnap){
-      const field = DOC_FIELDS[kind];
-      const pathField = field.replace(/Url$/,'Path');
-      const data = docSnap?.data?.() || docSnap?.data() || {};
-      const existingPath = data[pathField];
-      const existingUrl = data[field];
-
-      if (!existingPath && !existingUrl){ alert("No document to delete."); return; }
-      if (!confirm("Delete this document? This cannot be undone.")) return;
-
-      try { if (existingPath) await deleteObject(ref(storage, existingPath)); } catch(_) {}
-      const userRef = doc(db, "workers", user.uid);
-      await updateDoc(userRef, { [field]: deleteField(), [pathField]: deleteField() });
-
-      ui.view.style.display = 'none'; ui.view.removeAttribute('href');
-      ui.file.value = ''; ui.prog.value = 0; ui.del.style.display = 'none';
-      alert("Deleted.");
-    }
-
-    function wireDocRow(rowEl, user, docSnap){
-      const kind = rowEl.getAttribute('data-kind');
-      const fileEl = rowEl.querySelector('.file');
-      const btn = rowEl.querySelector('.upload');
-      const prog = rowEl.querySelector('.prog');
-      const view = rowEl.querySelector('.view');
-      const delBtn = rowEl.querySelector('.delete');
-
-      const field = DOC_FIELDS[kind];
-      const pathField = field.replace(/Url$/,'Path');
-      const data = docSnap?.data?.() || docSnap?.data() || {};
-      const existingUrl = data[field] || null;
-
-      if (existingUrl){
-        view.href = existingUrl.startsWith('http://') ? existingUrl.replace('http://','https://') : existingUrl;
-        view.style.display = 'inline';
-        delBtn.style.display = 'inline-block';
-      }
-
-      btn.addEventListener('click', async ()=>{
-        if (!auth.currentUser){ alert("Please log in first."); return; }
-        const latestSnap = await getDoc(doc(db, "workers", user.uid));
-        const existingPath = (latestSnap.data() || {})[pathField] || null;
-        try{
-          await uploadDoc(user, kind, fileEl.files?.[0], { prog, upload: btn, view, del: delBtn, file: fileEl }, existingPath);
-          alert("Uploaded!");
-        }catch(e){
-          alert("Upload failed: " + (e?.message || e));
+    function cloudinaryWidget({folder, publicIdPrefix, multiple=false, resourceType="auto", tags=[]}, onSuccess, onClose){
+      const options = {
+        cloudName: CLOUD_NAME,
+        uploadPreset: UPLOAD_PRESET,
+        sources: ["local", "camera", "url"],
+        multiple,
+        resourceType,            // "auto" to allow images/pdf
+        clientAllowedFormats: ["jpg","jpeg","png","webp","pdf"],
+        maxFileSize: 5 * 1024 * 1024,
+        folder,
+        tags,
+        showPoweredBy: false,
+        cropping: false,
+        styles: { palette: { window: "#ffffff", sourceBg: "#ffffff", windowBorder: "#E6EDF2",
+          tabIcon: "#0E2A32", menuIcons: "#6B7B84", textDark: "#0E2A32", textLight: "#6B7B84",
+          link: "#0E2A32", action: "#FFC107", inProgress: "#FFC107", complete: "#16a34a", error: "#dc2626",
+          tooltip: "#3c4043", bgOverlay: "#ffffff" } }
+      };
+      const widget = window.cloudinary.createUploadWidget(options, (err, res) => {
+        if (err) { console.error(err); return; }
+        if (res && res.event === "success") {
+          onSuccess && onSuccess(res.info);
+        }
+        if (res && (res.event === "close" || res.event === "abort")) {
+          onClose && onClose();
         }
       });
+      return widget;
+    }
 
-      delBtn.addEventListener('click', async ()=>{
-        if (!auth.currentUser){ alert("Please log in first."); return; }
-        const latestSnap = await getDoc(doc(db, "workers", user.uid));
-        await deleteDoc(user, kind, { view, del: delBtn, file: fileEl, prog }, latestSnap);
+    async function updateDocUrl(userUid, fieldUrl, url, extra = {}){
+      const userRef = doc(db, "workers", userUid);
+      await updateDoc(userRef, { [fieldUrl]: url, ...extra, updatedAt: Date.now() });
+    }
+
+    // ---------- Wire UI ----------
+    function wireDocRow(rowEl, user, data){
+      const kind = rowEl.getAttribute('data-kind');
+      const field = DOC_FIELDS[kind];
+      const view = rowEl.querySelector('.view');
+      const statusEl = rowEl.querySelector('.status');
+      const btn = rowEl.querySelector('.upload');
+
+      const existingUrl = data?.[field];
+      if (existingUrl){ view.href = existingUrl; view.style.display = 'inline'; statusEl.textContent = "Uploaded"; }
+
+      btn.addEventListener('click', ()=>{
+        btn.disabled = true; statusEl.textContent = "Opening uploader…";
+        const folder = `workers/${user.uid}/docs`;
+        const widget = cloudinaryWidget({ folder, tags:[kind, user.uid], resourceType:"auto" },
+          async (info)=>{
+            try{
+              const url = info.secure_url;
+              view.href = url; view.style.display = 'inline';
+              statusEl.textContent = "Uploaded ✔";
+              await updateDocUrl(user.uid, field, url, { [`${kind}PublicId`]: info.public_id });
+            }catch(e){
+              console.error(e); statusEl.textContent = "Failed to save URL";
+              alert("Upload OK but failed to save to database.");
+            }finally{
+              btn.disabled = false;
+            }
+          },
+          ()=>{ btn.disabled = false; if(!view.href) statusEl.textContent = ""; }
+        );
+        widget.open();
       });
     }
 
@@ -594,10 +438,10 @@
       }
 
       const userRef = doc(db, "workers", user.uid);
-      let docSnap = await getDoc(userRef);
+      let snap = await getDoc(userRef);
 
-      if (docSnap.exists()) {
-        const data = docSnap.data();
+      if (snap.exists()) {
+        const data = snap.data();
         document.getElementById("fullname").value = data.fullName || "";
         document.getElementById("birthdate").value = data.birthdate || "";
         document.getElementById("gender").value = data.gender || "Male";
@@ -622,27 +466,56 @@
             : data.profileImageUrl;
         }
         birthdateInput.dispatchEvent(new Event('change'));
+
+        // Wire document rows (Cloudinary)
+        document.querySelectorAll('.doc-item').forEach(row => wireDocRow(row, user, data));
       } else {
         await setDoc(userRef, { uid: user.uid, email: user.email, createdAt: Date.now() }, { merge: true });
         document.getElementById("email").value = user.email;
-        docSnap = await getDoc(userRef);
+        document.querySelectorAll('.doc-item').forEach(row => wireDocRow(row, user, {}));
       }
 
-      // Wire docs after we have (possibly) initialized the record
-      document.querySelectorAll('.doc-item').forEach(row => wireDocRow(row, user, docSnap));
+      // Profile photo upload via Cloudinary widget
+      const btnUploadPhoto = document.getElementById('btnUploadPhoto');
+      btnUploadPhoto.addEventListener('click', ()=>{
+        btnUploadPhoto.disabled = true;
+        const folder = `workers/${user.uid}/profile`;
+        const widget = cloudinaryWidget({ folder, tags:["profile", user.uid], resourceType:"image" },
+          async (info)=>{
+            try{
+              const url = info.secure_url;
+              document.getElementById('profileImage').src = url;
+              await updateDocUrl(user.uid, "profileImageUrl", url, { profileImagePublicId: info.public_id });
+            }catch(e){
+              console.error(e);
+              alert("Uploaded but failed to save profile photo to database.");
+            }finally{
+              btnUploadPhoto.disabled = false;
+            }
+          },
+          ()=>{ btnUploadPhoto.disabled = false; }
+        );
+        widget.open();
+      });
 
-      // Save profile
+      // Local preview (optional)
+      document.getElementById('photoUpload').addEventListener('change', async (e)=>{
+        const f = e.target.files?.[0];
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = (ev)=> { document.getElementById('profileImage').src = ev.target.result; };
+        reader.readAsDataURL(f);
+      });
+
+      // Save profile (Firestore only)
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const securePhotoUrl = document.getElementById("profileImage").src.startsWith("http://")
-          ? document.getElementById("profileImage").src.replace("http://", "https://")
-          : document.getElementById("profileImage").src;
-
         if (!PRIMARY && SKILLS.length) PRIMARY = SKILLS[0];
 
-        const snapshot = await getDoc(userRef);
-        const prev = snapshot.exists() ? snapshot.data() : {};
+        const userRef = doc(db, "workers", user.uid);
+        const prevSnap = await getDoc(userRef);
+        const prev = prevSnap.exists() ? prevSnap.data() : {};
 
         const userData = {
           uid: user.uid,
@@ -663,7 +536,10 @@
           serviceRadius: prev.serviceRadius || "100",
           availability: document.getElementById("availability").value,
           bio: document.getElementById("bio").value,
-          profileImageUrl: securePhotoUrl,
+          profileImageUrl: document.getElementById("profileImage").src.startsWith("http://")
+            ? document.getElementById("profileImage").src.replace("http://","https://")
+            : document.getElementById("profileImage").src,
+
           banned: prev.banned ?? false,
           isAdmin: prev.isAdmin ?? false,
           online: true,
@@ -682,15 +558,6 @@
           alert("Failed to save. Please try again.");
         }
       });
-    });
-
-    // Local preview of selected photo
-    document.getElementById('photoUpload').addEventListener('change', (e)=>{
-      const f = e.target.files?.[0];
-      if (!f) return;
-      const reader = new FileReader();
-      reader.onload = (ev)=> { document.getElementById('profileImage').src = ev.target.result; };
-      reader.readAsDataURL(f);
     });
   </script>
 </body>

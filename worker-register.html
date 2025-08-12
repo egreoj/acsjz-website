@@ -142,8 +142,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
     import {
-      getAuth, createUserWithEmailAndPassword, updateProfile,
-      GoogleAuthProvider, FacebookAuthProvider, signInWithPopup
+      getAuth, createUserWithEmailAndPassword, updateProfile, sendEmailVerification,
+      GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, getAdditionalUserInfo
     } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
     import {
       getFirestore, collection, query, where, getDocs, doc, setDoc, serverTimestamp
@@ -151,14 +151,13 @@
 
     const firebaseConfig = {
       apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
-        authDomain: "myapp-96865.firebaseapp.com",
-        databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "myapp-96865",
-        // If Storage misbehaves, try: "myapp-96865.appspot.com"
-        storageBucket: "myapp-96865.firebasestorage.app",
-        messagingSenderId: "217431866794",
-        appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
-        measurementId: "G-1T4M9PE1GD"
+      authDomain: "myapp-96865.firebaseapp.com",
+      databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.firebasestorage.app",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+      measurementId: "G-1T4M9PE1GD"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -173,10 +172,14 @@
     const form = $("registerForm");
     const submitBtn = $("submitBtn");
 
-    function toHttps(u){ return !u ? "" : (u.startsWith("http://") ? u.replace("http://","https://") : u); }
-    function setLoading(on){ const c=document.querySelector('.container'); c.classList.toggle('loading', !!on); submitBtn.disabled=!!on; }
+    function setLoading(on){
+      const c=document.querySelector('.container');
+      c.classList.toggle('loading', !!on);
+      submitBtn.disabled=!!on;
+    }
 
     async function emailExists(email){
+      // Optional: prevent duplicate by checking existing workers
       const q = query(collection(db,"workers"), where("email","==", email));
       const s = await getDocs(q);
       return !s.empty;
@@ -209,7 +212,7 @@
         fullName: data.fullName,
         email: data.email,
         phone: data.phone,
-        skillCategory: data.skillCategory,   // keep consistent with other pages
+        skillCategory: data.skillCategory,
         skills: data.skillCategory ? [data.skillCategory] : [],
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp(),
@@ -219,6 +222,7 @@
       await setDoc(doc(db,"workers",uid), payload, { merge:true });
     }
 
+    // ✅ Email/password registration → send verification → redirect to email_verify.html
     async function handleEmailSignup(e){
       e.preventDefault();
       clearAlerts();
@@ -234,22 +238,24 @@
       try{
         setLoading(true);
 
-        // Check Firestore duplicate BEFORE Auth creation
+        // Prevent duplicate
         if (await emailExists(email)){
           showErr("This email already exists. Please login instead.");
           setLoading(false);
           return;
         }
 
-        // Create Auth
+        // Create Auth user
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(cred.user, { displayName: fullName });
 
+        // Create worker profile
         await saveWorker(cred.user.uid, { fullName, email, phone, skillCategory });
 
-        showOk("Registration successful!");
-        // Redirect to dashboard/home
-        setTimeout(()=>{ window.location.href = "beehiremain.html"; }, 700);
+        // Send verification + redirect
+        try { await sendEmailVerification(cred.user); } catch {}
+        showOk("Registration successful! Check your inbox for a verification email.");
+        setTimeout(()=>{ window.location.href = "email_verify.html"; }, 500);
       }catch(error){
         console.error(error);
         showErr(error.message || "Registration failed. Please try again.");
@@ -258,6 +264,9 @@
       }
     }
 
+    // ✅ Social registration:
+    // If new user OR not verified → send verification & redirect to email_verify.html
+    // If already verified → proceed to main page
     async function handleOauth(providerName){
       clearAlerts();
       try{
@@ -265,8 +274,9 @@
         const provider = providers[providerName];
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
+        const info = getAdditionalUserInfo(result);
 
-        const skillCategory = finalSkillValue(); // optional: may be empty
+        const skillCategory = finalSkillValue(); // optional on first pass
         await saveWorker(user.uid, {
           fullName: user.displayName || "",
           email: (user.email || "").toLowerCase(),
@@ -274,10 +284,18 @@
           skillCategory
         });
 
-        showOk("Registration successful!");
-        setTimeout(()=>{ window.location.href = "beehiremain.html"; }, 700);
+        // New user or not verified -> verify flow
+        if (info?.isNewUser || !user.emailVerified) {
+          try { await sendEmailVerification(user); } catch {}
+          showOk("Account created! Please verify your email.");
+          setTimeout(()=>{ window.location.href = "email_verify.html"; }, 500);
+          return;
+        }
+
+        // Already verified (common for Google) -> proceed
+        showOk("Welcome back!");
+        setTimeout(()=>{ window.location.href = "beehiremain.html"; }, 500);
       }catch(error){
-        // If provider not enabled or blocked by popup
         console.warn(error);
         const readable = error?.customData?.email
           ? `Sign-in failed for ${error.customData.email}. ${error.message || ''}`
@@ -288,9 +306,15 @@
       }
     }
 
+    // Wire up events
     form.addEventListener("submit", handleEmailSignup);
-    $("googleBtn").addEventListener("click", ()=> handleOauth("google"));
-    $("fbBtn").addEventListener("click", ()=> handleOauth("facebook"));
+    document.getElementById("googleBtn").addEventListener("click", ()=> handleOauth("google"));
+    document.getElementById("fbBtn").addEventListener("click", ()=> handleOauth("facebook"));
+
+    // Helpful warning for local testing
+    if (location.protocol === 'file:') {
+      console.warn('Open via http(s)://, not file:// (OAuth will fail on file://).');
+    }
   </script>
 </body>
 </html>

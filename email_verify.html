@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Email Verification — Beehire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body{
+      margin:0; font-family:"Inter",sans-serif;
+      background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 60%,#F2F7FB 100%);
+      display:flex; justify-content:center; align-items:center; height:100vh;
+    }
+    .card{
+      background:#fff; padding:30px; border-radius:15px; max-width:400px;
+      text-align:center; box-shadow:0 12px 28px rgba(0,0,0,.08);
+    }
+    h1{font-size:1.4rem; margin-bottom:10px}
+    p{color:#6B7B84}
+    .btn{display:inline-block; margin-top:15px; padding:10px 15px;
+      border:none; border-radius:8px; background:#FFC107; color:#0E2A32;
+      font-weight:700; cursor:pointer;
+    }
+    .btn.secondary{background:#fff; border:1px solid #E7EDF2}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Verify your email to proceed</h1>
+    <p>Please check your inbox and spam folder for the verification email.</p>
+    <p id="userEmail"></p>
+    <button id="resendBtn" class="btn">Resend Verification Email</button>
+    <button id="refreshBtn" class="btn secondary">I've Verified — Refresh</button>
+    <a href="beehiremain.html" class="btn secondary">Home</a>
+    <p id="statusMsg"></p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, sendEmailVerification, reload } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+      authDomain: "myapp-96865.firebaseapp.com",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.firebasestorage.app",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const emailField = document.getElementById("userEmail");
+    const statusMsg = document.getElementById("statusMsg");
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        emailField.textContent = `Signed in as: ${user.email}`;
+        if (user.emailVerified) window.location.href = "hirer-profile.html";
+      }
+    });
+
+    document.getElementById("resendBtn").addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (user) {
+        await sendEmailVerification(user);
+        statusMsg.textContent = "Verification email sent!";
+      }
+    });
+
+    document.getElementById("refreshBtn").addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (user) {
+        await reload(user);
+        if (user.emailVerified) {
+          window.location.href = "hirer-profile.html";
+        } else {
+          statusMsg.textContent = "Still not verified.";
+        }
+      }
+    });
+  </script>
+</body>
+</html>

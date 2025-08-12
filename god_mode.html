@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Beehire — Admin God Mode</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0E2A32; --muted:#6B7B84; --bg:#F6F9FC; --card:#fff; --line:#E6EDF2; --line-2:#D7E1EA;
+    --brand:#FFC107; --focus:#2C7BE5; --ok:#16a34a; --bad:#dc2626; --warn:#d97706;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--ink); background:linear-gradient(180deg,#fff 0%, var(--bg) 70%)}
+
+  header{position:sticky; top:0; z-index:50; background:var(--card); border-bottom:1px solid var(--line); box-shadow:0 2px 10px rgba(14,42,50,.05)}
+  .nav{max-width:1200px; margin:0 auto; padding:12px 18px; display:flex; gap:14px; align-items:center; justify-content:space-between}
+  .brand{display:flex; gap:12px; align-items:center; text-decoration:none; color:inherit}
+  .brand img{width:42px; height:42px; object-fit:contain}
+  .brand-title{line-height:1.1}
+  .brand-title .name{font-weight:800}
+  .brand-title .tag{font-size:.82rem; color:var(--muted); font-weight:700; letter-spacing:.3px}
+
+  main{max-width:1200px; margin:24px auto 120px; padding:0 18px}
+  .stack{display:grid; gap:14px}
+
+  .panel{background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:0 8px 24px rgba(14,42,50,.06); overflow:hidden}
+  .panel h2{margin:0; padding:14px 16px; border-bottom:1px solid var(--line); font-size:1.05rem}
+  .panel .body{padding:14px 16px}
+
+  /* Filters */
+  .filters{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .filters input[type="search"], .filters select{
+    padding:10px 12px; border:1px solid var(--line-2); border-radius:12px; background:#fff; font-size:.98rem;
+  }
+  .filters input[type="search"]:focus, .filters select:focus{outline:none; border-color:var(--focus); box-shadow:0 0 0 3px rgba(44,123,229,.15)}
+  .filters .count{margin-left:auto; color:var(--muted); font-weight:700}
+  .btn{border:0; padding:10px 12px; border-radius:12px; font-weight:800; cursor:pointer}
+  .btn-ghost{background:#fff; border:1px solid var(--line-2); color:var(--ink)}
+  .btn-brand{background:var(--brand); color:#111; box-shadow:0 8px 20px rgba(255,193,7,.28)}
+  .btn:disabled{opacity:.6; cursor:not-allowed}
+  .btn-danger{background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca}
+
+  /* Tabs */
+  .tabs{display:flex; gap:8px}
+  .tab{padding:8px 12px; border:1px solid var(--line-2); border-radius:12px; background:#fff; cursor:pointer; font-weight:800}
+  .tab.active{background:#111; color:#fff; border-color:#111}
+
+  /* Table */
+  .table-wrap{overflow:auto}
+  table{width:100%; border-collapse:separate; border-spacing:0}
+  thead th{position:sticky; top:0; background:#f8fafc; border-bottom:1px solid var(--line); font-size:.85rem; text-align:left; color:#334155; padding:10px}
+  tbody td{border-bottom:1px solid var(--line); padding:10px; vertical-align:top; font-size:.95rem}
+  tbody tr:hover{background:#fbfdff}
+  .badge{display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; font-size:.8rem; border:1px solid var(--line)}
+  .b-verified{background:#dcfce7; color:#166534; border-color:#86efac}
+  .b-pending{background:#fffbeb; color:#92400e; border-color:#fde68a}
+  .b-unverified{background:#f1f5f9; color:#0f172a; border-color:#e2e8f0}
+  .b-banned{background:#fee2e2; color:#991b1b; border-color:#fecaca}
+
+  .row-actions{display:flex; gap:6px; flex-wrap:wrap}
+  .pill{padding:4px 8px; border:1px solid var(--line-2); border-radius:999px; font-size:.75rem; color:#334155}
+  .muted{color:var(--muted)}
+  .thumbs{display:flex; gap:8px; flex-wrap:wrap}
+
+  .thumb{width:120px; height:80px; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center}
+  .thumb img{width:100%; height:100%; object-fit:cover}
+  .thumb a{display:block; width:100%; height:100%}
+
+  /* Drawer */
+  .drawer{position:fixed; right:0; top:0; height:100%; width:min(520px, 95vw); background:#fff; border-left:1px solid var(--line); box-shadow:-12px 0 40px rgba(0,0,0,.12); transform:translateX(100%); transition:transform .2s ease; z-index:100}
+  .drawer.open{transform:translateX(0)}
+  .drawer .hd{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--line)}
+  .drawer .bd{padding:14px 16px; overflow:auto; height:calc(100% - 56px)}
+  .kv{display:grid; grid-template-columns:140px 1fr; gap:8px; margin-bottom:4px}
+  .kv .k{color:#64748b; font-size:.86rem}
+  .kv .v{font-weight:700}
+
+  .warn{background:#fff7ed; border:1px solid #fed7aa; color:#7c2d12; padding:10px 12px; border-radius:10px; margin-bottom:10px}
+  .ok{background:#ecfeff; border:1px solid #a5f3fc; color:#075985; padding:10px 12px; border-radius:10px; margin-bottom:10px}
+
+  /* Pagination controls */
+  .pager{display:flex; gap:8px; align-items:center; justify-content:flex-end; padding:10px 16px; border-top:1px solid var(--line); background:#fafbff}
+  .pager .info{color:#475569; font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a class="brand" href="#">
+      <img src="BeeHire Logo.png" alt="Beehire">
+      <span class="brand-title">
+        <span class="name">Beehire Admin</span>
+        <span class="tag">God Mode</span>
+      </span>
+    </a>
+    <div class="tabs" role="tablist" aria-label="Collections">
+      <button id="tabWorkers" class="tab active" data-role="workers">Workers</button>
+      <button id="tabHirers" class="tab" data-role="hirers">Hirers</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="stack">
+
+    <div class="panel">
+      <h2>Filters & Search</h2>
+      <div class="body filters">
+        <input id="q" type="search" placeholder="Search name, email, phone…" />
+        <select id="fStatus" title="Verification">
+          <option value="">All statuses</option>
+          <option value="verified">Verified</option>
+          <option value="pending">Pending</option>
+          <option value="unverified">Unverified</option>
+        </select>
+        <select id="fBanned" title="Banned">
+          <option value="">All users</option>
+          <option value="false">Not banned</option>
+          <option value="true">Banned</option>
+        </select>
+
+        <select id="pageSize" title="Rows per page">
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+
+        <button id="btnRefresh" class="btn btn-ghost">Refresh</button>
+        <span class="count"><span id="count">0</span> results</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Users</h2>
+      <div class="body table-wrap">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Contact</th>
+              <th>Docs</th>
+              <th>Updated</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <button id="btnPrev" class="btn btn-ghost">Prev</button>
+        <button id="btnNext" class="btn btn-ghost">Next</button>
+        <span class="info" id="pageInfo">Page 1</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Right Drawer: User Detail -->
+<aside id="drawer" class="drawer" aria-hidden="true">
+  <div class="hd">
+    <strong id="dwTitle">User Detail</strong>
+    <div>
+      <button id="dwClose" class="btn btn-ghost">Close</button>
+    </div>
+  </div>
+  <div class="bd">
+    <div id="dwAlerts"></div>
+    <div class="kv"><div class="k">UID</div><div class="v" id="dwUid">—</div></div>
+    <div class="kv"><div class="k">Role</div><div class="v" id="dwRole">—</div></div>
+    <div class="kv"><div class="k">Name</div><div class="v" id="dwName">—</div></div>
+    <div class="kv"><div class="k">Email</div><div class="v" id="dwEmail">—</div></div>
+    <div class="kv"><div class="k">Phone</div><div class="v" id="dwPhone">—</div></div>
+    <div class="kv"><div class="k">Address</div><div class="v" id="dwAddr">—</div></div>
+    <div class="kv"><div class="k">Status</div><div class="v" id="dwStatus">—</div></div>
+    <div class="kv"><div class="k">Banned</div><div class="v" id="dwBanned">—</div></div>
+
+    <div style="margin:12px 0; display:flex; gap:8px; flex-wrap:wrap">
+      <button id="actVerify" class="btn btn-brand">Mark Verified</button>
+      <button id="actPending" class="btn btn-ghost">Mark Pending</button>
+      <button id="actUnverify" class="btn btn-ghost">Mark Unverified</button>
+      <button id="actBanToggle" class="btn btn-danger">Ban/Unban</button>
+    </div>
+
+    <h3 style="margin:18px 0 8px">Identity & Proof</h3>
+    <div id="dwDocs" class="thumbs"></div>
+
+    <h3 style="margin:18px 0 8px">Danger Zone</h3>
+    <div class="warn">Deleting uploads from Cloudinary/Auth requires backend callable functions. Buttons will call:
+      <code>deleteCloudinaryAsset</code>, <code>adminDeleteUser</code>.</div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap">
+      <button id="actDeleteUploads" class="btn btn-danger">Delete All Uploads</button>
+      <button id="actDeleteFirestore" class="btn btn-danger">Delete Firestore Doc</button>
+      <button id="actDeleteAccount" class="btn btn-danger">Delete Auth Account</button>
+    </div>
+  </div>
+</aside>
+
+<!-- Firebase + Logic -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore, collection, doc, getDoc, getDocs, onSnapshot, query, where, orderBy, limit, updateDoc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getStorage, ref as sref, ref as refFromUrl, deleteObject
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+  import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+    authDomain: "myapp-96865.firebaseapp.com",
+    databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "myapp-96865",
+    storageBucket: "myapp-96865.firebasestorage.app",
+    messagingSenderId: "217431866794",
+    appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+    measurementId: "G-1T4M9PE1GD"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+  const functions = getFunctions(app);
+
+  // UI refs
+  const tabWorkers = document.getElementById('tabWorkers');
+  const tabHirers  = document.getElementById('tabHirers');
+  const tbody = document.getElementById('tbody');
+  const qInput = document.getElementById('q');
+  const fStatus = document.getElementById('fStatus');
+  const fBanned = document.getElementById('fBanned');
+  const pageSizeSel = document.getElementById('pageSize');
+  const btnRefresh = document.getElementById('btnRefresh');
+  const count = document.getElementById('count');
+
+  const pagerInfo = document.getElementById('pageInfo');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+
+  const drawer = document.getElementById('drawer');
+  const dwClose = document.getElementById('dwClose');
+  const dwTitle = document.getElementById('dwTitle');
+  const dwUid = document.getElementById('dwUid');
+  const dwRole = document.getElementById('dwRole');
+  const dwName = document.getElementById('dwName');
+  const dwEmail = document.getElementById('dwEmail');
+  const dwPhone = document.getElementById('dwPhone');
+  const dwAddr = document.getElementById('dwAddr');
+  const dwStatus = document.getElementById('dwStatus');
+  const dwBanned = document.getElementById('dwBanned');
+  const dwDocs = document.getElementById('dwDocs');
+  const dwAlerts = document.getElementById('dwAlerts');
+
+  const actVerify = document.getElementById('actVerify');
+  const actPending = document.getElementById('actPending');
+  const actUnverify = document.getElementById('actUnverify');
+  const actBanToggle = document.getElementById('actBanToggle');
+  const actDeleteUploads = document.getElementById('actDeleteUploads');
+  const actDeleteFirestore = document.getElementById('actDeleteFirestore');
+  const actDeleteAccount = document.getElementById('actDeleteAccount');
+
+  // State
+  let currentRole = 'workers';           // or 'hirers'
+  let unsubList = null;
+  let allRows = [];                      // full live data for the current role
+  let curPage = 1;                       // current page
+  let pageSize = parseInt(pageSizeSel.value, 10) || 25;
+  let selected = null;
+
+  // ===== Helpers
+  const toLower = v => (v||'').toString().toLowerCase();
+  const isTrue = v => v === true;
+
+  function toThumb(u){
+    if (!u) return '';
+    try{
+      const url = new URL(u);
+      if (url.hostname.includes('res.cloudinary.com')){
+        return u.replace('/upload/', '/upload/c_fill,w_240,h_160,q_auto,f_auto/');
+      }
+      return u;
+    }catch(_){ return u; }
+  }
+  function fmtTime(ts){
+    try{
+      if (!ts) return '—';
+      if (typeof ts === 'number') return new Date(ts).toLocaleString();
+      if (ts.toDate) return ts.toDate().toLocaleString();
+      if (ts.seconds) return new Date(ts.seconds*1000).toLocaleString();
+      return String(ts);
+    }catch(_){ return '—'; }
+  }
+  function badgeStatus(v){
+    const s = (v||'unverified').toLowerCase();
+    let cls = 'b-unverified', label = 'Unverified';
+    if (s === 'verified') { cls = 'b-verified'; label='Verified'; }
+    else if (s === 'pending'){ cls = 'b-pending'; label='Pending'; }
+    return `<span class="badge ${cls}">${label}</span>`;
+  }
+  function badgeBanned(v){ return v ? `<span class="badge b-banned">Banned</span>` : ''; }
+
+  // ===== EMAIL HYDRATION (by EMAIL across users, hirers, VirtualAssistants) =====
+  // goal:
+  // - If a row has no email, try to find one by:
+  //     1) same UID on users/hirers/VirtualAssistants (fast fallback to get an email key)
+  //     2) once we have an email, we treat it as canonical and use it
+  // - If a row DOES have email, we still keep it and also allow searching against it
+  // - Store result to r.data.__emailMirror (UI/search only; no writes)
+  async function getEmailByUid(uid){
+    const collNames = ['users','hirers','VirtualAssistants'];
+    for (const c of collNames){
+      try{
+        const s = await getDoc(doc(db, c, uid));
+        if (s.exists()){
+          const ed = s.data()?.email;
+          if (ed) return ed;
+        }
+      }catch(_){}
+    }
+    return '';
+  }
+
+  async function confirmEmailExistsEverywhere(email){
+    // Optional sanity check: see if email appears in any of the three collections (by email match)
+    const collNames = ['users','hirers','VirtualAssistants'];
+    for (const c of collNames){
+      try{
+        const qy = query(collection(db, c), where('email','==', email), limit(1));
+        const snap = await getDocs(qy);
+        if (!snap.empty) return email; // found at least once
+      }catch(_){}
+    }
+    return email; // return as-is even if not found; good enough for display/search
+  }
+
+  async function hydrateEmailsAcrossCollections(){
+    const jobs = allRows.map(async (r)=>{
+      const d = r.data;
+      if (d.email){
+        // Make sure it's search-ready; optionally verify presence across the other collections
+        r.data.__emailMirror = await confirmEmailExistsEverywhere(d.email).catch(()=> d.email);
+        return;
+      }
+      // Missing email — try to pull an email key via same UID from users/hirers/VirtualAssistants
+      const found = await getEmailByUid(r.id);
+      if (found){
+        // We mirror only to UI (do not write). Use as search/display fallback.
+        r.data.__emailMirror = found;
+      }
+    });
+    await Promise.allSettled(jobs);
+  }
+
+  // ==== Filtering + pagination
+  function getFilteredRows(){
+    const q = toLower(qInput.value).trim();
+    const wantStatus = fStatus.value; // '', verified, pending, unverified
+    const wantBanned = fBanned.value; // '', true, false
+
+    return allRows.filter(r=>{
+      const d = r.data;
+      if (wantStatus && toLower(d.verificationStatus||'unverified') !== wantStatus) return false;
+      if (wantBanned !== ''){
+        const need = (wantBanned === 'true');
+        if (!!d.banned !== need) return false;
+      }
+      if (q){
+        const hay = [
+          d.fullName, d.name,
+          d.email, d.__emailMirror,
+          d.phone, r.id
+        ].map(toLower).join(' ');
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    }).sort((a,b)=>{
+      const av = a.data.updatedAt?.toMillis ? a.data.updatedAt.toMillis() : (a.data.updatedAt||0);
+      const bv = b.data.updatedAt?.toMillis ? b.data.updatedAt.toMillis() : (b.data.updatedAt||0);
+      return bv - av;
+    });
+  }
+  function totalPages(filtered){ return Math.max(1, Math.ceil(filtered.length / pageSize)); }
+  function pageSlice(filtered){
+    const total = totalPages(filtered);
+    if (curPage > total) curPage = total;
+    const start = (curPage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }
+  function updatePager(filtered){
+    pagerInfo.textContent = `Page ${curPage} of ${totalPages(filtered)}`;
+    btnPrev.disabled = (curPage <= 1);
+    btnNext.disabled = (curPage >= totalPages(filtered));
+  }
+
+  // ==== Row render
+  function cellDocs(d){
+    const keys = ['idFrontUrl','selfieToolUrl','selfieIdUrl','photoURL','profileImageUrl','avatarUrl'];
+    const urls = [];
+    keys.forEach(k=>{ if (d[k]) urls.push({k, u:d[k]}); });
+    if (d.uploads && typeof d.uploads === 'object'){
+      Object.entries(d.uploads).forEach(([k,v])=>{ if (v?.url) urls.push({k, u:v.url}); });
+    }
+    if (!urls.length) return `<span class="muted">—</span>`;
+    return `<div class="thumbs">` + urls.slice(0,4).map(({k,u}) => (
+      `<a class="thumb" href="${u}" target="_blank" rel="noopener" title="${k}"><img src="${toThumb(u)}" alt="${k}"></a>`
+    )).join('') + `</div>`;
+  }
+
+  function rowHtml(role, id, d){
+    const name = d.fullName || d.name || '—';
+    const email = d.email || d.__emailMirror || '—';
+    const phone = d.phone || '—';
+    const status = d.verificationStatus || 'unverified';
+
+    return `
+      <tr data-id="${id}" data-role="${role}">
+        <td>
+          <div style="display:flex; gap:8px; align-items:center">
+            <img src="${toThumb(d.photoURL || d.profileImageUrl || d.avatarUrl || '') || 'https://via.placeholder.com/80?text=User'}" style="width:42px;height:42px;border-radius:10px;border:1px solid var(--line);object-fit:cover" alt="">
+            <div>
+              <div style="font-weight:800">${name}</div>
+              <div class="muted" style="font-size:.85rem">${id}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="pill">${role.slice(0,-1)}</span></td>
+        <td>${badgeStatus(status)} ${badgeBanned(isTrue(d.banned))}</td>
+        <td>
+          <div style="font-size:.92rem">${email}${d.email ? '' : (d.__emailMirror ? ' <span class="muted" title="mirrored via email">(mirrored)</span>' : '')}</div>
+          <div class="muted" style="font-size:.85rem">${phone}</div>
+        </td>
+        <td>${cellDocs(d)}</td>
+        <td class="muted">${fmtTime(d.updatedAt)}</td>
+        <td>
+          <div class="row-actions">
+            <button class="btn btn-ghost act-view">View</button>
+            <button class="btn btn-ghost act-verify">Verify</button>
+            <button class="btn btn-ghost act-pending">Pending</button>
+            <button class="btn btn-ghost act-unverify">Unverify</button>
+            <button class="btn btn-danger act-ban">${d.banned?'Unban':'Ban'}</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function mountTable(){
+    const filtered = getFilteredRows();
+    const pageRows = pageSlice(filtered);
+    tbody.innerHTML = pageRows.map(r => rowHtml(r.role, r.id, r.data)).join('');
+    count.textContent = filtered.length;
+    updatePager(filtered);
+
+    // bind row actions
+    tbody.querySelectorAll('tr').forEach(tr=>{
+      tr.querySelector('.act-view').addEventListener('click', ()=> openDrawer(tr.dataset.role, tr.dataset.id));
+      tr.querySelector('.act-verify').addEventListener('click', ()=> quickStatus(tr.dataset.role, tr.dataset.id, 'verified'));
+      tr.querySelector('.act-pending').addEventListener('click', ()=> quickStatus(tr.dataset.role, tr.dataset.id, 'pending'));
+      tr.querySelector('.act-unverify').addEventListener('click', ()=> quickStatus(tr.dataset.role, tr.dataset.id, 'unverified'));
+      tr.querySelector('.act-ban').addEventListener('click', ()=> toggleBan(tr.dataset.role, tr.dataset.id));
+    });
+  }
+
+  // ==== Live listener for current role
+  function listen(role){
+    if (unsubList) { unsubList(); unsubList = null; }
+    const coll = collection(db, role);
+    const qy = query(coll, orderBy('updatedAt','desc'), limit(1000)); // client-side paginate
+    unsubList = onSnapshot(qy, async (snap)=>{
+      allRows = snap.docs.map(d=> ({ role, id:d.id, data:d.data() }));
+      // hydrate emails *by email* across users, hirers, VirtualAssistants (with UID fallback to get email key)
+      await hydrateEmailsAcrossCollections();
+      curPage = 1; // reset to first page on fresh data
+      mountTable();
+    }, (err)=>{
+      console.error(err);
+      alert('Failed to fetch users. Check console.');
+    });
+  }
+
+  function setActiveTab(newRole){
+    currentRole = newRole;
+    tabWorkers.classList.toggle('active', currentRole==='workers');
+    tabHirers.classList.toggle('active',  currentRole==='hirers');
+    listen(currentRole);
+  }
+
+  // ==== Drawer
+  async function openDrawer(role, id){
+    const ref = doc(db, role, id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()){ alert('User not found.'); return; }
+    const d = snap.data();
+    selected = { role, id, data:d };
+
+    // choose email key: own email or mirrored via UID across collections
+    let emailKey = d.email || await getEmailByUid(id);
+
+    // final confirmation: see if that email exists anywhere (users/hirers/VirtualAssistants)
+    if (emailKey){
+      const found = await confirmEmailExistsEverywhere(emailKey);
+      if (found) emailKey = found;
+    }
+
+    dwTitle.textContent = (d.fullName || d.name || 'User') + ' • ' + role.slice(0,-1);
+    dwUid.textContent = id;
+    dwRole.textContent = role.slice(0,-1);
+    dwName.textContent = d.fullName || d.name || '—';
+    dwEmail.textContent = emailKey || '—';
+    dwPhone.textContent = d.phone || '—';
+    dwStatus.textContent = d.verificationStatus || 'unverified';
+    dwBanned.textContent = String(!!d.banned);
+    const addr = [d.address1, d.barangay, d.city, d.province, d.zip].filter(Boolean).join(', ');
+    dwAddr.textContent = addr || '—';
+
+    dwDocs.innerHTML = '';
+    collectDocUrls(d).forEach(({k,u,publicId})=>{
+      const a = document.createElement('a');
+      a.href = u; a.target='_blank'; a.rel='noopener';
+      a.className='thumb'; a.title = k;
+      a.innerHTML = `<img src="${toThumb(u)}" alt="${k}" />`;
+      a.addEventListener('contextmenu', (e)=>{
+        e.preventDefault();
+        if (!publicId) return;
+        const ok = confirm(`Delete asset ${k}? (Cloudinary publicId: ${publicId})`);
+        if (ok) deleteCloudinary(publicId);
+      });
+      dwDocs.appendChild(a);
+    });
+
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden', 'false');
+  }
+  function closeDrawer(){
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden', 'true');
+    selected = null;
+    dwAlerts.innerHTML = '';
+  }
+  document.getElementById('dwClose').addEventListener('click', closeDrawer);
+
+  function collectDocUrls(d){
+    const out = [];
+    const pushK = (k, u, publicId=null)=> { if (u) out.push({k,u,publicId}); };
+    pushK('idFrontUrl', d.idFrontUrl, d.uploads?.['id-front']?.publicId || null);
+    pushK('selfieToolUrl', d.selfieToolUrl, d.uploads?.['selfie-tool']?.publicId || null);
+    pushK('selfieIdUrl', d.selfieIdUrl, d.uploads?.['selfie-id']?.publicId || null);
+    pushK('photoURL', d.photoURL, d.uploads?.['avatar']?.publicId || null);
+    pushK('profileImageUrl', d.profileImageUrl, d.uploads?.['avatar']?.publicId || null);
+    pushK('avatarUrl', d.avatarUrl, d.uploads?.['avatar']?.publicId || null);
+    if (d.uploads && typeof d.uploads === 'object'){
+      Object.entries(d.uploads).forEach(([k,meta])=>{
+        if (meta?.url) out.push({k,u:meta.url,publicId:meta.publicId||null});
+      });
+    }
+    const seen = new Set();
+    return out.filter(e=> (seen.has(e.u) ? false : (seen.add(e.u), true)));
+  }
+
+  // ==== Actions
+  async function quickStatus(role, id, status){
+    try{
+      await updateDoc(doc(db, role, id), {
+        verificationStatus: status,
+        verifiedAt: status==='verified' ? serverTimestamp() : null,
+        updatedAt: serverTimestamp()
+      });
+    }catch(e){
+      alert('Failed to update status: ' + (e.message || e.code));
+    }
+  }
+  async function toggleBan(role, id){
+    try{
+      const ref = doc(db, role, id);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return;
+      const current = !!(snap.data().banned);
+      await updateDoc(ref, { banned: !current, bannedAt: !current? serverTimestamp(): null, updatedAt: serverTimestamp() });
+    }catch(e){
+      alert('Failed to toggle ban: ' + (e.message || e.code));
+    }
+  }
+
+  // Danger zone ops (requires callable backend)
+  async function deleteCloudinary(publicId){
+    try{
+      const fn = httpsCallable(functions, 'deleteCloudinaryAsset');
+      await fn({ publicId });
+      toastOk('Cloudinary asset deleted.');
+    }catch(e){
+      toastWarn('Cloudinary deletion failed (need backend function): ' + (e.message || e.code));
+    }
+  }
+  async function deleteAllUploadsForSelected(){
+    if (!selected) return;
+    const d = selected.data;
+    if (!confirm('Delete all uploads for this user? This cannot be undone.')) return;
+
+    // Firebase Storage URLs
+    const urls = collectDocUrls(d).map(x=>x.u);
+    const fbUrls = urls.filter(u=> u.includes('firebasestorage') || u.startsWith('gs://'));
+    for (const u of fbUrls){
+      try{
+        const rf = refFromUrl(storage, u);
+        await deleteObject(rf);
+      }catch(e){
+        console.warn('Storage delete failed for', u, e?.message||e);
+      }
+    }
+    // Cloudinary (callable)
+    if (d.uploads && typeof d.uploads === 'object'){
+      for (const [,meta] of Object.entries(d.uploads)){
+        if (meta?.provider === 'cloudinary' && meta?.publicId){
+          await deleteCloudinary(meta.publicId);
+        }
+      }
+    }
+
+    toastOk('Requested deletion of uploads (check logs for Cloudinary calls).');
+  }
+  async function deleteFirestoreDoc(){
+    if (!selected) return;
+    if (!confirm('Delete Firestore document for this user?')) return;
+    try{
+      await updateDoc(doc(db, selected.role, selected.id), { deleted: true, deletedAt: serverTimestamp(), updatedAt: serverTimestamp() });
+      toastOk('Firestore doc marked deleted.');
+    }catch(e){
+      toastWarn('Failed to delete doc: ' + (e.message || e.code));
+    }
+  }
+  async function deleteAuthAccount(){
+    if (!selected) return;
+    if (!confirm('Delete AUTH account for this user? Requires backend Admin SDK.')) return;
+    try{
+      const fn = httpsCallable(functions, 'adminDeleteUser');
+      await fn({ uid: selected.id });
+      toastOk('Auth deletion requested.');
+    }catch(e){
+      toastWarn('Auth deletion failed (need backend function): ' + (e.message || e.code));
+    }
+  }
+
+  // Drawer btns
+  actVerify.addEventListener('click', ()=> selected && quickStatus(selected.role, selected.id, 'verified'));
+  actPending.addEventListener('click', ()=> selected && quickStatus(selected.role, selected.id, 'pending'));
+  actUnverify.addEventListener('click', ()=> selected && quickStatus(selected.role, selected.id, 'unverified'));
+  actBanToggle.addEventListener('click', ()=> selected && toggleBan(selected.role, selected.id));
+  actDeleteUploads.addEventListener('click', deleteAllUploadsForSelected);
+  actDeleteFirestore.addEventListener('click', deleteFirestoreDoc);
+  actDeleteAccount.addEventListener('click', deleteAuthAccount);
+
+  // Alerts in drawer
+  function toastOk(msg){ dwAlerts.innerHTML = `<div class="ok">${msg}</div>`; setTimeout(()=> dwAlerts.innerHTML='', 3000); }
+  function toastWarn(msg){ dwAlerts.innerHTML = `<div class="warn">${msg}</div>`; setTimeout(()=> dwAlerts.innerHTML='', 5000); }
+
+  // Events
+  qInput.addEventListener('input', ()=> { curPage = 1; mountTable(); });
+  fStatus.addEventListener('change', ()=> { curPage = 1; mountTable(); });
+  fBanned.addEventListener('change', ()=> { curPage = 1; mountTable(); });
+  pageSizeSel.addEventListener('change', ()=>{
+    pageSize = parseInt(pageSizeSel.value, 10) || 25;
+    curPage = 1;
+    mountTable();
+  });
+  btnRefresh.addEventListener('click', ()=> listen(currentRole));
+  document.getElementById('btnPrev').addEventListener('click', ()=> { if (curPage>1){ curPage--; mountTable(); }});
+  document.getElementById('btnNext').addEventListener('click', ()=> { const total = totalPages(getFilteredRows()); if (curPage<total){ curPage++; mountTable(); }});
+
+  tabWorkers.addEventListener('click', ()=> setActiveTab('workers'));
+  tabHirers.addEventListener('click', ()=> setActiveTab('hirers'));
+
+  // Auth gate — require Admin role
+  onAuthStateChanged(auth, async (user)=>{
+    if (!user){
+      alert('Please log in as Admin.');
+      location.href = 'login.html';
+      return;
+    }
+    const adm = await getDoc(doc(db,'Admin',user.uid));
+    if (!adm.exists()){
+      alert('This page is for Admins only.');
+      location.href = 'beehiremain.html';
+      return;
+    }
+    setActiveTab('workers'); // default
+  });
+</script>
+</body>
+</html>
