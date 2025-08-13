@@ -152,7 +152,6 @@
       lat, lng,
       geo: new GeoPoint(lat, lng),
       accuracy: pos.coords.accuracy ?? null,
-      // keep existing address unless you implement reverse geocoding
       capturedAt: serverTimestamp(),
       source: "html5"
     };
@@ -353,7 +352,7 @@
     let age = today.getFullYear() - d.getFullYear();
     const m = today.getMonth() - d.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
-    return age >= 0 && <150 ? age : null;
+    return age >= 0 && age < 150 ? age : null; // ✅ fixed
   }
   function tsToDate(ts){
     if (!ts) return null;
@@ -520,6 +519,11 @@
     map.setView([14.5995, 120.9842], 5); // PH default
     return map;
   }
+  function coerceNum(v){
+    if (v == null) return null;
+    const n = typeof v === 'number' ? v : Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
   function renderLocationOnMap(lat, lng, capturedAt, accuracy){
     ensureMap();
     if (lastMarker){ lastMarker.remove(); lastMarker = null; }
@@ -531,7 +535,6 @@
         <a class="link" target="_blank" rel="noopener"
            href="https://maps.google.com/?q=${lat},${lng}">Open in Google Maps</a>`);
 
-      // Optional accuracy circle
       if (typeof accuracy === 'number' && accuracy > 0){
         accCircle = L.circle([lat, lng], { radius: accuracy, weight:1, fillOpacity:0.1 }).addTo(map);
         try { map.fitBounds(accCircle.getBounds(), { padding:[20,20] }); }
@@ -556,10 +559,15 @@
         renderLocationOnMap(null, null, null, null);
         return;
       }
-      const lat = typeof data.lat === 'number' ? data.lat : (data.geo?.latitude ?? null);
-      const lng = typeof data.lng === 'number' ? data.lng : (data.geo?.longitude ?? null);
+
+      // Robust lat/lng extraction (numbers or strings), fallback to GeoPoint
+      let lat = coerceNum(data.lat);
+      let lng = coerceNum(data.lng);
+      if (lat == null && data.geo?.latitude != null) lat = coerceNum(data.geo.latitude);
+      if (lng == null && data.geo?.longitude != null) lng = coerceNum(data.geo.longitude);
+
       const capDate = tsToDate(data.capturedAt);
-      const acc = (typeof data.accuracy === 'number') ? data.accuracy : null;
+      const acc = coerceNum(data.accuracy);
       const src = data.source ?? null;
       const addr = data.address ?? null;
 
@@ -573,6 +581,9 @@
       // Render flag/tracking dropdowns from users doc
       $("#flagSel").value = data.flaggedAs || "None";
       $("#trackingSel").value = String(!!data.trackingEnabled);
+
+      // Ensure Leaflet recalculates size once panel is visible
+      setTimeout(()=> { try { ensureMap().invalidateSize(); } catch{} }, 0);
     }catch(e){
       console.error(e);
       toast("Failed to load tracking", true);
