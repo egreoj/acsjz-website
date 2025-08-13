@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>God Mode — Admin Console (eSelf)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;800&display=swap" rel="stylesheet">
+
+<!-- Leaflet (Map) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<style>
+  :root{
+    --ink:#0E2A32; --muted:#5E6B74; --bg:#F6F9FB; --card:#fff; --line:#E6EDF2;
+    --good-600:#0fa86b; --good-700:#0a8b59; --good-50:#eafaf1;
+    --warn-500:#f5c85f; --warn-50:#fff9e7;
+    --fire-600:#e12e15; --fire-50:#fff1f0;
+    --shadow: 0 18px 40px rgba(2,24,33,.08), 0 3px 10px rgba(2,24,33,.05);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:var(--ink)}
+  .appbar{
+    background: linear-gradient(120deg, #0a3b6d, #0fa86b);
+    color:#fff; padding:16px 20px; box-shadow:0 8px 30px rgba(2,24,33,.10);
+  }
+  .bar-wrap{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .brand{font-weight:800; letter-spacing:.3px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .btn{cursor:pointer; border:1px solid var(--line); background:#fff; color:#000;
+    padding:8px 12px; border-radius:12px; font-size:13px; font-weight:700; text-decoration:none}
+  .btn:hover{box-shadow:0 10px 24px rgba(2,24,33,.08)}
+  .btn.good{background:var(--good-600); color:#fff; border-color:transparent}
+  .btn.fire{background:var(--fire-600); color:#fff; border-color:transparent}
+  .userchip{display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.35);
+    padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(4px)}
+  .userchip img{width:28px;height:28px;border-radius:50%;object-fit:cover;background:#fff}
+  .userchip .name{font-weight:700;font-size:13px}
+
+  .wrap{max-width:1200px;margin:22px auto;padding:0 16px}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow)}
+  .head{padding:16px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:10px}
+  .head h1{margin:0; font-size:20px}
+  .body{padding:18px}
+
+  .grid{display:grid; gap:14px}
+  @media(min-width:1080px){ .grid.cols2{grid-template-columns:420px 1fr} }
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+  .title{font-weight:800;margin-bottom:10px}
+  .field{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+  input[type="text"], input[type="number"], select{
+    border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:14px; width:100%;
+  }
+  .small{font-size:12px;color:var(--muted)}
+
+  .list{display:grid; gap:8px; max-height:420px; overflow:auto; border-top:1px dashed #d8e2ea; padding-top:8px}
+  .item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px}
+  .item .meta{display:flex;flex-direction:column}
+  .item .meta .name{font-weight:800}
+  .link{color:#0b6782;font-weight:700;text-decoration:none}
+  .badge{display:inline-block;padding:3px 8px;border-radius:999px;font-size:12px;border:1px solid var(--line);background:#f6fafc}
+
+  .avatar{width:96px; height:96px; border-radius:18px; border:1px solid var(--line);
+          background:linear-gradient(135deg, #c7f0d9, #ffffff); background-size:cover; background-position:center}
+
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;
+        font-size:.85rem;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--ink)}
+  .chip.good{border-color: color-mix(in oklab, var(--good-600) 40%, var(--line)); color:var(--good-700)}
+  .chip.warn{border-color:#ffe6a3; background:#fff9e7; color:#7a5a00}
+  .chip.bad {border-color: color-mix(in oklab, var(--fire-600) 40%, var(--line)); background:var(--fire-50); color:#7a1d1d}
+
+  .docRow{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+  .badgeDoc{padding:5px 8px;border-radius:10px;font-size:.78rem;font-weight:800;border:1px solid var(--line);min-width:44px;text-align:center}
+  .ok{background:var(--good-600);color:#fff;border-color:transparent}
+  .missing{background:var(--fire-600);color:#fff;border-color:transparent}
+
+  .actionsRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .danger{background:var(--fire-600); color:#fff; border:0}
+  .muted{color:var(--muted)}
+  .sp{height:10px}
+
+  .toast{position:fixed;right:16px;bottom:16px;background:#0a3638;color:#eaffff;padding:10px 14px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.18);display:none;font-size:13px;z-index:2000}
+  .toast.warn{background:#5a1b16}
+
+  /* Map */
+  #map{width:100%;height:360px;border-radius:12px;border:1px solid var(--line)}
+  .stack{display:grid; gap:8px}
+</style>
+</head>
+<body>
+  <header class="appbar">
+    <div class="bar-wrap">
+      <div>
+        <div class="brand">God Mode — Admin Console</div>
+        <div style="opacity:.9; font-size:13px; margin-top:2px">Full control for verified admins only</div>
+      </div>
+      <div class="actions">
+        <a class="btn" href="eself.html">Public Preview</a>
+        <button id="btnSignOut" class="btn">Sign out</button>
+        <div id="userChip" class="userchip" title="Logged in admin">
+          <img id="userAvatar" alt="">
+          <div class="name" id="userName">—</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <div class="head">
+        <h1>Admin Dashboard</h1>
+        <span id="adminBadge" class="badge">Checking admin…</span>
+      </div>
+      <div class="body grid cols2">
+
+        <!-- LEFT: Search + All Users -->
+        <div class="panel">
+          <div class="title">Find user</div>
+          <div class="field">
+            <input id="q" type="text" placeholder="Search by UID or email…" />
+            <button id="btnSearch" class="btn">Search</button>
+          </div>
+          <div class="small">Tip: Paste UID (fastest). Email must be exact.</div>
+
+          <div class="sp"></div>
+          <div class="title">All users</div>
+          <div id="allUsers" class="list"></div>
+
+          <div class="sp"></div>
+          <div class="title">Tracking client snippet</div>
+          <details class="small">
+            <summary>Copy this into your user page (e.g., <code>eself.html</code>)</summary>
+<pre style="white-space:pre-wrap;border:1px dashed #c9d7e3;border-radius:10px;padding:10px;font-size:12px;background:#f8fbfd">
+&lt;script type="module"&gt;
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, serverTimestamp, GeoPoint, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  const app = initializeApp({ apiKey:"AIzaSyDltLi2PXwafrQnCFG-hF-5ysY-wxaw6sQ",
+    authDomain:"web-apps-41b38.firebaseapp.com", projectId:"web-apps-41b38" });
+  const auth = getAuth(app); const db = getFirestore(app);
+
+  // IMPORTANT: Ask for consent before enabling tracking.
+  async function updateLocationFor(uid, pos){
+    const ref = doc(db, "users", uid);
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    const data = {
+      lat, lng,
+      geo: new GeoPoint(lat, lng),
+      accuracy: pos.coords.accuracy ?? null,
+      // keep existing address unless you implement reverse geocoding
+      capturedAt: serverTimestamp(),
+      source: "html5"
+    };
+
+    // Preserve existing address if any:
+    try {
+      const snap = await getDoc(ref);
+      if (snap.exists() && snap.data()?.address) data.address = snap.data().address;
+    } catch(e) { console.warn(e); }
+
+    await setDoc(ref, data, { merge:true });
+  }
+
+  function beginFiveMinuteLoop(uid){
+    const getNow = ()=> {
+      if (!("geolocation" in navigator)) return;
+      navigator.geolocation.getCurrentPosition(
+        (pos)=> updateLocationFor(uid, pos),
+        (err)=> console.warn("Geoloc error", err),
+        { enableHighAccuracy:true, maximumAge:30_000, timeout:20_000 }
+      );
+    };
+    getNow();
+    return setInterval(getNow, 5 * 60 * 1000);
+  }
+
+  function beginWatch(uid){
+    if (!("geolocation" in navigator)) return null;
+    return navigator.geolocation.watchPosition(
+      (pos)=> updateLocationFor(uid, pos),
+      (err)=> console.warn("watch error", err),
+      { enableHighAccuracy:true, maximumAge:20_000, timeout:20_000 }
+    );
+  }
+
+  onAuthStateChanged(auth, (u)=>{
+    if (!u) return;
+    const intervalId = beginFiveMinuteLoop(u.uid);
+    const watchId = beginWatch(u.uid);
+    window.addEventListener("beforeunload", ()=> {
+      try { clearInterval(intervalId); } catch {}
+      try { navigator.geolocation.clearWatch(watchId); } catch {}
+    });
+  });
+&lt;/script&gt;
+</pre>
+            <div class="small" style="margin-top:6px">⚠️ Respect privacy & consent. Only track users who agreed in-app.</div>
+          </details>
+        </div>
+
+        <!-- RIGHT: User detail + Risk/Tracking + Map -->
+        <div class="panel" id="userPanel" style="display:none">
+          <div class="title">User details</div>
+          <div style="display:grid;grid-template-columns:110px 1fr; gap:12px; align-items:start">
+            <div>
+              <div id="avatar" class="avatar" aria-hidden="true"></div>
+              <div class="sp"></div>
+              <div id="adminToggleWrap">
+                <button id="btnToggleAdmin" class="btn">Toggle Admin</button>
+                <div class="small">Sets <code>Admin/UID</code> → <code>{ isAdmin: true|false }</code>.</div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+                <div id="fullName" style="font-weight:800"></div>
+                <span id="chipStatus" class="chip warn">Status: —</span>
+                <span id="chipAge" class="chip">Age: —</span>
+              </div>
+              <div class="small" id="email">—</div>
+              <div class="small" id="phone">—</div>
+              <div class="small" id="address">—</div>
+
+              <div class="sp"></div>
+              <div class="docRow" id="docRow"></div>
+
+              <div class="sp"></div>
+              <div class="actionsRow">
+                <label class="small">Trust Score:</label>
+                <input id="trustScore" type="number" min="0" max="100" value="0" style="width:100px">
+                <button id="btnSaveTrust" class="btn good">Save Trust</button>
+
+                <select id="statusSel" style="max-width:180px">
+                  <option value="Unverified">Unverified</option>
+                  <option value="Verified">Verified</option>
+                  <option value="Fully Verified">Fully Verified</option>
+                </select>
+                <button id="btnSaveStatus" class="btn good">Save Status</button>
+              </div>
+
+              <div class="sp"></div>
+              <div class="title">Per-doc actions</div>
+              <div id="docActions" class="list"></div>
+
+              <div class="sp"></div>
+              <div class="actionsRow">
+                <button id="btnResetPass" class="btn">Send password reset</button>
+                <a id="btnOpenPublic" class="btn" target="_blank" rel="noopener">Open public preview</a>
+                <button id="btnNuke" class="btn fire">Delete ALL user data</button>
+              </div>
+              <div class="small muted">Note: Deleting Firebase Auth user or forcing emailVerified requires Admin SDK/Cloud Function.</div>
+            </div>
+          </div>
+
+          <div class="sp"></div>
+          <hr style="border:none;border-top:1px dashed #d9e3ea; margin:10px 0">
+
+          <div class="stack">
+            <div class="title">Risk & Tracking</div>
+            <div class="actionsRow">
+              <label class="small">Flag as:</label>
+              <select id="flagSel" style="max-width:200px">
+                <option value="None">None</option>
+                <option value="Watch">Watch</option>
+                <option value="Fraud">Fraud</option>
+                <option value="Scammer">Scammer</option>
+              </select>
+
+              <label class="small">Tracking:</label>
+              <select id="trackingSel" style="max-width:160px">
+                <option value="false">Disabled</option>
+                <option value="true">Enabled</option>
+              </select>
+
+              <button id="btnSaveFlag" class="btn good">Save Flag/Tracking</button>
+              <button id="btnRefreshTrack" class="btn">Refresh</button>
+              <button id="btnClearHistory" class="btn fire">Clear Location</button>
+            </div>
+            <div class="small">Tracking fields live in: <code>users/{uid}</code> → <code>lat,lng,geo,accuracy,address,capturedAt,source</code></div>
+            <div class="small" id="lastLocText">Last location: —</div>
+
+            <div id="map"></div>
+          </div>
+        </div>
+
+        <!-- Access denied panel -->
+        <div class="panel" id="denyPanel" style="display:none">
+          <div class="title">Access denied</div>
+          <div class="small">This page is only for Admin users. Ask an existing admin to set <code>Admin/UID</code> with <code>isAdmin: true</code>.</div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast">Saved.</div>
+
+  <!-- Leaflet JS (non-module so L is on window) -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- Firebase + App Logic -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import {
+    getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField,
+    collection, getDocs, query, where, limit, serverTimestamp, GeoPoint
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import {
+    getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+  // ==== CONFIG ====
+  const firebaseConfig = {
+    apiKey: "AIzaSyDltLi2PXwafrQnCFG-hF-5ysY-wxaw6sQ",
+    authDomain: "web-apps-41b38.firebaseapp.com",
+    projectId: "web-apps-41b38",
+    storageBucket: "web-apps-41b38.firebasestorage.app",
+    messagingSenderId: "1082551975915",
+    appId: "1:1082551975915:web:0cb80941c5a475d83063ae",
+    measurementId: "G-EBPX4Q6M1Z"
+  };
+
+  // ==== INIT ====
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  const auth = getAuth(app);
+
+  // ==== UI helpers ====
+  const $ = sel => document.querySelector(sel);
+  const toastEl = $("#toast");
+  function toast(msg, warn=false){
+    toastEl.textContent = msg;
+    toastEl.classList.toggle("warn", !!warn);
+    toastEl.style.display = "block";
+    setTimeout(()=> toastEl.style.display = "none", 1800);
+  }
+  function setAvatar(el, url){ if(url) el.style.backgroundImage = `url('${url}')`; }
+  function parseDOB(v){
+    if(!v) return null;
+    if (typeof v === 'string' || v instanceof String) { const d = new Date(v); return isNaN(d) ? null : d; }
+    if (typeof v?.toDate === 'function') return v.toDate();
+    if (typeof v?.seconds === 'number') return new Date(v.seconds*1000);
+    if (typeof v === 'number') return new Date(v);
+    return null;
+  }
+  function calcAge(d){
+    if(!d) return null;
+    const today = new Date();
+    let age = today.getFullYear() - d.getFullYear();
+    const m = today.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+    return age >= 0 && <150 ? age : null;
+  }
+  function tsToDate(ts){
+    if (!ts) return null;
+    if (typeof ts?.toDate === 'function') return ts.toDate();
+    if (typeof ts?.seconds === 'number') return new Date(ts.seconds*1000);
+    if (typeof ts === 'number') return new Date(ts);
+    return null;
+  }
+
+  // ==== Admin gate ====
+  const ADMIN_COLL = "Admin";
+  let currentAdminUid = null;
+  let isSelfAdmin = false;
+
+  async function checkIsAdmin(uid){
+    try{
+      const snap = await getDoc(doc(db, ADMIN_COLL, uid));
+      return snap.exists() && !!snap.data()?.isAdmin;
+    }catch(e){
+      console.error("Admin check failed", e);
+      return false;
+    }
+  }
+
+  onAuthStateChanged(auth, async (user)=>{
+    const userName = $("#userName");
+    const userAvatar = $("#userAvatar");
+    if (!user){
+      userName.textContent = "Not signed in";
+      userAvatar.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect width='100%25' height='100%25' rx='14' ry='14' fill='%23ffffff'/%3E%3C/svg%3E";
+      $("#adminBadge").textContent = "No session";
+      $("#denyPanel").style.display = "block";
+      return;
+    }
+    userName.textContent = user.displayName || user.email || user.uid;
+    userAvatar.src = user.photoURL || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect width='100%25' height='100%25' rx='14' ry='14' fill='%23ffffff'/%3E%3C/svg%3E";
+
+    isSelfAdmin = await checkIsAdmin(user.uid);
+    $("#adminBadge").textContent = isSelfAdmin ? "Admin ✓" : "Forbidden";
+    if (!isSelfAdmin){
+      $("#denyPanel").style.display = "block";
+      return;
+    }
+    currentAdminUid = user.uid;
+    $("#denyPanel").style.display = "none";
+    $("#userPanel").style.display = "none";
+    loadAllUsers();
+  });
+
+  $("#btnSignOut").addEventListener("click", async ()=>{
+    try{ await signOut(auth); location.reload(); }catch(e){ console.error(e); }
+  });
+
+  // ==== All Users (UID only, limit 50) ====
+  async function loadAllUsers(){
+    const wrap = $("#allUsers");
+    wrap.innerHTML = "<div class='small'>Loading…</div>";
+    try{
+      const qy = query(collection(db, "users"), limit(50));
+      const snap = await getDocs(qy);
+      if (snap.empty){
+        wrap.innerHTML = "<div class='small'>No users.</div>";
+        return;
+      }
+      wrap.innerHTML = "";
+      snap.forEach(d=>{
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div class="meta">
+            <div class="name">${d.id}</div>
+          </div>
+          <button class="btn" data-uid="${d.id}">Open</button>
+        `;
+        el.querySelector("button").addEventListener("click", ()=> openUser(d.id));
+        wrap.appendChild(el);
+      });
+    }catch(e){
+      console.error(e);
+      wrap.innerHTML = "<div class='small'>Failed to load users.</div>";
+    }
+  }
+
+  // Search by UID or exact email
+  $("#btnSearch").addEventListener("click", async ()=>{
+    const qv = $("#q").value.trim();
+    if (!qv) return;
+    const tryUid = await getDoc(doc(db, "users", qv));
+    if (tryUid.exists()) { openUser(qv); return; }
+    const qy = query(collection(db,"users"), where("email","==", qv), limit(1));
+    const snap = await getDocs(qy);
+    if (!snap.empty){ openUser(snap.docs[0].id); return; }
+    toast("User not found", true);
+  });
+
+  // ==== Doc mapping (unchanged) ====
+  const INDICATOR_DEFS = [
+    { code:'GIDF', label:'Government ID (Front)',   keys:['GIDF','govIdFront'] },
+    { code:'GIDB', label:'Government ID (Back)',    keys:['GIDB','govIdBack'] },
+    { code:'SwID', label:'Selfie with ID',          keys:['SwID','selfieId'] },
+    { code:'PoA',  label:'Proof of Address',        keys:['PoA','proofAddress'] },
+    { code:'BC',   label:'Barangay Clearance',      keys:['BC','barangayClearance'] },
+    { code:'PC',   label:'Police Clearance',        keys:['PC','policeClearance'] },
+    { code:'NC',   label:'NBI Clearance',           keys:['NC','nbiClearance'] },
+  ];
+
+  function hasVal(v){
+    if(!v) return false;
+    if(Array.isArray(v)) return v.length>0;
+    if(typeof v==='string') return !!v.trim();
+    if(typeof v==='object'){
+      if (v.url || v.link) return true;
+      if (Array.isArray(v.urls) && v.urls.length>0) return true;
+      return Object.keys(v).length>0;
+    }
+    return false;
+  }
+  function pickVal(keyList, usersDoc, docs){
+    for(const k of keyList){
+      if (hasVal(docs?.[k])) return docs[k];
+      if (hasVal(usersDoc?.[k])) return usersDoc[k];
+      if (hasVal(usersDoc?.documents?.[k])) return usersDoc.documents[k];
+    }
+    return null;
+  }
+  function presentMap(usersDoc, docs){
+    const map = {};
+    for (const def of INDICATOR_DEFS){ map[def.code] = !!pickVal(def.keys, usersDoc||{}, docs||{}); }
+    return map;
+  }
+  function renderIndicators(pmap){
+    const row = $("#docRow");
+    row.innerHTML = "";
+    for(const def of INDICATOR_DEFS){
+      const span = document.createElement("span");
+      span.className = "badgeDoc " + (pmap[def.code] ? "ok" : "missing");
+      span.textContent = def.code;
+      span.title = def.label + " — " + (pmap[def.code] ? "present" : "missing");
+      row.appendChild(span);
+    }
+  }
+
+  // ==== Cloudinary delete via token (unchanged) ====
+  const cloudName = "dgbv0bzuq";
+  async function cloudDeleteByToken(token){
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/delete_by_token`;
+    const form = new FormData();
+    form.append("token", token);
+    try{
+      const res = await fetch(url, { method:"POST", body: form });
+      return await res.json();
+    }catch(e){ console.warn("cloud delete fail", e); return null; }
+  }
+
+  // ==== Map helpers ====
+  let map, lastMarker, accCircle;
+  function ensureMap(){
+    if (map) return map;
+    map = L.map('map');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+    map.setView([14.5995, 120.9842], 5); // PH default
+    return map;
+  }
+  function renderLocationOnMap(lat, lng, capturedAt, accuracy){
+    ensureMap();
+    if (lastMarker){ lastMarker.remove(); lastMarker = null; }
+    if (accCircle){ accCircle.remove(); accCircle = null; }
+
+    if (typeof lat === 'number' && typeof lng === 'number'){
+      lastMarker = L.marker([lat, lng]).addTo(map);
+      lastMarker.bindPopup(`Last @ ${capturedAt ? new Date(capturedAt).toLocaleString() : '—'}${accuracy ? `<br>±${Math.round(accuracy)} m` : ''}<br>
+        <a class="link" target="_blank" rel="noopener"
+           href="https://maps.google.com/?q=${lat},${lng}">Open in Google Maps</a>`);
+
+      // Optional accuracy circle
+      if (typeof accuracy === 'number' && accuracy > 0){
+        accCircle = L.circle([lat, lng], { radius: accuracy, weight:1, fillOpacity:0.1 }).addTo(map);
+        try { map.fitBounds(accCircle.getBounds(), { padding:[20,20] }); }
+        catch { map.setView([lat, lng], 14); }
+      } else {
+        map.setView([lat, lng], 14);
+      }
+    }
+  }
+
+  // ==== Load + paint user ====
+  let currentUserId = null;
+  let currentUserDoc = null;
+  let currentDocsUpload = null;
+
+  async function loadTrackingFromUsersDoc(uid, forceFetch = false){
+    try{
+      const uSnap = forceFetch ? await getDoc(doc(db,"users",uid)) : null;
+      const data = forceFetch ? (uSnap.exists() ? uSnap.data() : null) : currentUserDoc;
+      if (!data) {
+        $("#lastLocText").textContent = "Last location: —";
+        renderLocationOnMap(null, null, null, null);
+        return;
+      }
+      const lat = typeof data.lat === 'number' ? data.lat : (data.geo?.latitude ?? null);
+      const lng = typeof data.lng === 'number' ? data.lng : (data.geo?.longitude ?? null);
+      const capDate = tsToDate(data.capturedAt);
+      const acc = (typeof data.accuracy === 'number') ? data.accuracy : null;
+      const src = data.source ?? null;
+      const addr = data.address ?? null;
+
+      $("#lastLocText").textContent =
+        (lat!=null && lng!=null)
+        ? `Last: (${lat.toFixed(6)}, ${lng.toFixed(6)}) · ${capDate ? capDate.toLocaleString() : "—"}${acc ? ` · ±${Math.round(acc)}m` : ""}${src ? ` · ${src}` : ""}${addr ? ` · ${addr}` : ""}`
+        : "Last location: —";
+
+      renderLocationOnMap(lat, lng, capDate?.getTime() ?? null, acc);
+
+      // Render flag/tracking dropdowns from users doc
+      $("#flagSel").value = data.flaggedAs || "None";
+      $("#trackingSel").value = String(!!data.trackingEnabled);
+    }catch(e){
+      console.error(e);
+      toast("Failed to load tracking", true);
+    }
+  }
+
+  async function openUser(uid){
+    if (!isSelfAdmin) { toast("Forbidden", true); return; }
+    currentUserId = uid;
+    $("#userPanel").style.display = "block";
+
+    const [uSnap, dSnap, aSnap] = await Promise.all([
+      getDoc(doc(db,"users",uid)),
+      getDoc(doc(db,"docs_upload",uid)),
+      getDoc(doc(db, ADMIN_COLL, uid)),
+    ]);
+    if (!uSnap.exists()){ toast("No users doc", true); return; }
+    currentUserDoc = uSnap.data();
+    currentDocsUpload = dSnap.exists() ? dSnap.data() : {};
+    const isTargetAdmin = aSnap.exists() && !!aSnap.data()?.isAdmin;
+
+    // Top summary
+    $("#fullName").textContent = currentUserDoc.fullName || currentUserDoc.displayName || currentUserDoc.email || uid;
+    $("#email").textContent = currentUserDoc.email || "—";
+    $("#phone").textContent = currentUserDoc.phone || "—";
+    $("#address").textContent = currentUserDoc.address || "—";
+    setAvatar($("#avatar"), currentUserDoc.photoURL || currentUserDoc.avatarUrl || "");
+
+    const age = calcAge(parseDOB(currentUserDoc.dateOfBirth || currentUserDoc.dob || currentUserDoc.birthdate));
+    $("#chipAge").textContent = `Age: ${age ?? "—"}`;
+
+    const status = currentUserDoc.status || "Unverified";
+    const chip = $("#chipStatus");
+    chip.textContent = `Status: ${status}`;
+    chip.className = "chip " + (status==="Fully Verified" ? "good" : status==="Verified" ? "warn" : "bad");
+
+    $("#trustScore").value = Number(currentUserDoc.trustScore ?? 0);
+    $("#statusSel").value = status;
+
+    // Indicators
+    const pmap = presentMap(currentUserDoc, currentDocsUpload);
+    renderIndicators(pmap);
+
+    // Admin toggle label
+    $("#btnToggleAdmin").textContent = isTargetAdmin ? "Remove Admin" : "Make Admin";
+
+    // Per-doc actions
+    renderDocActions(uid, pmap);
+    // Links
+    $("#btnOpenPublic").href = `eself.html?worker=${encodeURIComponent(uid)}`;
+
+    // Tracking from users/{uid}
+    await loadTrackingFromUsersDoc(uid);
+  }
+
+  function renderDocActions(uid, pmap){
+    const wrap = $("#docActions");
+    wrap.innerHTML = "";
+    for (const def of INDICATOR_DEFS){
+      const short = def.code;
+      const longKey = def.keys.find(k => !["GIDF","GIDB","SwID","PoA","BC","PC","NC"].includes(k)) || short;
+
+      const url = currentUserDoc[short] || currentUserDoc[longKey] || (currentDocsUpload?.[longKey]?.url) || null;
+
+      const row = document.createElement("div");
+      row.className = "item";
+      row.innerHTML = `
+        <div class="meta">
+          <div class="name">${short} — ${def.label}</div>
+          <div class="small">${pmap[short] ? "present" : "missing"} ${url ? `· <a class="link" href="${url}" target="_blank">view</a>` : ""}</div>
+        </div>
+        <div>
+          <button class="btn fire" data-del="${longKey}">Delete</button>
+        </div>
+      `;
+      row.querySelector("[data-del]").addEventListener("click", ()=> adminDeleteEntry(uid, short, longKey));
+      wrap.appendChild(row);
+    }
+  }
+
+  async function adminDeleteEntry(uid, shortKey, longKey){
+    if (!isSelfAdmin) { toast("Forbidden", true); return; }
+    if (!confirm(`Delete ${shortKey} (${longKey}) for ${uid}?`)) return;
+    let cloudDeleted = false;
+
+    try{
+      const meta = currentDocsUpload?.[longKey];
+      const tokens = [];
+      if (Array.isArray(meta)){ meta.forEach(m=> m?.delete_token && tokens.push(m.delete_token)); }
+      else if (meta && typeof meta === "object" && meta.delete_token){ tokens.push(meta.delete_token); }
+      for (const tk of tokens){
+        const r = await cloudDeleteByToken(tk);
+        if (r && (r.result === "ok" || r.result === "deleted")) cloudDeleted = true;
+      }
+    }catch(e){ console.warn(e); }
+
+    try{
+      await updateDoc(doc(db,"users",uid), {
+        [shortKey]: deleteField(),
+        [longKey]: deleteField(),
+        docsUpdatedAt: serverTimestamp()
+      });
+    }catch(e){ console.warn("users update failed", e); }
+
+    try{
+      await updateDoc(doc(db,"docs_upload",uid), { [longKey]: deleteField() });
+    }catch(e){ console.warn("docs_upload update failed", e); }
+
+    toast(cloudDeleted ? "Deleted (cloud + entries)" : "Entries removed (no cloud token)", !cloudDeleted);
+    openUser(uid);
+  }
+
+  // ==== Save actions ====
+  $("#btnSaveTrust").addEventListener("click", async ()=>{
+    if(!currentUserId || !isSelfAdmin) return;
+    const v = Math.max(0, Math.min(100, Number($("#trustScore").value||0)));
+    try{
+      await updateDoc(doc(db,"users",currentUserId), { trustScore: v, docsUpdatedAt: serverTimestamp() });
+      toast("Trust score saved");
+    }catch(e){ console.error(e); toast("Save failed", true); }
+  });
+
+  $("#btnSaveStatus").addEventListener("click", async ()=>{
+    if(!currentUserId || !isSelfAdmin) return;
+    const v = $("#statusSel").value;
+    try{
+      await updateDoc(doc(db,"users",currentUserId), { status: v, docsUpdatedAt: serverTimestamp() });
+      toast("Status saved");
+      openUser(currentUserId);
+    }catch(e){ console.error(e); toast("Save failed", true); }
+  });
+
+  $("#btnResetPass").addEventListener("click", async ()=>{
+    if(!currentUserDoc?.email || !isSelfAdmin){ toast("No email on file or forbidden", true); return; }
+    try{
+      await sendPasswordResetEmail(auth, currentUserDoc.email);
+      toast("Password reset email sent");
+    }catch(e){ console.error(e); toast("Failed to send reset email", true); }
+  });
+
+  $("#btnNuke").addEventListener("click", async ()=>{
+    if(!currentUserId || !isSelfAdmin) return;
+    if(!confirm(`Delete ALL Firestore data for ${currentUserId}? (users + docs_upload)`)) return;
+
+    try{ await deleteDoc(doc(db,"users",currentUserId)); }catch(e){ console.warn(e); }
+    try{ await deleteDoc(doc(db,"docs_upload",currentUserId)); }catch(e){ console.warn(e); }
+    toast("User data deleted");
+    $("#userPanel").style.display = "none";
+    loadAllUsers();
+  });
+
+  // ==== Risk & Tracking actions (stored in users/{uid}) ====
+  $("#btnSaveFlag").addEventListener("click", async ()=>{
+    if(!currentUserId || !isSelfAdmin) return;
+    const flaggedAs = $("#flagSel").value;
+    const trackingEnabled = $("#trackingSel").value === "true";
+    const ref = doc(db,"users",currentUserId);
+    try{
+      await setDoc(ref, {
+        flaggedAs, trackingEnabled,
+        flaggedBy: currentAdminUid,
+        flaggedAt: serverTimestamp()
+      }, { merge:true });
+      toast("Flag/Tracking saved");
+      await loadTrackingFromUsersDoc(currentUserId, true);
+    }catch(e){ console.error(e); toast("Save failed", true); }
+  });
+
+  $("#btnRefreshTrack").addEventListener("click", async ()=>{
+    if(!currentUserId || !isSelfAdmin) return;
+    await loadTrackingFromUsersDoc(currentUserId, true);
+  });
+
+  $("#btnClearHistory").addEventListener("click", async ()=>{
+    if(!currentUserId || !isSelfAdmin) return;
+    if(!confirm("Clear location fields (lat,lng,geo,accuracy,address,capturedAt,source)?")) return;
+    const ref = doc(db,"users",currentUserId);
+    try{
+      await updateDoc(ref, {
+        lat: deleteField(), lng: deleteField(), geo: deleteField(),
+        accuracy: deleteField(), address: deleteField(),
+        capturedAt: deleteField(), source: deleteField()
+      });
+      toast("Location cleared");
+      await loadTrackingFromUsersDoc(currentUserId, true);
+    }catch(e){ console.error(e); toast("Failed to clear location", true); }
+  });
+
+  // ====== SUGGESTED FIRESTORE RULES (update) ======
+  /*
+  rules_version = '2';
+  service cloud.firestore {
+    match /databases/{database}/documents {
+      function isSignedIn() { return request.auth != null; }
+      function isAdmin() { return isSignedIn() && exists(/databases/$(database)/documents/Admin/$(request.auth.uid)); }
+
+      // Helper: user can only modify safe tracking fields on their own doc
+      function userChangedOnlyTrackingKeys() {
+        return request.resource.data.diff(resource.data).changedKeys()
+          .hasOnly(['lat','lng','geo','accuracy','address','capturedAt','source']);
+      }
+
+      match /users/{uid} {
+        allow read: if true;
+
+        // Owner can update only tracking fields on own doc.
+        allow update: if isSignedIn() && request.auth.uid == uid && userChangedOnlyTrackingKeys();
+
+        // Admins can write anything (including flags).
+        allow write: if isAdmin();
+
+        // New docs: allow create by owner with only allowed keys, or by admin.
+        allow create: if (isSignedIn() && request.auth.uid == uid && userChangedOnlyTrackingKeys())
+                      || isAdmin();
+      }
+
+      match /Admin/{uid} { allow read, write: if isAdmin(); }
+      match /docs_upload/{uid} { allow read, write: if isAdmin() || (isSignedIn() && request.auth.uid == uid); }
+    }
+  }
+  */
+</script>
+
+</body>
+</html>

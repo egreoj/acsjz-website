@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>VerifyMe PH — eSelf (Docs + Preview)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --good-50:#eafaf1; --good-200:#a8ebca; --good-500:#16c47f; --good-600:#0fa86b; --good-700:#0a8b59; --good-800:#086e48;
+    --fire-50:#fff1f0; --fire-200:#ffbeb6; --fire-500:#ff3b1f; --fire-600:#e12e15;
+    --warn-50:#fff9e7; --warn-200:#ffe6a3; --warn-500:#f5c85f;
+    --ink:#0E2A32; --muted:#5E6B74; --bg:#F6F9FB; --card:#ffffff; --line:#E6EDF2;
+    --shadow: 0 18px 40px rgba(2,24,33,.08), 0 3px 10px rgba(2,24,33,.05);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(22,196,127,.09), transparent 60%),
+      radial-gradient(900px 500px at -10% 0%, rgba(255,59,31,.08), transparent 55%),
+      var(--bg);
+  }
+
+  /* Nav */
+  .nav{position:sticky; top:0; z-index:60; backdrop-filter:saturate(180%) blur(12px);
+    background:linear-gradient(to bottom, rgba(255,255,255,.78), rgba(255,255,255,.64)); border-bottom:1px solid var(--line);}  
+  .nav-inner{max-width:1200px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; justify-content:space-between;}
+  .brand{display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:.2px}
+  .brand-mark{width:42px; height:42px; border-radius:14px; position:relative; overflow:hidden;
+    background: conic-gradient(from 210deg, var(--good-500) 0 55%, transparent 55% 100%),
+               conic-gradient(from 30deg, var(--fire-500) 0 45%, transparent 45% 100%),
+               linear-gradient(135deg, #fff, #f3f8fb);
+    box-shadow: var(--shadow);}  
+  .brand-mark::after{content:""; position:absolute; inset:8px; border-radius:10px; border:2px solid rgba(14,42,50,.06);}  
+
+  .nav-actions{display:flex; align-items:center; gap:10px}
+  .btn{--btn-bg:var(--good-600); --btn-fg:#fff; --btn-bd:transparent;
+    display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:12px;
+    font-weight:700; font-size:.9rem; border:1px solid var(--btn-bd); background:var(--btn-bg); color:var(--btn-fg);
+    transition:transform .18s ease, box-shadow .18s ease; cursor:pointer; text-decoration:none;}
+  .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+  .btn.white{--btn-bg:#fff; --btn-fg:var(--ink); --btn-bd:var(--line)}
+  .btn.ghost{--btn-bg:#fff; --btn-fg:var(--ink); --btn-bd:var(--line); font-weight:600}
+
+  /* User dropdown */
+  .menu{position:relative}
+  .menu-btn{display:inline-flex; align-items:center; gap:8px}
+  .menu-pop{position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1px solid var(--line);
+    border-radius:12px; box-shadow:var(--shadow); display:none; min-width:210px}
+  .menu-pop a{display:block; padding:10px 12px; text-decoration:none; color:var(--ink); font-weight:600}
+  .menu-pop a:hover{background:#f5f8fb}
+
+  /* Layout */
+  .container{max-width:1200px;margin:0 auto;padding:24px 20px}
+  .hero{display:grid; grid-template-columns: 1.2fr .8fr; gap:24px}
+  @media (max-width: 980px){ .hero{grid-template-columns:1fr} }
+  .title{font-size: clamp(2rem, 3.6vw, 3.1rem); line-height:1.12; margin:6px 0 10px}
+  .subtitle{color:var(--muted); margin:0 0 14px}
+
+  /* Right card (Preview) */
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
+  .card header{padding:14px 16px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); font-weight:800; justify-content:center; text-align:center}
+  .chip{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; font-size:.82rem; font-weight:700; border:1px solid var(--line); background:#fff}
+  .card .body{padding:14px}
+  .iframe-wrap{border-radius:12px; overflow:hidden; border:1px solid var(--line); background:#fff}
+  .iframe-wrap iframe{width:100%; height:460px; display:block; border:0; background:#fff}
+
+  /* Docs section */
+  .section{margin-top:26px}
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  .thumb{width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:#f2f4f7}
+  .thumb img{max-width:100%;max-height:100%;object-fit:cover}
+  .bodyx{padding:12px}
+  .doc-title{font-weight:800;margin:0 0 6px}
+  .meta{font-size:12px;color:var(--muted)}
+  .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .btn.muted{--btn-bg:#eef2f5; --btn-fg:var(--ink); --btn-bd:var(--line); font-weight:700}
+
+  /* Toast */
+  .toast{position:fixed; right:18px; bottom:18px; padding:12px 14px; border-radius:12px; color:#fff; background:var(--ink);
+    box-shadow:var(--shadow); display:none; z-index:90; font-weight:700}
+  .toast.good{background:var(--good-600)} .toast.fire{background:var(--fire-600)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <div>
+        <div style="font-size:1.08rem">VerifyMe <span style="color:var(--good-600)">PH</span></div>
+        <div class="subtitle" style="margin-top:2px">Anti-Fraud • Anti-Scam</div>
+      </div>
+    </div>
+
+    <div class="nav-actions" id="navActions">
+      <button class="btn ghost" id="btnLogin">Log in with Google</button>
+
+      <div class="menu" id="userMenu" style="display:none">
+        <button class="btn white menu-btn" id="btnUser">
+          <span id="welcomeText">Welcome</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="menu-pop" id="userPop">
+          <!-- Admin button (shown only if isAdmin truthy in Admin collection) -->
+          <a href="Admin_Console.html" id="menuAdmin" style="display:none">Admin Console</a>
+          <a href="#" id="menuLogout">Log out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="chip">Verify before you transact</div>
+      <h1 class="title">Build trust, <span style="color:var(--good-700)">spot red flags</span>, and protect Filipinos online.</h1>
+      <p class="subtitle">Individuals create a verifiable profile. Inquirers can confirm identity and reputation — consent-first, privacy-safe, PH-compliant.</p>
+
+      <div class="actions">
+        <a class="btn" id="btnCreateMain" href="eself_create_profile.html">Create or Edit profile</a>
+        <button class="btn muted" type="button">Verify someone</button>
+        <button class="btn" style="--btn-bg:var(--fire-600)" type="button">Report a scam</button>
+      </div>
+    </div>
+
+    <aside class="card" aria-label="Profile Status Preview">
+      <header>Profile Status Preview</header>
+      <div class="body">
+        <div class="iframe-wrap" id="profileWrap">
+          <iframe id="profileFrame" title="eSelf Profile Preview"></iframe>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- DOCS -->
+  <section class="section">
+    <h2 style="margin:0 0 8px">Your Uploaded Verification Docs</h2>
+    <p class="subtitle" style="margin:0 0 12px">We check your <b>users/{uid}</b> record for required entries. Click “View” to open the original Cloudinary file or “Copy link”.</p>
+
+    <div id="chips" class="actions" style="gap:8px; flex-wrap:wrap"></div>
+    <div id="docs" class="grid" style="margin-top:14px;"></div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import {
+    getFirestore, doc, getDoc,
+    setDoc, serverTimestamp, GeoPoint
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+  // ---- Config ----
+  const firebaseConfig = {
+    apiKey: "AIzaSyDltLi2PXwafrQnCFG-hF-5ysY-wxaw6sQ",
+    authDomain: "web-apps-41b38.firebaseapp.com",
+    projectId: "web-apps-41b38",
+    storageBucket: "web-apps-41b38.firebasestorage.app",
+    messagingSenderId: "1082551975915",
+    appId: "1:1082551975915:web:0cb80941c5a475d83063ae",
+    measurementId: "G-EBPX4Q6M1Z"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  // ===== UI helpers =====
+  const toastEl = document.getElementById('toast');
+  const showToast = (msg, kind='')=>{
+    toastEl.textContent = msg; toastEl.className = 'toast ' + kind;
+    toastEl.style.display='block'; setTimeout(()=>toastEl.style.display='none', 2400);
+  };
+
+  const btnLogin = document.getElementById('btnLogin');
+  const userMenu = document.getElementById('userMenu');
+  const userPop  = document.getElementById('userPop');
+  const welcomeText = document.getElementById('welcomeText');
+  const menuLogout = document.getElementById('menuLogout');
+  const menuAdmin  = document.getElementById('menuAdmin');
+
+  function firstNameOf(s){ return (s||'').split(' ')[0] || 'User'; }
+  function setAdminUI(isAdmin){ if(menuAdmin) menuAdmin.style.display = isAdmin ? 'block' : 'none'; }
+
+  // --- helper: treat "true", "1", "yes", etc. as true
+  function truthyAdmin(v){
+    if (typeof v === 'boolean') return v;
+    if (typeof v === 'number')  return v === 1;
+    if (typeof v === 'string') {
+      const s = v.trim().toLowerCase();
+      return s === 'true' || s === '1' || s === 'yes' || s === 'y' || s === 't';
+    }
+    return false;
+  }
+
+  // ==== ADMIN CHECK: isAdmin only (accepts string "true")
+  async function checkAdmin(uid, email){
+    try{
+      // Prefer Admin/{uid}
+      if(uid){
+        const byUid = await getDoc(doc(db, "Admin", uid));
+        if (byUid.exists() && truthyAdmin(byUid.data()?.isAdmin)) return true;
+      }
+      // Also support Admin/{emailLower} if that's how you store admins
+      const em = (email||'').trim().toLowerCase();
+      if(em){
+        const byEmail = await getDoc(doc(db, "Admin", em));
+        if (byEmail.exists() && truthyAdmin(byEmail.data()?.isAdmin)) return true;
+      }
+    }catch(err){
+      console.warn("Admin check failed:", err);
+    }
+    return false;
+  }
+
+  function afterLoginUI(user){
+    btnLogin.style.display = 'none';
+    userMenu.style.display = 'block';
+    welcomeText.textContent = `Welcome, ${firstNameOf(user.displayName || user.email)}`;
+    const qp = `?worker=${encodeURIComponent(user.uid)}`;
+    document.getElementById('btnCreateMain').href = `eself_create_profile.html${qp}`;
+  }
+  function afterLogoutUI(){
+    userMenu.style.display = 'none';
+    userPop.style.display = 'none';
+    btnLogin.style.display = 'inline-flex';
+    document.getElementById('btnCreateMain').href = 'eself_create_profile.html';
+    const frame = document.getElementById('profileFrame');
+    frame.removeAttribute('src');
+    frame.setAttribute('srcdoc', PROFILE_PLACEHOLDER);
+    setAdminUI(false);
+  }
+
+  document.addEventListener('click', (e)=>{
+    if(userMenu.style.display !== 'none'){
+      if(e.target.closest('#btnUser')) userPop.style.display = userPop.style.display==='block' ? 'none' : 'block';
+      else if(!e.target.closest('#userPop')) userPop.style.display = 'none';
+    }
+  });
+
+  // ===== Location save DIRECTLY into users/{uid} =====
+  let lastLocSavedUid = null;
+
+  function getCurrentPositionAsync(options){
+    return new Promise((resolve, reject)=>{
+      if(!('geolocation' in navigator)) return reject(new Error('Geolocation not supported'));
+      navigator.geolocation.getCurrentPosition(resolve, reject, options);
+    });
+  }
+
+  async function reverseGeocode(lat, lng){
+    try{
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`);
+      if(!res.ok) return null;
+      const data = await res.json();
+      return data?.display_name || null;
+    }catch{ return null; }
+  }
+
+  async function captureAndSaveLocation(user){
+    if(!user || lastLocSavedUid === user.uid) return;
+    lastLocSavedUid = user.uid;
+
+    try{
+      showToast('Getting your location…');
+      const pos = await getCurrentPositionAsync({ enableHighAccuracy:true, timeout:10000, maximumAge:60000 });
+      const { latitude, longitude, accuracy } = pos.coords;
+      const address = await reverseGeocode(latitude, longitude);
+
+      const payload = {
+        // merge into the user profile doc
+        location: {
+          lat: latitude,
+          lng: longitude,
+          geo: new GeoPoint(latitude, longitude),
+          accuracy: typeof accuracy === 'number' ? accuracy : null,
+          address: address || null,
+          capturedAt: serverTimestamp(),
+          source: 'browser.geolocation'
+        },
+        lastLoginAt: serverTimestamp()
+      };
+
+      const ref = doc(db, "users", user.uid);
+      await setDoc(ref, payload, { merge: true });
+      showToast('Location saved to profile.', 'good');
+    }catch(err){
+      console.warn('Location capture/save failed:', err);
+      showToast('Could not save location.', 'fire');
+    }
+  }
+
+  // ===== Auth wiring =====
+  btnLogin.addEventListener('click', async ()=>{
+    try{
+      const { user } = await signInWithPopup(auth, provider);
+      localStorage.setItem("authUid", user.uid);
+      showToast(`Welcome, ${firstNameOf(user.displayName || user.email)}!`, 'good');
+      afterLoginUI(user);
+      hydratePreview(user.uid);
+      loadDocsFromUsers(user.uid);
+      setAdminUI(await checkAdmin(user.uid, user.email));   // toggle Admin button
+      captureAndSaveLocation(user);
+    }catch(err){
+      console.error(err); showToast(err.code || 'Login failed', 'fire');
+    }
+  });
+
+  menuLogout.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    try{
+      await signOut(auth);
+      localStorage.removeItem("authUid");
+      showToast('Signed out');
+      afterLogoutUI();
+      renderDocsFromUsersData({}); // clear docs
+      lastLocSavedUid = null;
+    }catch(e2){
+      console.error(e2); showToast('Sign out failed','fire');
+    }
+  });
+
+  onAuthStateChanged(auth, async (user)=>{
+    if(user){
+      localStorage.setItem("authUid", user.uid);
+      afterLoginUI(user);
+      hydratePreview(user.uid);
+      loadDocsFromUsers(user.uid);
+      setAdminUI(await checkAdmin(user.uid, user.email));   // toggle on restore
+      captureAndSaveLocation(user);
+    } else {
+      afterLogoutUI();
+      const qs = new URLSearchParams(location.search);
+      const qpWorker = qs.get("worker");
+      if(qpWorker){ hydratePreview(qpWorker); loadDocsFromUsers(qpWorker); }
+    }
+  });
+
+  // ===== Profile Status Preview =====
+  const PROFILE_PLACEHOLDER = `<style>
+    body{font-family:Inter,system-ui,sans-serif;color:#0E2A32;margin:0}
+    .x{padding:16px} .h{color:#5E6B74}
+  </style>
+  <div class='x'>
+    <div style='font-weight:800;margin-bottom:6px'>Sign in to preview</div>
+    <div class='h'>Your public profile will appear here.</div>
+  </div>`;
+
+  function hydratePreview(uid){
+    const iframe = document.getElementById('profileFrame');
+    if(!uid){
+      iframe.removeAttribute('src');
+      iframe.setAttribute('srcdoc', PROFILE_PLACEHOLDER);
+      return;
+    }
+    iframe.removeAttribute('srcdoc');
+    iframe.src = `./eself_profile.html?worker=${encodeURIComponent(uid)}#${Date.now()}`;
+  }
+
+  // ===== Labels & Key Maps =====
+  const CODE_LABELS = {
+    GIDF: "Government ID (Front)",
+    GIDB: "Government ID (Back)",
+    SwID: "Selfie with ID",
+    PoA:  "Proof of Address",
+    BC:   "Barangay Clearance",
+    PC:   "Police Clearance",
+    NC:   "NBI Clearance",
+  };
+  const LONG_LABELS = {
+    govIdFront: "Government ID (Front)",
+    govIdBack: "Government ID (Back)",
+    selfieId: "Selfie with ID",
+    proofAddress: "Proof of Address",
+    barangayClearance: "Barangay Clearance",
+    policeClearance: "Police Clearance",
+    nbiClearance: "NBI Clearance",
+    birthCertPassport: "PSA Birth Cert / Passport",
+    supportingPhoto: "2x2 / Supporting Photo",
+    otherDocs: "Other Supporting Documents"
+  };
+  const REQUIRED_CODES = ["GIDF","GIDB","SwID","PoA","BC","PC","NC"];
+
+  const CODE_TO_LONG = {
+    GIDF:"govIdFront", GIDB:"govIdBack", SwID:"selfieId",
+    PoA:"proofAddress", BC:"barangayClearance", PC:"policeClearance", NC:"nbiClearance"
+  };
+  const LONG_TO_CODE = Object.fromEntries(Object.entries(CODE_TO_LONG).map(([c,l])=>[l,c]));
+
+  function isImage(url){ return /\.(jpg|jpeg|png|gif|bmp|webp|avif)$/i.test(url) || /\/image\/upload\//.test(url); }
+  function toThumb(url){
+    if(typeof url !== 'string') return url;
+    if(/res\.cloudinary\.com\/[^/]+\/image\/upload\//.test(url)){
+      return url.replace('/image/upload/','/image/upload/c_limit,w_800,h_600,q_auto:eco/');
+    }
+    return url;
+  }
+  function safeUrl(u){ return (typeof u==='string' && /^https?:\/\//i.test(u)) ? u : null; }
+
+  function getUrlFor(data, key){
+    const norm = (v)=> (typeof v==='string') ? v : (v && typeof v==='object' ? (v.url || null) : null);
+    if(key in data){ const u = norm(data[key]); if(u) return u; }
+    if(CODE_TO_LONG[key] && (CODE_TO_LONG[key] in data)){ return norm(data[CODE_TO_LONG[key]]); }
+    if(LONG_TO_CODE[key] && (LONG_TO_CODE[key] in data)){ return norm(data[LONG_TO_CODE[key]]); }
+    return null;
+  }
+
+  function makeCard(label, url){
+    const safe = safeUrl(url);
+    const el = document.createElement("div"); el.className = "card";
+    const thumb = document.createElement("div"); thumb.className = "thumb";
+    if(safe && isImage(safe)){
+      const img = document.createElement("img"); img.src = toThumb(safe); img.alt = label; thumb.appendChild(img);
+    }else{ thumb.innerHTML = "<span>Preview not available</span>"; }
+    const body = document.createElement("div"); body.className = "bodyx";
+    body.innerHTML = `<div class="doc-title">${label}</div>`;
+    const actions = document.createElement("div"); actions.className = "actions";
+
+    const viewBtn = document.createElement("button"); viewBtn.className = "btn"; viewBtn.type = "button"; viewBtn.textContent = "View";
+    viewBtn.disabled = !safe; viewBtn.addEventListener("click", ()=>{ if(safe) window.open(safe, "_blank", "noopener"); });
+    actions.appendChild(viewBtn);
+
+    const copyBtn = document.createElement("button"); copyBtn.className = "btn muted"; copyBtn.type = "button";
+    copyBtn.textContent = "Copy link";
+    copyBtn.disabled = !safe;
+    copyBtn.addEventListener("click", async ()=>{ try{ await navigator.clipboard.writeText(safe); showToast("Link copied","good"); }catch{ showToast("Copy failed","fire"); } });
+    actions.appendChild(copyBtn);
+
+    body.appendChild(actions);
+    el.appendChild(thumb); el.appendChild(body);
+    return el;
+  }
+
+  function renderDocsFromUsersData(data){
+    const chips = document.getElementById("chips");
+    chips.innerHTML = "";
+    REQUIRED_CODES.forEach(code=>{
+      const ok = !!getUrlFor(data, code);
+      const span = document.createElement("span");
+      span.className = "chip";
+      span.style.borderColor = ok ? "color-mix(in oklab, var(--good-500) 40%, var(--line))" : "var(--warn-200)";
+      span.style.background = ok ? "#fff" : "var(--warn-50)";
+      span.style.color = ok ? "var(--good-800)" : "#7a5a00";
+      span.textContent = (ok ? "✓ " : "✗ ") + (CODE_LABELS[code] || code);
+      chips.appendChild(span);
+    });
+
+    const ORDER = ["GIDF","GIDB","SwID","PoA","BC","PC","NC","birthCertPassport","supportingPhoto"];
+    const grid = document.getElementById("docs");
+    grid.innerHTML = "";
+
+    let shown = 0;
+    ORDER.forEach(key=>{
+      const url = getUrlFor(data, key);
+      if(!url) return;
+      const label = CODE_LABELS[key] || LONG_LABELS[key] || key;
+      grid.appendChild(makeCard(label, url));
+      shown++;
+    });
+
+    const legacy = ["govIdFront","govIdBack","selfieId","proofAddress","barangayClearance","policeClearance","nbiClearance"];
+    legacy.forEach(k=>{
+      if(REQUIRED_CODES.includes(LONG_TO_CODE[k])) return;
+      const url = getUrlFor(data, k);
+      if(!url) return;
+      grid.appendChild(makeCard(LONG_LABELS[k] || k, url));
+      shown++;
+    });
+
+    if(!shown){
+      grid.innerHTML = `<div class="card"><div class="bodyx">
+        <div class="doc-title">No documents found in users/{uid}</div>
+        <div class="meta">Please upload your verification files in eSelf.</div>
+      </div></div>`;
+    }
+  }
+
+  async function loadDocsFromUsers(uid){
+    try{
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+      if(userSnap.exists()){
+        renderDocsFromUsersData(userSnap.data() || {});
+      }else{
+        renderDocsFromUsersData({});
+      }
+    }catch(e){
+      console.error(e); showToast("Failed to load documents","fire");
+    }
+  }
+
+  // Initial iframe placeholder
+  (function initPlaceholder(){
+    const frame = document.getElementById('profileFrame');
+    frame.setAttribute('srcdoc', PROFILE_PLACEHOLDER);
+  })();
+
+  // Allow ?worker=uid to preview/load others even before login
+  (function bootstrapByQuery(){
+    const qs = new URLSearchParams(location.search);
+    const qp = qs.get("worker");
+    if(qp){ hydratePreview(qp); loadDocsFromUsers(qp); }
+  })();
+</script>
+</body>
+</html>

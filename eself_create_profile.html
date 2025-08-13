@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>eSelf — Create Personal Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --good-50:#eafaf1; --good-200:#a8ebca; --good-500:#16c47f; --good-600:#0fa86b; --good-800:#086e48;
+    --fire-50:#fff1f0; --fire-200:#ffbeb6; --fire-500:#ff3b1f; --fire-600:#e12e15;
+    --warn-50:#fff9e7; --warn-200:#ffe6a3;
+    --ink:#0E2A32; --muted:#5E6B74; --bg:#F6F9FB; --card:#ffffff; --line:#E6EDF2;
+    --shadow: 0 18px 40px rgba(2,24,33,.08), 0 3px 10px rgba(2,24,33,.05);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(22,196,127,.09), transparent 60%),
+      radial-gradient(900px 500px at -10% 0%, rgba(255,59,31,.08), transparent 55%),
+      var(--bg);
+  }
+
+  /* Nav */
+  .nav{position:sticky; top:0; z-index:60; backdrop-filter:saturate(180%) blur(12px);
+    background:linear-gradient(to bottom, rgba(255,255,255,.78), rgba(255,255,255,.64)); border-bottom:1px solid var(--line);}  
+  .nav-inner{max-width:1100px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; justify-content:space-between;}
+  .brand{display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:.2px}
+  .brand-mark{width:42px; height:42px; border-radius:14px; position:relative; overflow:hidden;
+    background: conic-gradient(from 210deg, var(--good-500) 0 55%, transparent 55% 100%),
+               conic-gradient(from 30deg, var(--fire-600) 0 45%, transparent 45% 100%),
+               linear-gradient(135deg, #fff, #f3f8fb);
+    box-shadow: var(--shadow);}  
+  .brand-mark::after{content:""; position:absolute; inset:8px; border-radius:10px; border:2px solid rgba(14,42,50,.06);}  
+
+  .nav-actions{display:flex; align-items:center; gap:10px}
+  .btn{--btn-bg:var(--good-600); --btn-fg:#fff; --btn-bd:transparent;
+    display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:12px;
+    font-weight:700; font-size:.9rem; border:1px solid var(--btn-bd); background:var(--btn-bg); color:var(--btn-fg);
+    transition:transform .18s ease, box-shadow .18s ease; cursor:pointer; text-decoration:none;}
+  .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+  .btn.white{--btn-bg:#fff; --btn-fg:var(--ink); --btn-bd:var(--line)}
+  .btn.ghost{--btn-bg:#fff; --btn-fg:var(--ink); --btn-bd:var(--line); font-weight:600}
+  .btn.fire{--btn-bg:var(--fire-600)}
+  .link-btn{display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:12px;
+    color:var(--ink); background:#fff; border:1px solid var(--line); font-weight:700; text-decoration:none;}
+  .link-btn:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+
+  /* User dropdown */
+  .menu{position:relative}
+  .menu-btn{display:inline-flex; align-items:center; gap:8px}
+  .menu-pop{position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1px solid var(--line);
+    border-radius:12px; box-shadow:var(--shadow); display:none; min-width:190px}
+  .menu-pop a{display:block; padding:10px 12px; text-decoration:none; color:var(--ink); font-weight:600}
+  .menu-pop a:hover{background:#f5f8fb}
+
+  /* Layout */
+  .container{max-width:1100px; margin:0 auto; padding:24px 20px}
+  .title{font-size: clamp(1.6rem, 2.8vw, 2.2rem); line-height:1.12; margin:6px 0 10px}
+  .subtitle{color:var(--muted); margin:0 0 18px}
+
+  .grid{display:grid; gap:18px; grid-template-columns: 1fr 360px}
+  @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
+  .card header{padding:14px 16px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); font-weight:800}
+  .card .body{padding:16px}
+
+  .input, select, textarea{width:100%; padding:12px 12px; border-radius:12px; border:1px solid var(--line); background:#fff; font:inherit}
+  .input:focus, select:focus, textarea:focus{outline:2px solid color-mix(in oklab, var(--good-600) 38%, #ffffff)}
+  label{font-size:.92rem; font-weight:700; margin-bottom:6px; display:block}
+  .row{display:grid; gap:12px; grid-template-columns:1fr 1fr}
+  @media (max-width: 720px){ .row{grid-template-columns:1fr} }
+  .hint{font-size:.88rem; color:var(--muted)}
+  .tiny{font-size:.8rem; color:var(--muted)}
+  .actions{display:flex; gap:10px; justify-content:flex-end; padding:12px 16px 16px}
+
+  .avatar{width:112px; height:112px; border-radius:18px; background:linear-gradient(135deg, var(--good-200), #fff); border:1px solid var(--line);
+    background-size:cover; background-position:center}
+
+  .phone-wrap{display:flex; gap:8px; align-items:center}
+  .phone-prefix{display:inline-flex; align-items:center; padding:12px 12px; border-radius:12px; border:1px solid var(--line);
+    background:#fff; font-weight:700}
+  .phone-input{flex:1}
+
+  .toast{position:fixed; right:18px; bottom:18px; padding:12px 14px; border-radius:12px; color:#fff; background:var(--ink);
+    box-shadow:var(--shadow); display:none; z-index:90; font-weight:700}
+  .toast.good{background:var(--good-600)} .toast.fire{background:var(--fire-600)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <div>
+        <div style="font-size:1.08rem">VerifyMe <span style="color:var(--good-600)">PH</span></div>
+        <div class="subtitle" style="margin-top:2px">Anti-Fraud • Anti-Scam</div>
+      </div>
+    </div>
+
+    <div class="nav-actions" id="navActions">
+      <a class="link-btn" href="eself.html" id="btnHome">Home</a>
+
+      <button class="btn ghost" id="btnLogin">Log in with Google</button>
+
+      <div class="menu" id="userMenu" style="display:none">
+        <button class="btn white menu-btn" id="btnUser">
+          <span id="welcomeText">Welcome</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="menu-pop" id="userPop">
+          <a href="#" id="menuLogout">Log out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 class="title">Create your personal profile</h1>
+  <p class="subtitle">Fill out the required details below. Your information will be saved to your account (users collection).</p>
+
+  <div class="grid">
+    <!-- LEFT: form -->
+    <section class="card" aria-label="Personal Profile Form">
+      <header>Personal information</header>
+      <div class="body" style="display:grid; gap:14px">
+        <div class="row">
+          <div>
+            <label for="fullName">Full name *</label>
+            <input class="input" id="fullName" placeholder="e.g., Juan D. Cruz" required />
+          </div>
+          <div>
+            <label for="email">Email *</label>
+            <input class="input" id="email" placeholder="you@example.com" />
+            <div class="tiny">Prefilled from Google; you can adjust if needed.</div>
+          </div>
+        </div>
+
+        <!-- Date of Birth is back -->
+        <div class="row">
+          <div>
+            <label for="dob">Date of Birth</label>
+            <input class="input" id="dob" type="date" />
+            <div class="tiny">Optional, used to show age in the profile preview.</div>
+          </div>
+          <div>
+            <label for="phoneDigits">Phone *</label>
+            <div class="phone-wrap">
+              <div class="phone-prefix">+63</div>
+              <input class="input phone-input" id="phoneDigits" inputmode="numeric" maxlength="10" placeholder="9123456789" />
+            </div>
+            <div class="tiny">Enter 10-digit number only. Prefix +63 is fixed.</div>
+          </div>
+        </div>
+
+        <div>
+          <label>Address</label>
+          <div class="row">
+            <input class="input" id="addressLine" placeholder="Street / House / Unit" />
+            <input class="input" id="barangay" placeholder="Barangay" />
+          </div>
+          <div class="row">
+            <input class="input" id="city" placeholder="City / Municipality" />
+            <input class="input" id="province" placeholder="Province" />
+          </div>
+          <div class="row">
+            <input class="input" id="zip" placeholder="ZIP" />
+            <input class="input" id="country" placeholder="Country" value="Philippines" />
+          </div>
+        </div>
+
+        <div>
+          <label>Avatar / Selfie *</label>
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap">
+            <div id="avatar" class="avatar" aria-hidden="true"></div>
+            <div>
+              <button class="btn white" id="btnUploadAvatar" type="button">Upload avatar</button>
+              <div class="tiny" id="avatarHint">Log in to upload</div>
+            </div>
+          </div>
+          <!-- NEW: Upload Documents button directly below the photo -->
+          <div style="margin-top:10px">
+            <a class="btn fire" id="btnUploadDocs" href="docs_upload.html">Upload Documents</a>
+            <div class="tiny">Add your IDs and proofs to speed up verification.</div>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="btnReset" type="button">Reset</button>
+        <button class="btn" id="btnSave" type="button">Save profile</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: notes/help -->
+<aside class="card" aria-label="Help">
+  <header>What happens next?</header>
+  <div class="body" style="display:grid; gap:10px">
+    <div class="hint"><b>Reminder:</b> To become <b>fully verified</b>, upload your documents in
+      <a class="link-btn" id="linkDocs" href="docs_upload.html">Upload Documents Button</a>.
+    </div>
+    <div class="hint"><b>How to reach 100% Verified</b> (rules):</div>
+    <ul class="tiny" style="margin:0 0 8px 18px; line-height:1.5">
+      <li><b>Profile basics complete:</b> Full name, Email, Phone (+63 + 10 digits), and Avatar/Selfie.</li>
+      <li><b>Government ID:</b> Front & Back (same person as in the selfie; details must be readable).</li>
+      <li><b>Selfie holding the ID</b> (no filters; clear face and ID text).</li>
+      <li><b>Proof of Address:</b> Utility bill or bank statement with the same name.</li>
+      <li><b>Barangay Clearance</b> (valid within the last 6 months).</li>
+      <li><b>Police Clearance</b> (valid within the last 6 months).</li>
+      <li><b>NBI Clearance</b> (valid within the last 1 year).</li>
+    </ul>
+    <div class="hint">Once these items are complete, your status will become <b>Verified</b> and your trust score will increase.</div>
+    <div class="hint">Tip: Upload a PDF or clear image (max ~10MB per file). You can use your camera, Google Drive, or local files.</div>
+  </div>
+</aside>
+
+
+<div class="toast" id="toast"></div>
+
+<script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+<script type="module">
+  /* ===== Firebase (CDN ESM) ===== */
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+  // ---- Config ----
+  const firebaseConfig = {
+    apiKey: "AIzaSyDltLi2PXwafrQnCFG-hF-5ysY-wxaw6sQ",
+    authDomain: "web-apps-41b38.firebaseapp.com",
+    projectId: "web-apps-41b38",
+    storageBucket: "web-apps-41b38.firebasestorage.app",
+    messagingSenderId: "1082551975915",
+    appId: "1:1082551975915:web:0cb80941c5a475d83063ae",
+    measurementId: "G-EBPX4Q6M1Z"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  const toastEl = document.getElementById('toast');
+  const showToast = (msg, kind='')=>{
+    toastEl.textContent = msg; toastEl.className = 'toast ' + kind;
+    toastEl.style.display='block'; setTimeout(()=>toastEl.style.display='none', 2400);
+  };
+
+  // ===== Header login / dropdown =====
+  const btnLogin = document.getElementById('btnLogin');
+  const userMenu = document.getElementById('userMenu');
+  const userPop  = document.getElementById('userPop');
+  const welcomeText = document.getElementById('welcomeText');
+  const menuLogout = document.getElementById('menuLogout');
+
+  function firstNameOf(s){ return (s||'').split(' ')[0] || 'User'; }
+  function afterLoginUI(user){
+    btnLogin.style.display = 'none';
+    userMenu.style.display = 'block';
+    welcomeText.textContent = `Welcome, ${firstNameOf(user.displayName || user.email)}`;
+    localStorage.setItem("authUid", user.uid);
+    // wire the Upload Documents button with uid param
+    const btnDocs = document.getElementById('btnUploadDocs');
+    if(btnDocs) btnDocs.href = `docs_upload.html?worker=${encodeURIComponent(user.uid)}`;
+    // also wire the Docs link in the Help card
+    const linkDocs = document.getElementById('linkDocs');
+    if(linkDocs) linkDocs.href = `docs_upload.html?worker=${encodeURIComponent(user.uid)}`;
+  }
+  function afterLogoutUI(){
+    userMenu.style.display = 'none';
+    userPop.style.display = 'none';
+    btnLogin.style.display = 'inline-flex';
+    localStorage.removeItem("authUid");
+    const btnDocs = document.getElementById('btnUploadDocs');
+    if(btnDocs) btnDocs.href = 'docs_upload.html';
+    const linkDocs = document.getElementById('linkDocs');
+    if(linkDocs) linkDocs.href = 'docs_upload.html';
+    avatarUrl = "";
+    document.getElementById('avatar').style.backgroundImage='';
+    avatarHint.textContent = 'Log in to upload';
+    btnUploadAvatar.onclick = ()=> showToast('Please log in first','fire');
+    resetForm();
+  }
+
+  document.addEventListener('click', (e)=>{
+    if(userMenu.style.display !== 'none'){
+      if(e.target.closest('#btnUser')) userPop.style.display = userPop.style.display==='block' ? 'none' : 'block';
+      else if(!e.target.closest('#userPop')) userPop.style.display = 'none';
+    }
+  });
+
+  btnLogin.addEventListener('click', async ()=>{
+    try{
+      const { user } = await signInWithPopup(auth, provider);
+      showToast(`Welcome, ${firstNameOf(user.displayName || user.email)}!`, 'good');
+      afterLoginUI(user);
+      await prefillFromUsers(user);
+      buildUploadWidget(user.uid);
+    }catch(err){
+      console.error(err); showToast(err.code || 'Login failed','fire');
+    }
+  });
+
+  menuLogout.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    try{
+      await signOut(auth);
+      showToast('Signed out');
+      afterLogoutUI();
+    }catch(e2){ console.error(e2); showToast('Sign out failed','fire'); }
+  });
+
+  onAuthStateChanged(auth, async (user)=>{
+    if(user){
+      afterLoginUI(user);
+      await prefillFromUsers(user);
+      buildUploadWidget(user.uid);
+    } else {
+      afterLogoutUI();
+    }
+  });
+
+  // ===== Cloudinary Avatar Upload =====
+  const CLOUD_NAME = "dgbv0bzuq";
+  const UPLOAD_PRESET = "eSelf_Files"; // unsigned preset
+  let avatarUrl = "";
+  const btnUploadAvatar = document.getElementById('btnUploadAvatar');
+  const avatarHint = document.getElementById('avatarHint');
+
+  function buildUploadWidget(uid){
+    const folder = `eSelf_Files/${uid}`;
+    const widget = window.cloudinary?.createUploadWidget({
+      cloudName: CLOUD_NAME, uploadPreset: UPLOAD_PRESET, folder,
+      sources: ["local","camera","url","google_drive"], multiple: false, maxFileSize: 8_000_000,
+      clientAllowedFormats: ["jpg","jpeg","png","webp"]
+    }, (error, result) => {
+      if (!error && result && result.event === "success") {
+        avatarUrl = result.info.secure_url;
+        document.getElementById('avatar').style.backgroundImage = `url('${avatarUrl}')`;
+        avatarHint.textContent = "Uploaded ✓";
+        showToast('Avatar uploaded','good');
+      }
+    });
+
+    avatarHint.textContent = "No file uploaded";
+    btnUploadAvatar.onclick = ()=> widget.open();
+  }
+
+  // ===== Form logic =====
+  const f = {
+    fullName: document.getElementById('fullName'),
+    email: document.getElementById('email'),
+    dob: document.getElementById('dob'),
+    phoneDigits: document.getElementById('phoneDigits'),
+    addressLine: document.getElementById('addressLine'),
+    barangay: document.getElementById('barangay'),
+    city: document.getElementById('city'),
+    province: document.getElementById('province'),
+    zip: document.getElementById('zip'),
+    country: document.getElementById('country'),
+  };
+
+  // max DOB = today
+  (function setDobMax(){
+    const t = new Date();
+    const mm = String(t.getMonth()+1).padStart(2,'0');
+    const dd = String(t.getDate()).padStart(2,'0');
+    f.dob.max = `${t.getFullYear()}-${mm}-${dd}`;
+  })();
+
+  // digits-only, cap 10
+  f.phoneDigits.addEventListener('input', ()=>{
+    f.phoneDigits.value = f.phoneDigits.value.replace(/\D/g, '').slice(0,10);
+  });
+
+  function resetForm(){
+    Object.values(f).forEach(el=> el.value = '');
+    f.country.value = 'Philippines';
+    avatarUrl = "";
+    document.getElementById('avatar').style.backgroundImage='';
+  }
+
+  function validate(){
+    if(!auth.currentUser){ showToast('Please log in with Google first','fire'); return false; }
+    if(!f.fullName.value.trim()){ showToast('Full name is required','fire'); return false; }
+    if(!f.email.value.trim()){ showToast('Email is required','fire'); return false; }
+    if(f.phoneDigits.value.length !== 10){ showToast('Enter 10-digit phone number (after +63)','fire'); return false; }
+    if(!avatarUrl){ showToast('Please upload an avatar/selfie','fire'); return false; }
+    return true;
+  }
+
+  function buildCompleteAddress(){
+    const parts = [
+      f.addressLine.value.trim(),
+      f.barangay.value.trim(),
+      f.city.value.trim(),
+      f.province.value.trim(),
+      f.zip.value.trim(),
+      (f.country.value.trim() || 'Philippines')
+    ].filter(Boolean);
+    return parts.join(', ');
+  }
+
+  function splitPhoneToDigits(phone){
+    const m = /^\+?63(\d{10})$/.exec((phone||'').replace(/\s|-/g,''));
+    return m ? m[1] : '';
+  }
+
+  function toInputDate(val){
+    if(!val) return '';
+    let d;
+    if(typeof val === 'object' && typeof val.seconds === 'number') d = new Date(val.seconds*1000);
+    else if(typeof val === 'number') d = new Date(val);
+    else d = new Date(val);
+    if(Number.isNaN(d.getTime())) return '';
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${d.getFullYear()}-${mm}-${dd}`;
+  }
+
+  async function prefillFromUsers(user){
+    try{
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
+      if(snap.exists()){
+        const u = snap.data();
+        f.fullName.value = u.fullName || u.name || user.displayName || '';
+        f.email.value = u.email || user.email || '';
+        f.dob.value = toInputDate(u.dob) || '';
+        f.phoneDigits.value = splitPhoneToDigits(u.phone) || '';
+        f.addressLine.value = u.addressLine || '';
+        f.barangay.value = u.barangay || '';
+        f.city.value = u.city || '';
+        f.province.value = u.province || '';
+        f.zip.value = u.zip || '';
+        f.country.value = u.country || 'Philippines';
+        const ph = u.photoURL || u.avatarUrl || user.photoURL || '';
+        if(ph){ avatarUrl = ph; document.getElementById('avatar').style.backgroundImage = `url('${ph}')`; avatarHint.textContent='Existing photo'; }
+      } else {
+        // Seed from auth
+        f.fullName.value = user.displayName || '';
+        f.email.value = user.email || '';
+        f.country.value = 'Philippines';
+        const ph = user.photoURL || '';
+        if(ph){ avatarUrl = ph; document.getElementById('avatar').style.backgroundImage = `url('${ph}')`; avatarHint.textContent='From Google'; }
+      }
+    }catch(e){
+      console.error(e);
+    }
+  }
+
+  // ===== Save to users/{uid} =====
+  document.getElementById('btnSave').addEventListener('click', async ()=>{
+    if(!validate()) return;
+    const user = auth.currentUser;
+    const phone = `+63${f.phoneDigits.value}`;
+    const address = buildCompleteAddress();
+
+    // dob → Date (Firestore stores as Timestamp)
+    const dobDate = f.dob.value ? new Date(f.dob.value) : null;
+
+    try{
+      const ref = doc(db, "users", user.uid);
+      const existing = await getDoc(ref);
+
+      const payload = {
+        uid: user.uid,
+        email: f.email.value.trim(),
+        fullName: f.fullName.value.trim(),
+        phone,                         // +63 + 10 digits
+        address,                       // combined full address
+        // keep granular fields too
+        addressLine: f.addressLine.value || null,
+        barangay: f.barangay.value || null,
+        city: f.city.value || null,
+        province: f.province.value || null,
+        zip: f.zip.value || null,
+        country: f.country.value || 'Philippines',
+        dob: dobDate || null,          // <— Date of Birth restored
+        photoURL: avatarUrl || user.photoURL || null,
+        status: existing.exists() ? (existing.data().status ?? 'Caution') : 'Caution',
+        trustScore: existing.exists() ? (existing.data().trustScore ?? null) : null,
+        updatedAt: serverTimestamp()
+      };
+
+      if(!existing.exists()){
+        await setDoc(ref, { ...payload, createdAt: serverTimestamp() }, { merge: true });
+      } else {
+        await setDoc(ref, payload, { merge: true });
+      }
+
+      showToast('Profile saved','good');
+    }catch(e){
+      console.error(e);
+      showToast('Failed to save profile','fire');
+    }
+  });
+
+  document.getElementById('btnReset').addEventListener('click', resetForm);
+</script>
+</body>
+</html>

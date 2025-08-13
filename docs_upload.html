@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Upload Verification Documents — eSelf (PH)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Cloudinary Upload Widget + Axios -->
+<script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.6/axios.min.js"></script>
+
+<!-- Firebase (CDN ESM) — init only -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDltLi2PXwafrQnCFG-hF-5ysY-wxaw6sQ",
+    authDomain: "web-apps-41b38.firebaseapp.com",
+    projectId: "web-apps-41b38",
+    storageBucket: "web-apps-41b38.firebasestorage.app",
+    messagingSenderId: "1082551975915",
+    appId: "1:1082551975915:web:0cb80941c5a475d83063ae",
+    measurementId: "G-EBPX4Q6M1Z"
+  };
+
+  // Expose app bits
+  window.__eself = {};
+  const app = initializeApp(firebaseConfig);
+  window.__eself.db = getFirestore(app);
+  window.__eself.auth = getAuth(app);
+
+  // Keep UID in localStorage for fallback use
+  onAuthStateChanged(window.__eself.auth, (user)=>{
+    if (user) localStorage.setItem("authUid", user.uid);
+  });
+</script>
+
+<style>
+  :root{
+    --good-600:#0fa86b; --good-700:#0a8b59; --good-50:#eafaf1;
+    --fire-500:#ff3b1f; --fire-600:#e12e15; --fire-50:#fff1f0;
+    --ink:#0E2A32; --muted:#5E6B74; --bg:#F6F9FB; --card:#ffffff; --line:#E6EDF2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+  .appbar{
+    background: linear-gradient(120deg, var(--good-700), var(--good-600));
+    color:#fff; padding:16px 20px; box-shadow:0 8px 30px rgba(2,24,33,.10);
+  }
+  .bar-wrap{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .brand{font-weight:800; letter-spacing:.3px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .btn{cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink);
+    padding:8px 12px; border-radius:12px; font-size:13px; font-weight:700; text-decoration:none}
+  .btn:hover{box-shadow:0 10px 24px rgba(2,24,33,.08)}
+  .btn.fire{background:var(--fire-600); color:#fff; border-color:transparent}
+  .btn.good{background:var(--good-600); color:#fff; border-color:transparent}
+
+  .userchip{display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.35);
+    padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(4px)}
+  .userchip img{width:28px;height:28px;border-radius:50%;object-fit:cover;background:#fff}
+  .userchip .name{font-weight:700;font-size:13px}
+
+  .wrap{max-width:1100px;margin:22px auto;padding:0 16px}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:0 18px 40px rgba(2,24,33,.08), 0 3px 10px rgba(2,24,33,.05)}
+  .head{padding:16px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between}
+  .head h1{margin:0; font-size:20px}
+  .badge{background:#fff; color:var(--good-700); border:1px solid var(--line);
+    padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700;}
+  .body{padding:18px 18px 22px}
+  .grid{display:grid; gap:14px}
+  @media(min-width:760px){ .grid.cols2{grid-template-columns:1fr 1fr} }
+
+  .doc{border:1px dashed #d8e2ea; border-radius:12px; padding:12px; background:#fff; position:relative}
+  .dochead{display:flex; align-items:center; justify-content:space-between; gap:10px}
+  .label{font-weight:800}
+  .status{font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid var(--line); background:#f7fafc; color:#334155}
+  .status.s-selected{background:var(--good-50); color:var(--good-700); border-color:#c6f6d5}
+  .status.s-uploaded{background:#e8f7ff; color:#0b6782; border-color:#bfeaff}
+  .status.s-error{background:var(--fire-50); color:#9a1d16; border-color:#ffd6d1}
+  .status.s-uploading{background:#fff9e7; color:#92400e; border-color:#ffe6a3}
+
+  .controls{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+  .cbtn{cursor:pointer; border:1px solid var(--line); background:#fff; color:#0e2a32;
+    padding:8px 10px; border-radius:10px; font-size:13px; font-weight:600;}
+  .cbtn:hover{border-color:#c7d6e3}
+  .cbtn.danger{background:var(--fire-600); color:#fff; border-color:transparent}
+
+  .footer{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px}
+  .primary{background:var(--good-600); color:#fff; border:0}
+  .secondary{background:#fff; color:var(--good-700); border:1px solid var(--line)}
+  .danger{background:var(--fire-600); color:#fff; border:0}
+
+  .progress{margin-top:12px; height:10px; width:100%; background:#eef2f7; border-radius:999px; overflow:hidden}
+  .bar{height:100%; width:0%; background:linear-gradient(90deg, var(--good-600), #20c38d); transition:width .25s ease}
+  .hint{font-size:12px; color:var(--muted); margin-top:6px}
+  .toast{position:fixed; right:16px; bottom:16px; background:#0a3638; color:#eaffff; padding:10px 14px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.18); display:none; font-size:13px; z-index:2000}
+  .toast.warn{background:#5a1b16}
+  /* Unified picker menu */
+  .menu{position:absolute; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 10px 24px rgba(2,24,33,.12); display:none; z-index:1000; min-width:180px}
+  .menu button{display:block; width:100%; padding:10px 12px; border:0; background:#fff; cursor:pointer; font-size:13px; text-align:left}
+  .menu button:hover{background:#f3f6f8}
+</style>
+</head>
+<body>
+  <header class="appbar">
+    <div class="bar-wrap">
+      <div>
+        <div class="brand">VerifyMe PH — eSelf Verification</div>
+        <div style="opacity:.9; font-size:13px; margin-top:2px">Secure Anti-Fraud & Anti-Scam Onboarding (Philippines)</div>
+      </div>
+      <div class="actions">
+        <a class="btn" href="eself.html">Home</a>
+        <div id="userChip" class="userchip" title="Logged in user">
+          <img id="userAvatar" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect width='100%25' height='100%25' rx='14' ry='14' fill='%23ffffff'/%3E%3C/svg%3E">
+          <div class="name" id="userName">Guest</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <div class="head">
+        <h1>Upload Your Documents</h1>
+        <span class="badge"><span id="cntUploaded">0</span> uploaded</span>
+      </div>
+      <div class="body">
+
+        <div class="grid cols2" id="docsList">
+          <!-- 1 -->
+          <div class="doc" data-key="proofAddress">
+            <div class="dochead"><div class="label">Proof of Address</div><span class="status" id="st-proofAddress">Not selected</span></div>
+            <div class="controls">
+              <button class="cbtn upload"  data-key="proofAddress" type="button">Upload</button>
+              <button class="cbtn danger delete" data-key="proofAddress" type="button">Delete</button>
+            </div>
+            <div class="hint">Recent utility bill / lease / bank statement / barangay cert of residency</div>
+          </div>
+
+          <!-- 2 -->
+          <div class="doc" data-key="barangayClearance">
+            <div class="dochead"><div class="label">Barangay Clearance</div><span class="status" id="st-barangayClearance">Not selected</span></div>
+            <div class="controls">
+              <button class="cbtn upload"  data-key="barangayClearance" type="button">Upload</button>
+              <button class="cbtn danger delete" data-key="barangayClearance" type="button">Delete</button>
+            </div>
+          </div>
+
+          <!-- 3 -->
+          <div class="doc" data-key="policeClearance">
+            <div class="dochead"><div class="label">Police Clearance</div><span class="status" id="st-policeClearance">Not selected</span></div>
+            <div class="controls">
+              <button class="cbtn upload"  data-key="policeClearance" type="button">Upload</button>
+              <button class="cbtn danger delete" data-key="policeClearance" type="button">Delete</button>
+            </div>
+          </div>
+
+          <!-- 4 -->
+          <div class="doc" data-key="nbiClearance">
+            <div class="dochead"><div class="label">NBI Clearance</div><span class="status" id="st-nbiClearance">Not selected</span></div>
+            <div class="controls">
+              <button class="cbtn upload"  data-key="nbiClearance" type="button">Upload</button>
+              <button class="cbtn danger delete" data-key="nbiClearance" type="button">Delete</button>
+            </div>
+          </div>
+
+          <!-- 5 -->
+          <div class="doc" data-key="govIdFront">
+            <div class="dochead"><div class="label">Government ID (Front)</div><span class="status" id="st-govIdFront">Not selected</span></div>
+            <div class="controls">
+              <button class="cbtn upload"  data-key="govIdFront" type="button">Upload</button>
+              <button class="cbtn danger delete" data-key="govIdFront" type="button">Delete</button>
+            </div>
+            <div class="hint">UMID, Driver’s License, PhilID, Passport</div>
+          </div>
+
+          <!-- 6 -->
+          <div class="doc" data-key="govIdBack">
+            <div class="dochead"><div class="label">Government ID (Back)</div><span class="status" id="st-govIdBack">Not selected</span></div>
+            <div class="controls">
+              <button class="cbtn upload"  data-key="govIdBack" type="button">Upload</button>
+              <button class="cbtn danger delete" data-key="govIdBack" type="button">Delete</button>
+            </div>
+          </div>
+
+          <!-- 7 -->
+          <div class="doc" data-key="selfieId">
+            <div class="dochead"><div class="label">Selfie with ID</div><span class="status" id="st-selfieId">Not selected</span></div>
+            <div class="controls">
+              <button class="cbtn upload"  data-key="selfieId" type="button">Upload</button>
+              <button class="cbtn danger delete" data-key="selfieId" type="button">Delete</button>
+            </div>
+            <div class="hint">Face must be visible; ID text readable</div>
+          </div>
+
+          <!-- 8 -->
+          <div class="doc" data-key="birthCertPassport">
+            <div class="dochead"><div class="label">PSA Birth Cert / Passport</div><span class="status" id="st-birthCertPassport">Not selected</span></div>
+            <div class="controls">
+              <button class="cbtn upload"  data-key="birthCertPassport" type="button">Upload</button>
+              <button class="cbtn danger delete" data-key="birthCertPassport" type="button">Delete</button>
+            </div>
+          </div>
+
+          <!-- 9 -->
+          <div class="doc" data-key="supportingPhoto">
+            <div class="dochead"><div class="label">2x2 / Supporting Photo</div><span class="status" id="st-supportingPhoto">Not selected</span></div>
+            <div class="controls">
+              <button class="cbtn upload"  data-key="supportingPhoto" type="button">Upload</button>
+              <button class="cbtn danger delete" data-key="supportingPhoto" type="button">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <button id="btnUpload" class="btn primary" type="button">Upload Selected & Save</button>
+          <button id="btnClear" class="btn danger" type="button">Clear Selections</button>
+          <button id="btnGoHome" class="btn secondary" type="button">Back to Home</button>
+        </div>
+
+        <div class="progress"><div id="bar" class="bar"></div></div>
+        <div id="status" class="hint">No files selected yet.</div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast">Uploaded!</div>
+  <!-- Unified picker menu (re-usable) -->
+  <div id="pickerMenu" class="menu" role="menu" aria-hidden="true">
+    <button data-action="local">Choose from device</button>
+    <button data-action="camera">Use camera</button>
+    <button data-action="drive">Google Drive</button>
+  </div>
+
+<!-- App logic (module) -->
+<script type="module">
+  import {
+    doc, setDoc, getDoc, updateDoc, deleteField, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+  // ====== CLOUDINARY CONFIG ======
+  const cloudName = "dgbv0bzuq";
+  const uploadPreset = "eSelf_Files";   // UNSIGNED preset (enable "Return delete token" for client deletes)
+  const signatureEndpoint = null;
+  const apiKey = null;
+
+  // ====== USER / UID ======
+  const qs = new URLSearchParams(location.search);
+  const auth = window.__eself.auth;
+  const db = window.__eself.db;
+
+  let currentUser = null;
+  onAuthStateChanged(auth, (user)=>{
+    currentUser = user || null;
+    const uid = user?.uid || localStorage.getItem("authUid") || "guest";
+    localStorage.setItem("authUid", uid);
+
+    const avatarEl = document.getElementById("userAvatar");
+    const nameEl = document.getElementById("userName");
+    if (user) {
+      avatarEl.src = user.photoURL || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect width='100%25' height='100%25' rx='14' ry='14' fill='%23ffffff'/%3E%3C/svg%3E";
+      nameEl.textContent = user.displayName || user.email || uid;
+    } else {
+      avatarEl.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect width='100%25' height='100%25' rx='14' ry='14' fill='%23ffffff'/%3E%3C/svg%3E";
+      nameEl.textContent = "Guest";
+    }
+  });
+
+  const authUid = localStorage.getItem("authUid");
+  const workerId = qs.get("worker") || authUid || "worker123";
+
+  /* ========= FOLDER NAMING BY EMAIL =========
+     Cloudinary auto-creates folders when you pass the `folder` param.
+     We’ll build `users/<sanitized-email>/<category>`; fallback to users/<uid or guest>.
+  */
+  function sanitizeForFolder(emailOrId){
+    return String(emailOrId || 'guest')
+      .toLowerCase().trim()
+      .replace(/@/g, '-at-')
+      .replace(/\./g, '-')
+      .replace(/[^a-z0-9_-]/g, '-')     // keep a-z 0-9 _ -
+      .replace(/-+/g, '-')              // collapse repeats
+      .replace(/^-|-$/g, '');           // trim dashes
+  }
+  function rootFolderForUser(){
+    if (currentUser?.email) return `users/${sanitizeForFolder(currentUser.email)}`;
+    // if not logged in, keep stable per uid (or 'guest')
+    return `users/${sanitizeForFolder(workerId || 'guest')}`;
+  }
+  function folderForKey(key){
+    const sub =
+      ["govIdFront","govIdBack","selfieId"].includes(key) ? "id" :
+      (key==="proofAddress" ? "address" :
+      (["barangayClearance","policeClearance","nbiClearance"].includes(key) ? "clearances" :
+      (["birthCertPassport","supportingPhoto"].includes(key) ? "additional" : "misc")));
+    return `${rootFolderForUser()}/${sub}`;
+  }
+
+  // ====== DOC ORDER / KEYS ======
+  const docKeys = [
+    "proofAddress","barangayClearance","policeClearance","nbiClearance",
+    "govIdFront","govIdBack","selfieId","birthCertPassport","supportingPhoto"
+  ];
+
+  // Short codes used in users/{uid}
+  const codeMap = {
+    govIdFront: "GIDF",
+    govIdBack: "GIDB",
+    selfieId: "SwID",
+    proofAddress: "PoA",
+    barangayClearance: "BC",
+    policeClearance: "PC",
+    nbiClearance: "NC"
+  };
+
+  // ====== STATE ======
+  const selected = Object.create(null); // { via:'file'|'cloudinary', files:[File], assets:[{url,public_id,delete_token,...}] }
+  const statuses = Object.create(null);
+
+  // ====== DOM ======
+  const $  = sel => document.querySelector(sel);
+  const statusEl = $("#status");
+  const barEl    = document.getElementById("bar");
+  const toastEl  = document.getElementById("toast");
+  const cntEl    = document.getElementById("cntUploaded");
+  const menuEl   = document.getElementById("pickerMenu");
+  let menuForKey = null;
+
+  function refreshUploadedCount(){
+    cntEl.textContent = Object.values(statuses).filter(s => s==="uploaded").length;
+  }
+
+  function setStatus(key, type, text){
+    const el = document.getElementById(`st-${key}`);
+    if (!el) return;
+    el.classList.remove("s-selected","s-uploaded","s-error","s-uploading");
+    if (type==="selected"){ el.classList.add("s-selected"); el.textContent = text || "Selected"; }
+    else if (type==="uploaded"){ el.classList.add("s-uploaded"); el.textContent = text || "Uploaded ✓"; }
+    else if (type==="error"){ el.classList.add("s-error"); el.textContent = text || "Error"; }
+    else if (type==="uploading"){ el.classList.add("s-uploading"); el.textContent = text || "Uploading…"; }
+    else { el.textContent = text || "Not selected"; }
+    statuses[key] = type || "none";
+    refreshUploadedCount();
+  }
+
+  function showToast(msg="Uploaded!", warn=false){
+    toastEl.textContent = msg;
+    toastEl.classList.toggle("warn", !!warn);
+    toastEl.style.display = "block";
+    setTimeout(()=> toastEl.style.display = "none", 1800);
+  }
+
+  function setProgress(done, total){
+    const pct = total ? Math.round((done/total)*100) : 0;
+    barEl.style.width = `${pct}%`;
+  }
+
+  // ====== HIDDEN FILE INPUTS (local + camera) ======
+  function buildHiddenFileInputs(){
+    const frag = document.createDocumentFragment();
+    docKeys.forEach(key=>{
+      const local = document.createElement("input");
+      local.type="file"; local.accept="image/*,application/pdf"; local.id=`file-local-${key}`; local.style.display="none";
+      local.addEventListener("change", e=>{
+        const files = Array.from(e.target.files||[]);
+        if(files.length){
+          selected[key] = { via:"file", files };
+          setStatus(key,"selected", files.length>1?`${files.length} files selected` : files[0].name);
+          statusEl.textContent = `Ready to upload: ${key}`;
+        }
+      });
+      frag.appendChild(local);
+
+      const cam = document.createElement("input");
+      cam.type="file"; cam.accept="image/*"; cam.capture="environment"; cam.id=`file-camera-${key}`; cam.style.display="none";
+      cam.addEventListener("change", e=>{
+        const files = Array.from(e.target.files||[]);
+        if(files.length){
+          selected[key] = { via:"file", files };
+          setStatus(key,"selected", files[0].name);
+          statusEl.textContent = `Ready to upload (camera): ${key}`;
+        }
+      });
+      frag.appendChild(cam);
+    });
+    document.body.appendChild(frag);
+  }
+
+  // ====== CLOUDINARY WIDGET (Drive/local/camera in one) ======
+  function openDriveWidgetFor(key){
+    const folder = folderForKey(key); // <<--- email-named root
+    const tagEmail = currentUser?.email ? sanitizeForFolder(currentUser.email) : 'unknown';
+    const widgetOptions = {
+      cloudName,
+      uploadPreset,
+      folder,
+      multiple: false,
+      sources: ["google_drive","local","camera"],
+      maxFiles: 1,
+      clientAllowedFormats: ["png","jpg","jpeg","webp","pdf"],
+      showAdvancedOptions: false,
+      showPoweredBy: false,
+      cropping: false,
+      tags: [workerId, key, `email:${tagEmail}`],
+    };
+    if (signatureEndpoint && apiKey){
+      widgetOptions.apiKey = apiKey;
+      widgetOptions.uploadSignature = async (cb, paramsToSign) => {
+        const res = await fetch(signatureEndpoint, {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify(paramsToSign)
+        });
+        const data = await res.json();
+        cb(data.signature);
+      };
+    }
+    const widget = cloudinary.createUploadWidget(widgetOptions, (error, result) => {
+      if (!error && result && result.event === "success") {
+        const info = result.info || {};
+        selected[key] = {
+          via:"cloudinary",
+          assets:[{
+            url: info.secure_url,
+            public_id: info.public_id,
+            resource_type: info.resource_type,
+            format: info.format,
+            delete_token: info.delete_token || null
+          }]
+        };
+        setStatus(key,"selected","Selected");
+        statusEl.textContent = `Ready: ${key} (via widget → ${folder})`;
+      }
+      if (error){
+        console.error("Widget error:", error);
+        setStatus(key,"error","Upload error");
+      }
+    });
+    widget.open();
+  }
+
+  // ====== CLIENT-SIDE RESIZE FOR IMAGES ======
+  async function downscaleImage(file, maxDim=1600, quality=0.8){
+    if(!/^image\//i.test(file.type)) return file;
+    const img = document.createElement('img');
+    const dataUrl = await new Promise((res, rej)=>{
+      const r = new FileReader();
+      r.onload = ()=>res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+    img.src = dataUrl;
+    await new Promise((res,rej)=>{ img.onload=res; img.onerror=rej; });
+
+    let { width, height } = img;
+    if(width <= maxDim && height <= maxDim){ return file; }
+    const ratio = Math.min(maxDim/width, maxDim/height);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise(res=> canvas.toBlob(res, 'image/jpeg', quality));
+    if(!blob) return file;
+    const outName = (file.name || 'image').replace(/\.(\w+)$/,'') + '-resized.jpg';
+    return new File([blob], outName, { type:'image/jpeg' });
+  }
+
+  // ====== UPLOAD TO CLOUDINARY (with progress) ======
+  async function uploadFileToCloudinary(file, folder, onProgress){
+    const effFile = await downscaleImage(file, 1600, 0.8);
+    const formData = new FormData();
+    formData.append("file", effFile);
+    formData.append("upload_preset", uploadPreset);
+    formData.append("folder", folder); // <<--- email-named root + subfolder
+
+    if (signatureEndpoint && apiKey){
+      const timestamp = Math.floor(Date.now()/1000);
+      const paramsToSign = { timestamp, folder, upload_preset: uploadPreset };
+      const sigRes = await fetch(signatureEndpoint, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(paramsToSign) });
+      const { signature } = await sigRes.json();
+      formData.append("api_key", apiKey);
+      formData.append("timestamp", String(timestamp));
+      formData.append("signature", signature);
+    }
+
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+    const res = await axios.post(url, formData, {
+      onUploadProgress: (e)=>{
+        if (!onProgress) return;
+        const total = e.total || (e.progress ? e.progress * 100 : 0);
+        if (total){
+          const pct = Math.round((e.loaded / total) * 100);
+          onProgress(pct);
+        }
+      }
+    });
+
+    const data = res.data || {};
+    const rawUrl = data.secure_url;
+    const transformedUrl = rawUrl ? rawUrl.replace('/upload/','/upload/c_limit,w_1600,q_auto:eco,f_auto/') : rawUrl;
+
+    return {
+      url: transformedUrl,
+      public_id: data.public_id,
+      resource_type: data.resource_type,
+      format: data.format,
+      delete_token: data.delete_token || null
+    };
+  }
+
+  // ====== SAVE: users/{uid} (URL only) + docs_upload/{uid} (meta for delete) ======
+  async function saveDocsToUsers(uid, payload){
+    const docData = {};
+    const nowTS = serverTimestamp();
+
+    const toUrl = (val) => {
+      if (!val) return null;
+      if (Array.isArray(val)) {
+        const v = val[0];
+        return v && typeof v === "object" ? (v.url || null) : (typeof v === "string" ? v : null);
+      }
+      if (typeof val === "object") return val.url || null;
+      if (typeof val === "string") return val;
+      return null;
+    };
+
+    for (const [key, val] of Object.entries(payload)){
+      const url = toUrl(val);
+      if (!url) continue;
+      const outKey = codeMap[key] || key; // short code when available
+      docData[outKey] = url;
+    }
+    docData.docsUpdatedAt = nowTS;
+
+    await setDoc(doc(db, "users", uid), docData, { merge: true });
+  }
+
+  async function saveDocsMeta(uid, payload){
+    const meta = {};
+    const pickMeta = (x)=> x ? ({
+      url: x.url || null,
+      public_id: x.public_id || null,
+      delete_token: x.delete_token || null,
+      resource_type: x.resource_type || null,
+      format: x.format || null,
+      updatedAt: serverTimestamp()
+    }) : null;
+
+    for (const [key, val] of Object.entries(payload)){
+      if (!val) continue;
+      if (Array.isArray(val)) meta[key] = val.map(pickMeta).filter(Boolean);
+      else if (typeof val === "object") meta[key] = pickMeta(val);
+      else meta[key] = { url: String(val), updatedAt: serverTimestamp() };
+    }
+    await setDoc(doc(db, "docs_upload", uid), meta, { merge: true });
+  }
+
+  // ====== DELETE HELPERS ======
+  async function deleteCloudinaryByToken(token){
+    // Works only if upload preset returns delete_token
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/delete_by_token`;
+    const form = new FormData();
+    form.append("token", token);
+    try{
+      const res = await fetch(url, { method:"POST", body: form });
+      const data = await res.json();
+      return data;
+    }catch(e){
+      console.error("Cloudinary delete_by_token failed:", e);
+      return null;
+    }
+  }
+
+  async function deleteEntry(key){
+    const confirmMsg = `Delete "${key}"? This will remove the saved link from your profile and try to delete the Cloudinary file.`;
+    if (!confirm(confirmMsg)) return;
+
+    const uid = workerId;
+    setStatus(key,"uploading","Deleting…");
+
+    // 1) Try delete from Cloudinary via delete_token from docs_upload
+    let cloudDeleted = false;
+    try{
+      const metaSnap = await getDoc(doc(db, "docs_upload", uid));
+      if (metaSnap.exists()){
+        const meta = metaSnap.data()?.[key];
+        const tokens = [];
+        if (Array.isArray(meta)){
+          meta.forEach(m=> m?.delete_token && tokens.push(m.delete_token));
+        } else if (meta && typeof meta === "object" && meta.delete_token){
+          tokens.push(meta.delete_token);
+        }
+        for (const tk of tokens){
+          const resp = await deleteCloudinaryByToken(tk);
+          if (resp && (resp.result === "ok" || resp.result === "deleted")) cloudDeleted = true;
+        }
+      }
+    }catch(e){
+      console.warn("Cloudinary delete step skipped/failed:", e);
+    }
+
+    // 2) Delete Firestore fields (users/{uid} + docs_upload/{uid})
+    const usersRef = doc(db, "users", uid);
+    const docsRef  = doc(db, "docs_upload", uid);
+    const shortKey = codeMap[key] || key;
+
+    try{
+      await updateDoc(usersRef, { [shortKey]: deleteField(), docsUpdatedAt: serverTimestamp() });
+    }catch(e){
+      console.warn("users updateDoc failed (maybe missing doc):", e);
+    }
+
+    try{
+      await updateDoc(docsRef, { [key]: deleteField() });
+    }catch(e){
+      console.warn("docs_upload updateDoc failed:", e);
+    }
+
+    // 3) Clear local selection + UI
+    selected[key] = null;
+    setStatus(key, null, "Not selected");
+    showToast(cloudDeleted ? "Deleted (cloud + entry)" : "Entry removed (no cloud token)", !cloudDeleted);
+  }
+
+  // ====== PICKER MENU ======
+  function openPickerMenu(btnEl, key){
+    const rect = btnEl.getBoundingClientRect();
+    menuForKey = key;
+    const menuEl = document.getElementById("pickerMenu");
+    menuEl.style.display = "block";
+    menuEl.style.left = `${rect.left + window.scrollX}px`;
+    menuEl.style.top  = `${rect.bottom + window.scrollY + 6}px`;
+    menuEl.setAttribute("aria-hidden","false");
+  }
+  function closePickerMenu(){
+    menuForKey = null;
+    const menuEl = document.getElementById("pickerMenu");
+    menuEl.style.display = "none";
+    menuEl.setAttribute("aria-hidden","true");
+  }
+
+  // ====== ACTIONS / WIRES ======
+  function wireControls(){
+    // Open unified picker
+    document.addEventListener("click", (e)=>{
+      const uploadBtn = e.target.closest(".cbtn.upload");
+      if (uploadBtn){
+        openPickerMenu(uploadBtn, uploadBtn.dataset.key);
+        return;
+      }
+      const delBtn = e.target.closest(".cbtn.delete");
+      if (delBtn){
+        deleteEntry(delBtn.dataset.key);
+        return;
+      }
+      if (e.target.closest("#pickerMenu")) return; // inside menu
+      closePickerMenu();
+    });
+
+    // Menu choices
+    document.getElementById("pickerMenu").addEventListener("click", (e)=>{
+      const item = e.target.closest("button[data-action]");
+      if (!item || !menuForKey) return;
+      const action = item.dataset.action;
+      const key = menuForKey;
+      closePickerMenu();
+      if (action==="local")   document.getElementById(`file-local-${key}`).click();
+      if (action==="camera")  document.getElementById(`file-camera-${key}`).click();
+      if (action==="drive")   openDriveWidgetFor(key);
+    });
+    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closePickerMenu(); });
+
+    document.getElementById("btnClear").addEventListener("click", ()=>{
+      docKeys.forEach(k=>{ selected[k]=null; setStatus(k,null,"Not selected"); });
+      setProgress(0,100);
+      statusEl.textContent = "Selections cleared.";
+    });
+
+    document.getElementById("btnGoHome").addEventListener("click", ()=>{
+      location.href = `eself.html?worker=${encodeURIComponent(workerId)}`;
+    });
+
+    document.getElementById("btnUpload").addEventListener("click", doUploadAndSave);
+  }
+
+  async function doUploadAndSave(){
+    const toUpload = [];
+    for (const key of docKeys){
+      const sel = selected[key];
+      if (sel && sel.via==="file" && sel.files?.length){
+        // >>> Use email-named root
+        const folder = folderForKey(key);
+        for (const f of sel.files){
+          toUpload.push({ key, file:f, folder });
+        }
+      }
+    }
+
+    const payload = {};
+    for (const key of docKeys){
+      const sel = selected[key];
+      if (sel && sel.via==="cloudinary" && sel.assets?.length){
+        payload[key] = sel.assets.length>1 ? sel.assets : sel.assets[0];
+        setStatus(key,"selected","Ready");
+      }
+    }
+
+    const total = toUpload.length;
+    let done = 0;
+    statusEl.textContent = total ? `Uploading ${total} file(s)...` : `Finalizing...`;
+    if (!total) setProgress(100,100);
+
+    for (const task of toUpload){
+      try{
+        setStatus(task.key,"uploading","Uploading 0%");
+        const asset = await uploadFileToCloudinary(task.file, task.folder, (pct)=>{
+          setStatus(task.key,"uploading", `Uploading ${pct}%`);
+        });
+        payload[task.key] = asset;
+        setStatus(task.key,"uploaded","Uploaded ✓");
+        done++; setProgress(done, total);
+        showToast(`Uploaded`);
+      }catch(e){
+        console.error("Upload error:", e);
+        setStatus(task.key,"error","Error");
+      }
+    }
+
+    try{
+      // Save URL shortcuts to users/{uid}
+      await saveDocsToUsers(workerId, payload);
+      // Save meta (public_id/delete_token) to docs_upload/{uid}
+      await saveDocsMeta(workerId, payload);
+
+      for (const key of Object.keys(payload)){
+        if (statuses[key] !== "uploaded") setStatus(key,"uploaded","Uploaded ✓");
+      }
+      statusEl.textContent = "Saved to your profile. (No redirect)";
+      showToast("Saved to your account");
+    }catch(e){
+      console.error(e);
+      statusEl.textContent = "Failed to save document links to your account.";
+      showToast("Save failed", true);
+    }
+  }
+
+  // ====== INIT ======
+  (function init(){
+    buildHiddenFileInputs();
+    wireControls();
+  })();
+</script>
+</body>
+</html>

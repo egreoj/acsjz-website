@@ -6,6 +6,94 @@
   <title>Our Products | ACSJZ</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: #f8f9fa;
+      color: #0E2A32;
+    }
+    header {
+      background: #0E2A32;
+      color: white;
+      padding: 1rem 0;
+    }
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 90%;
+      margin: auto;
+    }
+    header a {
+      color: white;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    header a:hover {
+      text-decoration: underline;
+    }
+    .hero {
+      background: linear-gradient(135deg, #40E0D0, #20B2AA);
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .container {
+      width: 90%;
+      margin: auto;
+      max-width: 1100px;
+    }
+    section {
+      padding: 2rem 0;
+    }
+    .beehire-highlight {
+      background: #fff7e6;
+      border-left: 6px solid #FFC107;
+      padding: 1rem 0;
+    }
+    .eself-highlight {
+      background: #e6fffb;
+      border-left: 6px solid #20B2AA;
+      padding: 1rem 0;
+    }
+    .light-section {
+      background: white;
+      border-left: 6px solid #ccc;
+      padding: 1rem 0;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    ul.product-highlights {
+      list-style: none;
+      padding: 0;
+    }
+    ul.product-highlights li {
+      margin: 0.5rem 0;
+    }
+    .btn-primary {
+      background: #0E2A32;
+      color: white;
+      padding: 0.5rem 1rem;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    .btn-primary:hover {
+      background: #FFC107;
+      color: #0E2A32;
+    }
+    footer {
+      background: #0E2A32;
+      color: white;
+      text-align: center;
+      padding: 1rem 0;
+      margin-top: 2rem;
+    }
+    footer a {
+      color: #FFC107;
+    }
+  </style>
 </head>
 <body>
 
@@ -14,9 +102,9 @@
     <div class="container">
       <h1 class="brand">ACSJZ Products</h1>
       <nav>
-        <a href="index.html">Home</a>
-        <a href="beehiremain.html">BeeHire CONNECT</a>
         <a href="services_offered.html">Beginner Websites & Apps</a>
+        <a href="beehiremain.html">BeeHire CONNECT</a>
+        <a href="eSelf.html">eSelf App</a>
         <a href="#more">More Soon</a>
       </nav>
     </div>
@@ -27,20 +115,6 @@
     <div class="container">
       <h2>Products Built by ACSJZ</h2>
       <p>We craft modern, scalable, and smart applications to solve real-world problems.</p>
-    </div>
-  </section>
-
-  <!-- Beehire Product Section -->
-  <section id="beehire" class="beehire-highlight">
-    <div class="container">
-      <h2>🐝 BeeHire CONNECT App</h2>
-      <p>BeeHire CONNECT is a mobile platform designed to connect users with local skilled workers. It supports instant booking, virtual assistance, and walk-in services with map-based discovery, chats, and reviews.</p>
-      <ul class="product-highlights">
-        <li>📍 Location-enabled worker discovery</li>
-        <li>💬 Real-time messaging and feedback</li>
-        <li>👨‍🔧 Worker categories, profiles, and ratings</li>
-        <li>🛠 Admin panel, cloud backend (Firestore, Functions)</li>
-      </ul>
     </div>
   </section>
 
@@ -59,10 +133,40 @@
     </div>
   </section>
 
+  <!-- BeeHire Product Section -->
+  <section id="beehire" class="beehire-highlight">
+    <div class="container">
+      <h2>🐝 BeeHire CONNECT App</h2>
+      <p>BeeHire CONNECT is a mobile platform designed to connect users with local skilled workers. It supports instant booking, virtual assistance, and walk-in services with map-based discovery, chats, and reviews.</p>
+      <ul class="product-highlights">
+        <li>📍 Location-enabled worker discovery</li>
+        <li>💬 Real-time messaging and feedback</li>
+        <li>👨‍🔧 Worker categories, profiles, and ratings</li>
+        <li>🛠 Admin panel, cloud backend (Firestore, Functions)</li>
+      </ul>
+      <p><a href="beehiremain.html" class="btn-primary">Learn More</a></p>
+    </div>
+  </section>
+
+  <!-- eSelf App Product Section -->
+  <section id="eself" class="eself-highlight">
+    <div class="container">
+      <h2>🛡 eSelf App — Anti-Fraud & Anti-Scam</h2>
+      <p>eSelf is a powerful anti-fraud and anti-scam platform designed to help individuals and businesses verify identities, detect suspicious activities, and report scams in real-time.</p>
+      <ul class="product-highlights">
+        <li>🔍 Instant user verification & scam database search</li>
+        <li>🚨 Real-time fraud alerts and scam reports</li>
+        <li>📑 Secure identity proof & document management</li>
+        <li>☁ Cloud-based backend with encrypted storage</li>
+      </ul>
+      <p><a href="eSelf.html" class="btn-primary">Explore eSelf</a></p>
+    </div>
+  </section>
+
   <!-- Placeholder for More Products -->
   <section id="more" class="light-section">
     <div class="container">
-      <h2>Coming Soon</h2>
+      <h2>🚀 More Soon</h2>
       <p>We're actively working on more tools, platforms, and apps to launch under ACSJZ — stay tuned!</p>
     </div>
   </section>
