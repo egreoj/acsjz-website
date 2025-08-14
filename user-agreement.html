@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>eSelf User Agreement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+<meta name="description" content="eSelf User Agreement — terms that govern use of the eSelf verification app." />
+<style>
+  :root{
+    --ink:#0E2A32; --muted:#5E6B74; --bg:#F6F9FB; --card:#fff; --line:#E6EDF2;
+    --good:#0fa86b; --good-50:#eafaf1; --warn:#a66800; --warn-50:#fff7e3; --fire:#b92410; --fire-50:#fff0ee;
+    --link:#0b6782; --shadow:0 18px 40px rgba(2,24,33,.08),0 3px 10px rgba(2,24,33,.05);
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header.top{
+    position:sticky;top:0;z-index:10;background:rgba(255,255,255,.85);
+    backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--line)
+  }
+  .topbar{max-width:1000px;margin:0 auto;padding:12px 18px;display:flex;gap:10px;align-items:center}
+  .brand{font-weight:800}
+  .spacer{flex:1}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;
+       border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:700;font-size:.95rem}
+  .btn.primary{background:var(--good);color:#fff;border-color:transparent}
+  .btn[disabled]{opacity:.6;cursor:not-allowed}
+  a{color:var(--link);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  main{max-width:1000px;margin:0 auto;padding:22px 18px;display:grid;gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+  .card .body{padding:18px}
+
+  .notice{
+    border-left:4px solid var(--warn); background:var(--warn-50); padding:12px 14px; border-radius:10px;
+    font-weight:600; color:#6a4d00
+  }
+
+  .meta{display:flex;flex-wrap:wrap;gap:10px;font-size:.95rem;color:var(--muted)}
+  .meta .dot{width:6px;height:6px;border-radius:50%;background:#b5c6d3;align-self:center}
+
+  .toc{display:grid;gap:6px;margin:6px 0 0}
+  .toc a{display:block;padding:6px 8px;border-radius:8px}
+  .toc a:hover{background:#f2f7fb}
+
+  h1{margin:.2rem 0 0}
+  h2{margin:1.2rem 0 .4rem;font-size:1.15rem}
+  p{line-height:1.6;margin:.5rem 0}
+  ul{margin:.25rem 0 .75rem 1.1rem}
+  li{margin:.25rem 0}
+  code{background:#f3f6f9;border:1px solid var(--line);border-radius:6px;padding:.1rem .3rem}
+
+  .consent{display:grid;gap:10px}
+  .consent .row{display:flex;align-items:flex-start;gap:10px}
+  .consent input[type="checkbox"]{margin-top:.25rem;transform:scale(1.05)}
+  .consent .actions{display:flex;gap:10px;align-items:center}
+
+  footer{color:var(--muted);font-size:.9rem;margin-bottom:24px}
+  .tag{display:inline-block;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-weight:700;font-size:.8rem}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="topbar">
+    <div class="brand">eSelf — User Agreement</div>
+    <div class="spacer"></div>
+    <button class="btn" onclick="window.print()">Print / Save</button>
+  </div>
+</header>
+
+<main>
+  <!-- Header Block -->
+  <section class="card">
+    <div class="body">
+      <h1>eSelf User Agreement</h1>
+      <div class="meta" aria-label="Agreement metadata">
+        <span class="tag">Effective date: <strong>August 14, 2025</strong></span>
+        <span class="dot" aria-hidden="true"></span>
+        <span>Service: <strong>eSelf</strong> (the “App”) by <strong>[Your Company / Organization Name]</strong> (“we,” “us,” or “our”).</span>
+        <span class="dot" aria-hidden="true"></span>
+        <span>Contact: <a href="mailto:support@eself.example">support@eself.example</a> / +63-XXX-XXX-XXXX</span>
+        <span class="dot" aria-hidden="true"></span>
+        <span>Registered address: [Company Address, City, Philippines]</span>
+      </div>
+
+      <div class="notice" role="note" style="margin-top:12px">
+        ⚠️ <strong>Important:</strong> Your <em>location</em> may be collected (with your consent) and saved to your account for anti-fraud and safety features. 
+        Your <em>documents</em> (ID images, bills, clearances) are strictly private and <u>never public</u>. Only you and authorized admins can access them for verification/fraud prevention.
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="body">
+          <strong>Plain-language summary.</strong>
+          <p>eSelf helps people share a public verification snapshot (badges, trust score, limited profile) to reduce fraud and scams. Your ID documents are never public. Your location may be collected with your consent and saved to your account for anti-fraud and safety features. You can turn location tracking off and/or delete it.</p>
+
+          <div style="margin-top:10px">
+            <div style="font-weight:800">Contents</div>
+            <nav class="toc" aria-label="Table of contents">
+              <a href="#s1">1) Acceptance of Terms</a>
+              <a href="#s2">2) Eligibility &amp; Accounts</a>
+              <a href="#s3">3) What eSelf Does (and Doesn’t) Do</a>
+              <a href="#s4">4) Your Content &amp; Verification Data</a>
+              <a href="#s5">5) Location, Risk, and Tracking</a>
+              <a href="#s6">6) Reviews, Reports &amp; Moderation</a>
+              <a href="#s7">7) Prohibited Conduct</a>
+              <a href="#s8">8) Communications</a>
+              <a href="#s9">9) Data Protection &amp; Privacy</a>
+              <a href="#s10">10) Data Retention</a>
+              <a href="#s11">11) Public Links &amp; QR Codes</a>
+              <a href="#s12">12) Intellectual Property &amp; License</a>
+              <a href="#s13">13) Feedback</a>
+              <a href="#s14">14) Third-Party Services</a>
+              <a href="#s15">15) Disclaimers</a>
+              <a href="#s16">16) Limitation of Liability</a>
+              <a href="#s17">17) Indemnification</a>
+              <a href="#s18">18) Suspension &amp; Termination</a>
+              <a href="#s19">19) Changes to the Terms</a>
+              <a href="#s20">20) Governing Law &amp; Dispute Resolution</a>
+              <a href="#s21">21) Contact &amp; DPO</a>
+              <a href="#consent">In-App Consent Checklist</a>
+              <a href="#defs">Definitions</a>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Terms Sections (unchanged content) -->
+  <section class="card" id="s1"><div class="body"><h2>1) Acceptance of Terms</h2><p>By creating an account, accessing, or using eSelf, you agree to this User Agreement and our Privacy Policy (together, the “Terms”). If you do not agree, do not use the App.</p></div></section>
+  <section class="card" id="s2"><div class="body"><h2>2) Eligibility &amp; Accounts</h2><ul><li>You must be 18 years or older (or the age of majority in your jurisdiction).</li><li>You are responsible for the accuracy of your information and the security of your account credentials.</li><li>We may suspend or terminate your account for policy violations, fraud, or legal risk.</li></ul></div></section>
+  <section class="card" id="s3"><div class="body"><h2>3) What eSelf Does (and Doesn’t) Do</h2><p>eSelf provides a verification snapshot so others can quickly assess identity and risk signals you choose to share.</p><p>The snapshot may include: name, profile photo (optional), verification badges (e.g., Government ID, Address, Police/NBI), trust score, status (e.g., “Verified,” “Fully Verified,” “Reported”), and last verified date.</p><p><strong>Not a guarantee.</strong> The trust score and badges are indicators only and are not a guarantee of identity, safety, or law-enforcement clearance. Always use independent judgment.</p></div></section>
+  <section class="card" id="s4"><div class="body"><h2>4) Your Content &amp; Verification Data</h2><p>You may upload or submit identity documents, selfies, address proofs, and related information (“Verification Data”). You also control whether to show a public verification link/QR.</p><ul><li><strong>Private by default.</strong> Your actual documents and images (e.g., ID photos, bills) are not public.</li><li><strong>Who can access documents?</strong> Only you and authorized administrators/verification staff may access Verification Data for support, compliance, or fraud prevention.</li><li><strong>Public snapshot is limited.</strong> The public page shows limited fields only (e.g., name, badges, score, status, last verified date, profile photo if provided). It does not expose your documents.</li><li>You represent that the data you submit is yours, accurate, and lawful to use. Uploading forged or stolen IDs is prohibited.</li></ul></div></section>
+  <section class="card" id="s5"><div class="body"><h2>5) Location, Risk, and Tracking</h2><ul><li>With your explicit consent, the App may collect your device location (approximate or precise) to generate risk signals, reduce fraud, and help you prove presence at a time/place.</li><li><strong>What is saved:</strong> latitude, longitude, accuracy, time, and source (e.g., “html5”).</li><li><strong>How it is used:</strong> fraud prevention, verification reviews, abuse detection, analytics, and safety-related features.</li><li><strong>How to control:</strong> you can disable location permissions in your device or App settings and you may delete saved location from your account.</li><li><strong>Not shared publicly.</strong> Location information is not shown on the public profile. It is available to you and authorized admins for risk/anti-fraud purposes.</li></ul><p><strong>Warning / Consent:</strong> “Your location may be saved when you enable location features. Your documents remain private and are only used for verification; no one can access them except you and authorized admins, and they are never displayed publicly.”</p></div></section>
+  <section class="card" id="s6"><div class="body"><h2>6) Reviews, Reports &amp; Moderation</h2><ul><li>Users may submit reports or comments about a profile. If a report is validated, a user’s status may be set to “Reported.”</li><li>We may store reporter comments and related metadata for audit and safety.</li><li>We reserve the right to remove content, limit access, or disable accounts suspected of fraud or abuse.</li></ul></div></section>
+  <section class="card" id="s7"><div class="body"><h2>7) Prohibited Conduct</h2><p>You agree not to:</p><ul><li>Engage in fraud, impersonation, or deception.</li><li>Upload illegal, stolen, or forged content.</li><li>Misuse data (e.g., scraping, harvesting, or doxxing).</li><li>Circumvent security or disrupt the App.</li><li>Violate any laws, regulations, or third-party rights.</li></ul></div></section>
+  <section class="card" id="s8"><div class="body"><h2>8) Communications</h2><p>You consent to receiving service-related emails/SMS (e.g., verification or security alerts). You can opt out of non-essential communications.</p></div></section>
+  <section class="card" id="s9"><div class="body"><h2>9) Data Protection &amp; Privacy</h2><ul><li>We process personal data under the Data Privacy Act of 2012 (RA 10173) and applicable law.</li><li>Data is encrypted in transit, and we apply reasonable administrative, technical, and physical safeguards.</li><li>We may use service providers (e.g., hosting, storage, analytics) bound by confidentiality and data-processing terms.</li><li>You have rights to access, correct, delete, and withdraw consent, subject to exceptions required by law or legitimate interests (e.g., fraud prevention).</li></ul><p>For detailed practices, see our Privacy Policy.</p></div></section>
+  <section class="card" id="s10"><div class="body"><h2>10) Data Retention</h2><p>Verification Data and audit logs may be retained while your account is active and for a period after closure to comply with law, prevent fraud, and resolve disputes.</p><p>Location records are retained only as long as necessary for the purposes above and can be deleted by you from your account controls (subject to technical and legal limits).</p></div></section>
+  <section class="card" id="s11"><div class="body"><h2>11) Public Links &amp; QR Codes</h2><p>If you share your public link or QR, anyone with the link can view your public snapshot (not your documents). You are responsible for where you post or show your link/QR.</p></div></section>
+  <section class="card" id="s12"><div class="body"><h2>12) Intellectual Property &amp; License</h2><p>The App, trademarks, and content are owned by us or our licensors. We grant you a limited, revocable, non-transferable license to use the App in accordance with these Terms. You grant us a license to host and process your content for operating and improving the App.</p></div></section>
+  <section class="card" id="s13"><div class="body"><h2>13) Feedback</h2><p>If you provide feedback, you grant us a non-exclusive, perpetual, royalty-free license to use it without restriction.</p></div></section>
+  <section class="card" id="s14"><div class="body"><h2>14) Third-Party Services</h2><p>The App may integrate third-party providers (e.g., cloud hosting, maps, analytics, identity storage). We are not responsible for third-party terms or availability.</p></div></section>
+  <section class="card" id="s15"><div class="body"><h2>15) Disclaimers</h2><p><strong>THE APP, SCORES, AND BADGES ARE PROVIDED “AS IS” WITHOUT WARRANTIES.</strong> WE DO NOT GUARANTEE THAT ANY USER IS SAFE, TRUSTWORTHY, OR CRIME-FREE. ALWAYS EXERCISE CAUTION AND INDEPENDENT JUDGMENT.</p></div></section>
+  <section class="card" id="s16"><div class="body"><h2>16) Limitation of Liability</h2><p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE SHALL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, DATA, OR GOODWILL. OUR TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT YOU PAID (IF ANY) IN THE 12 MONTHS BEFORE THE CLAIM OR PHP 10,000, WHICHEVER IS LOWER.</p></div></section>
+  <section class="card" id="s17"><div class="body"><h2>17) Indemnification</h2><p>You will defend, indemnify, and hold harmless us and our affiliates from claims arising from your use of the App, your content, or your violation of these Terms or law.</p></div></section>
+  <section class="card" id="s18"><div class="body"><h2>18) Suspension &amp; Termination</h2><p>We may suspend or terminate accounts that violate these Terms, engage in fraud, or present risk. You may close your account at any time.</p></div></section>
+  <section class="card" id="s19"><div class="body"><h2>19) Changes to the Terms</h2><p>We may update these Terms. We will provide notice of material changes (e.g., in-app or email). Continuing to use the App after the effective date means you accept the updated terms.</p></div></section>
+  <section class="card" id="s20"><div class="body"><h2>20) Governing Law &amp; Dispute Resolution</h2><p>These Terms are governed by the laws of the Republic of the Philippines. You agree to the exclusive jurisdiction of the courts of Makati City, Philippines, unless otherwise required by mandatory law. Before filing suit, the parties will attempt to resolve disputes through good-faith negotiation.</p></div></section>
+  <section class="card" id="s21"><div class="body"><h2>21) Contact &amp; Data Protection Officer (DPO)</h2><p>Email: <a href="mailto:dpo@eself.example">dpo@eself.example</a><br>Address: [Company Address, City, Philippines]</p><p>If you believe your data has been misused or you have a privacy request, contact the DPO.</p></div></section>
+
+  <!-- Consent Checklist -->
+  <section class="card" id="consent">
+    <div class="body">
+      <h2>In-App Consent Checklist</h2>
+      <p>Use these explicit consent prompts in the App (example text):</p>
+
+      <form class="consent" id="consentForm">
+        <label class="row">
+          <input type="checkbox" id="agreeTerms" required />
+          <span>[ ] I agree to the eSelf User Agreement and Privacy Policy.</span>
+        </label>
+
+        <label class="row">
+          <input type="checkbox" id="consentUpload" />
+          <span>[ ] I consent to upload my ID documents and selfies for verification.</span>
+        </label>
+
+        <label class="row">
+          <input type="checkbox" id="ackDocsPrivate" />
+          <span>[ ] I understand my documents are private and will not be publicly displayed; only I and authorized admins may access them for verification and fraud prevention.</span>
+        </label>
+
+        <label class="row">
+          <input type="checkbox" id="consentLocation" />
+          <span>[ ] I consent to collect and save my device location while location features are enabled.</span>
+        </label>
+
+        <label class="row">
+          <input type="checkbox" id="ackLocationControl" />
+          <span>[ ] I understand I can disable location and delete saved locations from my account.</span>
+        </label>
+
+        <label class="row">
+          <input type="checkbox" id="consentPublicSnapshot" />
+          <span>[ ] I consent to display my public verification snapshot (badges/score/status) via link or QR, which I can stop sharing at any time.</span>
+        </label>
+
+        <div class="actions">
+          <button type="submit" id="agreeBtn" class="btn primary" disabled>I Agree</button>
+          <button type="button" class="btn" id="saveOnlyBtn">Save Choices (no accept)</button>
+        </div>
+        <div class="small" style="color:var(--muted)">By tapping “I Agree,” creating an account, or using eSelf, you acknowledge that you have read and agree to this User Agreement.</div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Definitions -->
+  <section class="card" id="defs"><div class="body">
+    <h2>Definitions</h2>
+    <p><strong>Verification Data</strong> — ID images, selfies, address proofs, clearances, and related metadata.</p>
+    <p><strong>Public Snapshot</strong> — The limited, shareable view of badges/score/status and profile basics.</p>
+    <p><strong>Tracking Data</strong> — Location coordinates, accuracy, timestamps, and source.</p>
+    <p><strong>Authorized Admin</strong> — Trained personnel granted access for support, compliance, and fraud prevention.</p>
+  </div></section>
+
+  <footer>
+    © <span id="yr"></span> [Your Company / Organization Name]. All rights reserved.
+  </footer>
+</main>
+
+<!-- Firebase (modules) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  // ---- Your Firebase config (from your project) ----
+  const firebaseConfig = {
+    apiKey: "AIzaSyDltLi2PXwafrQnCFG-hF-5ysY-wxaw6sQ",
+    authDomain: "web-apps-41b38.firebaseapp.com",
+    projectId: "web-apps-41b38",
+    storageBucket: "web-apps-41b38.firebasestorage.app",
+    messagingSenderId: "1082551975915",
+    appId: "1:1082551975915:web:0cb80941c5a475d83063ae",
+    measurementId: "G-EBPX4Q6M1Z"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  // ---- UI helpers / local state ----
+  const yearEl = document.getElementById('yr');
+  yearEl.textContent = new Date().getFullYear();
+
+  const form = document.getElementById('consentForm');
+  const agreeBox = document.getElementById('agreeTerms');
+  const agreeBtn = document.getElementById('agreeBtn');
+  const saveOnlyBtn = document.getElementById('saveOnlyBtn');
+
+  function getSelections(){
+    return {
+      consentUpload: !!document.getElementById('consentUpload').checked,
+      ackDocsPrivate: !!document.getElementById('ackDocsPrivate').checked,
+      consentLocation: !!document.getElementById('consentLocation').checked,
+      ackLocationControl: !!document.getElementById('ackLocationControl').checked,
+      consentPublicSnapshot: !!document.getElementById('consentPublicSnapshot').checked
+    };
+  }
+  function persistSelections(key, data){ try { localStorage.setItem(key, JSON.stringify(data)); } catch(_){} }
+  function restoreSelections(){
+    try {
+      const saved = JSON.parse(localStorage.getItem('eself-consent') || 'null');
+      if (!saved) return;
+      ['consentUpload','ackDocsPrivate','consentLocation','ackLocationControl','consentPublicSnapshot']
+        .forEach(id => { if (saved.selections?.[id] !== undefined) document.getElementById(id).checked = !!saved.selections[id]; });
+      if (saved.agreedTerms) { agreeBox.checked = true; agreeBtn.disabled = false; }
+    } catch(_) {}
+  }
+  restoreSelections();
+
+  agreeBox.addEventListener('change', ()=> { agreeBtn.disabled = !agreeBox.checked; });
+
+  // Optional: reflect auth state (not required for flow)
+  onAuthStateChanged(auth, (u)=> {
+    // no-op; we request sign-in on submit if needed
+  });
+
+  async function ensureSignedIn(){
+    if (auth.currentUser) return auth.currentUser;
+    try{
+      const res = await signInWithPopup(auth, provider);
+      return res.user;
+    }catch(e){
+      console.error("Sign-in failed:", e);
+      throw e;
+    }
+  }
+
+  async function saveConsentToFirestore(uid, selections){
+    const ref = doc(db, 'users', uid);
+    const payload = {
+      consent: {
+        agreed: true,
+        termsVersion: '2025-08-14',
+        agreedAt: serverTimestamp(),
+        agreedAtClientISO: new Date().toISOString(),
+        selections
+      }
+    };
+    await setDoc(ref, payload, { merge: true });
+    return payload;
+  }
+
+  function softPersist(selections){
+    // Save locally so other pages can pick up immediately if needed
+    const data = {
+      agreedTerms: true,
+      selections,
+      agreedAtClientISO: new Date().toISOString(),
+      termsVersion: '2025-08-14'
+    };
+    persistSelections('eself-consent', data);
+  }
+
+  function gotoApp(){
+    // Force redirect to eSelf app page
+    window.location.href = 'eself.html';
+  }
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    if (!agreeBox.checked) return;
+
+    const selections = getSelections();
+    softPersist(selections); // local first
+
+    agreeBtn.disabled = true;
+    agreeBtn.textContent = 'Saving…';
+
+    try{
+      const user = await ensureSignedIn(); // may open Google popup if not signed in
+      await saveConsentToFirestore(user.uid, selections);
+      // success → redirect
+      gotoApp();
+    }catch(err){
+      console.error(err);
+      // If saving failed (rules/offline), still redirect after local save
+      alert('We could not save your consent online right now. We saved it locally and will continue.');
+      gotoApp();
+    }
+  });
+
+  // "Save Choices" only saves locally (no accept / no redirect)
+  saveOnlyBtn.addEventListener('click', ()=>{
+    const selections = getSelections();
+    persistSelections('eself-consent', {
+      agreedTerms: !!agreeBox.checked,
+      selections,
+      updatedAt: new Date().toISOString()
+    });
+    alert('Your choices have been saved.');
+  });
+</script>
+</body>
+</html>
