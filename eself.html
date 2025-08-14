@@ -145,7 +145,7 @@
   <!-- DOCS -->
   <section class="section">
     <h2 style="margin:0 0 8px">Your Uploaded Verification Docs</h2>
-    <p class="subtitle" style="margin:0 0 12px">We check your <b>users/{uid}</b> record for required entries. Click “View” to open the original Cloudinary file or “Copy link”.</p>
+    <p class="subtitle" style="margin:0 0 12px">We check your record for required entries. Click “View” to open the original file or “Copy link”.</p>
 
     <div id="chips" class="actions" style="gap:8px; flex-wrap:wrap"></div>
     <div id="docs" class="grid" style="margin-top:14px;"></div>
@@ -303,6 +303,20 @@
     }
   }
 
+  // ===== Save eself_profile.html link into users/{uid} =====
+  async function updateProfileLinkField(user){
+    try{
+      const url = `eself_profile.html?worker=${encodeURIComponent(user.uid)}`;
+      const payload = {
+        eself_profile_html: url,
+        eselfProfileUpdatedAt: serverTimestamp()
+      };
+      await setDoc(doc(db, "users", user.uid), payload, { merge: true });
+    }catch(err){
+      console.warn('Failed to update eself_profile_html:', err);
+    }
+  }
+
   // ===== Auth wiring =====
   btnLogin.addEventListener('click', async ()=>{
     try{
@@ -311,6 +325,7 @@
       showToast(`Welcome, ${firstNameOf(user.displayName || user.email)}!`, 'good');
       afterLoginUI(user);
       hydratePreview(user.uid);
+      await updateProfileLinkField(user);   // <-- write eself_profile_html on login
       loadDocsFromUsers(user.uid);
       setAdminUI(await checkAdmin(user.uid, user.email));   // toggle Admin button
       captureAndSaveLocation(user);
@@ -338,6 +353,7 @@
       localStorage.setItem("authUid", user.uid);
       afterLoginUI(user);
       hydratePreview(user.uid);
+      await updateProfileLinkField(user);   // <-- also on session restore
       loadDocsFromUsers(user.uid);
       setAdminUI(await checkAdmin(user.uid, user.email));   // toggle on restore
       captureAndSaveLocation(user);
@@ -482,7 +498,7 @@
 
     if(!shown){
       grid.innerHTML = `<div class="card"><div class="bodyx">
-        <div class="doc-title">No documents found in users/{uid}</div>
+        <div class="doc-title">No documents found.</div>
         <div class="meta">Please upload your verification files in eSelf.</div>
       </div></div>`;
     }
