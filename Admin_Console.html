@@ -211,7 +211,7 @@
               <div class="sp"></div>
               <div id="adminToggleWrap">
                 <button id="btnToggleAdmin" class="btn">Toggle Admin</button>
-                <div class="small">Sets <code>Admin/UID</code> → <code>{ isAdmin: true|false }</code>.</div>
+                <div class="small">Writes to <code>Admin/{uid}</code> → <code>{ isAdmin: true|false }</code>.</div>
               </div>
             </div>
             <div>
@@ -237,8 +237,11 @@
                   <option value="Unverified">Unverified</option>
                   <option value="Verified">Verified</option>
                   <option value="Fully Verified">Fully Verified</option>
+                  <option value="Reported">Reported</option>
                 </select>
                 <button id="btnSaveStatus" class="btn good">Save Status</button>
+                <button id="btnMarkReported" class="btn fire">Mark Reported</button>
+                <button id="btnClearReport" class="btn">Clear Report</button>
               </div>
 
               <div class="sp"></div>
@@ -352,7 +355,7 @@
     let age = today.getFullYear() - d.getFullYear();
     const m = today.getMonth() - d.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
-    return age >= 0 && age < 150 ? age : null; // ✅ fixed
+    return age >= 0 && age < 150 ? age : null;
   }
   function tsToDate(ts){
     if (!ts) return null;
@@ -448,7 +451,7 @@
     toast("User not found", true);
   });
 
-  // ==== Doc mapping (unchanged) ====
+  // ==== Doc mapping ====
   const INDICATOR_DEFS = [
     { code:'GIDF', label:'Government ID (Front)',   keys:['GIDF','govIdFront'] },
     { code:'GIDB', label:'Government ID (Back)',    keys:['GIDB','govIdBack'] },
@@ -458,7 +461,6 @@
     { code:'PC',   label:'Police Clearance',        keys:['PC','policeClearance'] },
     { code:'NC',   label:'NBI Clearance',           keys:['NC','nbiClearance'] },
   ];
-
   function hasVal(v){
     if(!v) return false;
     if(Array.isArray(v)) return v.length>0;
@@ -543,51 +545,22 @@
         map.setView([lat, lng], 14);
       }
     }
+    // fix sizing if panel just became visible
+    setTimeout(()=> { try{ map.invalidateSize(); } catch{} }, 50);
   }
 
   // ==== Load + paint user ====
   let currentUserId = null;
   let currentUserDoc = null;
   let currentDocsUpload = null;
+  let currentTargetIsAdmin = false;
 
-  async function loadTrackingFromUsersDoc(uid, forceFetch = false){
-    try{
-      const uSnap = forceFetch ? await getDoc(doc(db,"users",uid)) : null;
-      const data = forceFetch ? (uSnap.exists() ? uSnap.data() : null) : currentUserDoc;
-      if (!data) {
-        $("#lastLocText").textContent = "Last location: —";
-        renderLocationOnMap(null, null, null, null);
-        return;
-      }
-
-      // Robust lat/lng extraction (numbers or strings), fallback to GeoPoint
-      let lat = coerceNum(data.lat);
-      let lng = coerceNum(data.lng);
-      if (lat == null && data.geo?.latitude != null) lat = coerceNum(data.geo.latitude);
-      if (lng == null && data.geo?.longitude != null) lng = coerceNum(data.geo.longitude);
-
-      const capDate = tsToDate(data.capturedAt);
-      const acc = coerceNum(data.accuracy);
-      const src = data.source ?? null;
-      const addr = data.address ?? null;
-
-      $("#lastLocText").textContent =
-        (lat!=null && lng!=null)
-        ? `Last: (${lat.toFixed(6)}, ${lng.toFixed(6)}) · ${capDate ? capDate.toLocaleString() : "—"}${acc ? ` · ±${Math.round(acc)}m` : ""}${src ? ` · ${src}` : ""}${addr ? ` · ${addr}` : ""}`
-        : "Last location: —";
-
-      renderLocationOnMap(lat, lng, capDate?.getTime() ?? null, acc);
-
-      // Render flag/tracking dropdowns from users doc
-      $("#flagSel").value = data.flaggedAs || "None";
-      $("#trackingSel").value = String(!!data.trackingEnabled);
-
-      // Ensure Leaflet recalculates size once panel is visible
-      setTimeout(()=> { try { ensureMap().invalidateSize(); } catch{} }, 0);
-    }catch(e){
-      console.error(e);
-      toast("Failed to load tracking", true);
-    }
+  function statusToChipClass(s){
+    const v = (s || '').toString().toLowerCase();
+    if (v === 'fully verified') return 'chip good';
+    if (v === 'verified') return 'chip warn';
+    if (v === 'reported') return 'chip bad';
+    return 'chip bad';
   }
 
   async function openUser(uid){
@@ -603,13 +576,13 @@
     if (!uSnap.exists()){ toast("No users doc", true); return; }
     currentUserDoc = uSnap.data();
     currentDocsUpload = dSnap.exists() ? dSnap.data() : {};
-    const isTargetAdmin = aSnap.exists() && !!aSnap.data()?.isAdmin;
+    currentTargetIsAdmin = aSnap.exists() && !!aSnap.data()?.isAdmin;
 
     // Top summary
     $("#fullName").textContent = currentUserDoc.fullName || currentUserDoc.displayName || currentUserDoc.email || uid;
     $("#email").textContent = currentUserDoc.email || "—";
     $("#phone").textContent = currentUserDoc.phone || "—";
-    $("#address").textContent = currentUserDoc.address || "—";
+    $("#address").textContent = currentUserDoc.address || currentUserDoc.location?.address || "—";
     setAvatar($("#avatar"), currentUserDoc.photoURL || currentUserDoc.avatarUrl || "");
 
     const age = calcAge(parseDOB(currentUserDoc.dateOfBirth || currentUserDoc.dob || currentUserDoc.birthdate));
@@ -618,22 +591,22 @@
     const status = currentUserDoc.status || "Unverified";
     const chip = $("#chipStatus");
     chip.textContent = `Status: ${status}`;
-    chip.className = "chip " + (status==="Fully Verified" ? "good" : status==="Verified" ? "warn" : "bad");
+    chip.className = statusToChipClass(status);
 
     $("#trustScore").value = Number(currentUserDoc.trustScore ?? 0);
-    $("#statusSel").value = status;
+    $("#statusSel").value = ['Unverified','Verified','Fully Verified','Reported'].includes(status) ? status : 'Unverified';
 
     // Indicators
     const pmap = presentMap(currentUserDoc, currentDocsUpload);
     renderIndicators(pmap);
 
     // Admin toggle label
-    $("#btnToggleAdmin").textContent = isTargetAdmin ? "Remove Admin" : "Make Admin";
+    $("#btnToggleAdmin").textContent = currentTargetIsAdmin ? "Remove Admin" : "Make Admin";
 
     // Per-doc actions
     renderDocActions(uid, pmap);
-    // Links
-    $("#btnOpenPublic").href = `eself.html?worker=${encodeURIComponent(uid)}`;
+    // Public preview link (uses ?uid=… to match public page)
+    $("#btnOpenPublic").href = `eself.html?uid=${encodeURIComponent(uid)}`;
 
     // Tracking from users/{uid}
     await loadTrackingFromUsersDoc(uid);
@@ -646,7 +619,10 @@
       const short = def.code;
       const longKey = def.keys.find(k => !["GIDF","GIDB","SwID","PoA","BC","PC","NC"].includes(k)) || short;
 
-      const url = currentUserDoc[short] || currentUserDoc[longKey] || (currentDocsUpload?.[longKey]?.url) || null;
+      const url =
+        currentUserDoc[short]?.url || currentUserDoc[longKey]?.url ||
+        currentUserDoc[short] || currentUserDoc[longKey] ||
+        (currentDocsUpload?.[longKey]?.url) || null;
 
       const row = document.createElement("div");
       row.className = "item";
@@ -696,6 +672,72 @@
     openUser(uid);
   }
 
+  // ==== Tracking ====
+  function extractLatLng(data){
+    // Preferred: top-level lat/lng
+    let lat = coerceNum(data?.lat);
+    let lng = coerceNum(data?.lng);
+
+    // Fallback: GeoPoint at top-level
+    if ((lat == null || lng == null) && data?.geo && typeof data.geo.latitude === 'number' && typeof data.geo.longitude === 'number'){
+      lat = coerceNum(data.geo.latitude);
+      lng = coerceNum(data.geo.longitude);
+    }
+
+    // Fallback: nested location.{lat,lng} or location.geo
+    if ((lat == null || lng == null) && data?.location){
+      const loc = data.location;
+      if (lat == null) lat = coerceNum(loc.lat);
+      if (lng == null) lng = coerceNum(loc.lng);
+      if ((lat == null || lng == null) && loc.geo){
+        if (lat == null) lat = coerceNum(loc.geo.latitude);
+        if (lng == null) lng = coerceNum(loc.geo.longitude);
+      }
+    }
+    return { lat, lng };
+  }
+
+  async function loadTrackingFromUsersDoc(uid, forceFetch = false){
+    try{
+      const uSnap = forceFetch ? await getDoc(doc(db,"users",uid)) : null;
+      const data = forceFetch ? (uSnap.exists() ? uSnap.data() : null) : currentUserDoc;
+      if (!data) {
+        $("#lastLocText").textContent = "Last location: —";
+        renderLocationOnMap(null, null, null, null);
+        return;
+      }
+
+      const { lat, lng } = extractLatLng(data);
+      const capTs = data.capturedAt || data.location?.capturedAt || null;
+      const capDate = tsToDate(capTs);
+      const acc = coerceNum(data.accuracy ?? data.location?.accuracy);
+      const src = (data.source ?? data.location?.source) || null;
+      const addr = (data.address ?? data.location?.address) || null;
+
+      $("#lastLocText").textContent =
+        (typeof lat === 'number' && typeof lng === 'number')
+        ? `Last: (${lat.toFixed(6)}, ${lng.toFixed(6)}) · ${capDate ? capDate.toLocaleString() : "—"}${acc ? ` · ±${Math.round(acc)}m` : ""}${src ? ` · ${src}` : ""}${addr ? ` · ${addr}` : ""}`
+        : "Last location: —";
+
+      renderLocationOnMap(
+        typeof lat === 'number' ? lat : null,
+        typeof lng === 'number' ? lng : null,
+        capDate?.getTime() ?? null,
+        acc
+      );
+
+      // Render flag/tracking dropdowns from users doc
+      $("#flagSel").value = data.flaggedAs || "None";
+      $("#trackingSel").value = String(!!data.trackingEnabled);
+
+      // Ensure Leaflet recalculates size once panel is visible
+      setTimeout(()=> { try { ensureMap().invalidateSize(); } catch{} }, 0);
+    }catch(e){
+      console.error(e);
+      toast("Failed to load tracking", true);
+    }
+  }
+
   // ==== Save actions ====
   $("#btnSaveTrust").addEventListener("click", async ()=>{
     if(!currentUserId || !isSelfAdmin) return;
@@ -712,8 +754,56 @@
     try{
       await updateDoc(doc(db,"users",currentUserId), { status: v, docsUpdatedAt: serverTimestamp() });
       toast("Status saved");
-      openUser(currentUserId);
+      await openUser(currentUserId);
     }catch(e){ console.error(e); toast("Save failed", true); }
+  });
+
+  // Mark Reported
+  $("#btnMarkReported").addEventListener("click", async ()=>{
+    if(!currentUserId || !isSelfAdmin) return;
+    try{
+      await updateDoc(doc(db,"users",currentUserId), {
+        status: "Reported",
+        reportedAt: serverTimestamp(),
+        reportedBy: currentAdminUid,
+        docsUpdatedAt: serverTimestamp()
+      });
+      toast("User marked as Reported");
+      await openUser(currentUserId);
+    }catch(e){ console.error(e); toast("Failed to mark reported", true); }
+  });
+
+  // Clear Report → revert to default + remove fields
+  $("#btnClearReport").addEventListener("click", async ()=>{
+    if(!currentUserId || !isSelfAdmin) return;
+    try{
+      await updateDoc(doc(db,"users",currentUserId), {
+        status: "Unverified",
+        reportedAt: deleteField(),
+        reportedBy: deleteField(),
+        docsUpdatedAt: serverTimestamp()
+      });
+      toast("Report cleared");
+      await openUser(currentUserId);
+    }catch(e){ console.error(e); toast("Failed to clear report", true); }
+  });
+
+  // Toggle Admin
+  $("#btnToggleAdmin").addEventListener("click", async ()=>{
+    if(!currentUserId || !isSelfAdmin) return;
+    try{
+      const ref = doc(db, ADMIN_COLL, currentUserId);
+      if (currentTargetIsAdmin){
+        await deleteDoc(ref);
+        currentTargetIsAdmin = false;
+        toast("Admin removed");
+      } else {
+        await setDoc(ref, { isAdmin: true, setBy: currentAdminUid, setAt: serverTimestamp() }, { merge:true });
+        currentTargetIsAdmin = true;
+        toast("Admin granted");
+      }
+      $("#btnToggleAdmin").textContent = currentTargetIsAdmin ? "Remove Admin" : "Make Admin";
+    }catch(e){ console.error(e); toast("Failed to toggle admin", true); }
   });
 
   $("#btnResetPass").addEventListener("click", async ()=>{
@@ -735,7 +825,7 @@
     loadAllUsers();
   });
 
-  // ==== Risk & Tracking actions (stored in users/{uid}) ====
+  // ==== Risk & Tracking actions ====
   $("#btnSaveFlag").addEventListener("click", async ()=>{
     if(!currentUserId || !isSelfAdmin) return;
     const flaggedAs = $("#flagSel").value;
@@ -765,14 +855,15 @@
       await updateDoc(ref, {
         lat: deleteField(), lng: deleteField(), geo: deleteField(),
         accuracy: deleteField(), address: deleteField(),
-        capturedAt: deleteField(), source: deleteField()
+        capturedAt: deleteField(), source: deleteField(),
+        location: deleteField()
       });
       toast("Location cleared");
       await loadTrackingFromUsersDoc(currentUserId, true);
     }catch(e){ console.error(e); toast("Failed to clear location", true); }
   });
 
-  // ====== SUGGESTED FIRESTORE RULES (update) ======
+  // ====== SUGGESTED FIRESTORE RULES ======
   /*
   rules_version = '2';
   service cloud.firestore {
@@ -780,22 +871,20 @@
       function isSignedIn() { return request.auth != null; }
       function isAdmin() { return isSignedIn() && exists(/databases/$(database)/documents/Admin/$(request.auth.uid)); }
 
-      // Helper: user can only modify safe tracking fields on their own doc
       function userChangedOnlyTrackingKeys() {
         return request.resource.data.diff(resource.data).changedKeys()
-          .hasOnly(['lat','lng','geo','accuracy','address','capturedAt','source']);
+               .hasOnly(['lat','lng','geo','accuracy','address','capturedAt','source','location']);
       }
 
       match /users/{uid} {
         allow read: if true;
 
-        // Owner can update only tracking fields on own doc.
+        // Owners can update only their own tracking fields.
         allow update: if isSignedIn() && request.auth.uid == uid && userChangedOnlyTrackingKeys();
 
-        // Admins can write anything (including flags).
+        // Admins can write anything.
         allow write: if isAdmin();
 
-        // New docs: allow create by owner with only allowed keys, or by admin.
         allow create: if (isSignedIn() && request.auth.uid == uid && userChangedOnlyTrackingKeys())
                       || isAdmin();
       }

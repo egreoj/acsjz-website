@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>VerifyMe PH — Public Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E2A32; --muted:#5E6B74; --bg:#F6F9FB; --line:#e6edf2; --card:#fff;
+    --good-50:#eafaf1; --good-500:#16c47f; --good-600:#0fa86b; --good-700:#0a8b59;
+    --fire-50:#fff1f0; --fire-500:#ff3b1f; --fire-600:#e12e15; --fire-700:#b92410;
+    --warn-500:#f5c85f; --r:16px;
+    --shadow:0 18px 40px rgba(2,24,33,.08),0 3px 10px rgba(2,24,33,.05);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(22,196,127,.09), transparent 60%),
+      radial-gradient(900px 500px at -10% 0%, rgba(255,59,31,.08), transparent 55%),
+      var(--bg);
+  }
+  header.top{position:sticky;top:0;background:rgba(255,255,255,.78);backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--line);z-index:20}
+  .topbar{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;gap:12px;align-items:center}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:800;margin-right:auto}
+  .mark{width:36px;height:36px;border-radius:12px;background:
+    conic-gradient(from 210deg,#16c47f 0 55%,transparent 55% 100%),
+    conic-gradient(from 30deg,#ff3b1f 0 45%,transparent 45% 100%),
+    linear-gradient(135deg,#fff,#f3f8fb);box-shadow:var(--shadow)}
+  .container{max-width:1100px;margin:0 auto;padding:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:600}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:700}
+  /* Badge colors */
+  .badge.green{background:#e9fbf1;color:var(--good-700);border-color:#cfeee0}
+  .badge.yellow{background:#fff7e3;color:#8a6a00;border-color:#ffe2a4}
+  .badge.red{background:#fff0ee;color:#9a1f12;border-color:#ffc5bd}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:600;text-decoration:none;color:inherit}
+  .btn.good{background:var(--good-600);color:#fff;border-color:transparent}
+  .btn.fire{background:var(--fire-600);color:#fff;border-color:transparent}
+  .grid{display:grid;gap:16px}
+  @media(min-width:900px){.grid.cols-2{grid-template-columns:1.2fr .8fr}}
+  .hero{display:grid;gap:18px;grid-template-columns:96px 1fr;align-items:center}
+  .avatar{width:96px;height:96px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(135deg,#b6eed3,#fff);background-size:cover;background-position:center}
+  .dial{--score:80;--angle:calc((var(--score)/100)*270deg);width:128px;height:128px;border-radius:50%;
+    background:conic-gradient(from 225deg,var(--good-500) 0deg var(--angle),#e9eff3 var(--angle) 270deg,transparent 270deg 360deg);
+    display:grid;place-items:center;position:relative;filter:drop-shadow(0 6px 16px rgba(2,24,33,.08))}
+  .dial:after{content:"";position:absolute;inset:12px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+  .needle{position:absolute;width:2px;height:44%;top:6%;background:var(--ink);transform-origin:bottom center;transform:rotate(225deg);border-radius:2px;transition:.5s}
+  .muted{color:var(--muted)}
+  .qrbox{width:180px;height:180px;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;overflow:hidden;background:#fff}
+  .status{padding:6px 10px;border-radius:10px;font-weight:800}
+  .status.safe{background:#e9fbf1;color:var(--good-700);border:1px solid #cfeee0}
+  .status.caution{background:#fff7e3;color:#8a6a00;border:1px solid #ffe2a4}
+  .status.red{background:#fff0ee;color:#9a1f12;border:1px solid #ffc5bd}
+  .indicators{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .dot{padding:5px 8px;border-radius:10px;font-size:.78rem;font-weight:800;border:1px solid var(--line);min-width:44px;text-align:center}
+  .dot.ok{background:var(--good-600);color:#fff;border-color:color-mix(in oklab, var(--good-600) 70%, #ffffff 30%)}
+  .dot.missing{background:var(--fire-600);color:#fff;border-color:color-mix(in oklab, var(--fire-600) 70%, #ffffff 30%)}
+  .loading{opacity:.6;filter:saturate(.7)}
+
+  /* Search bar & results */
+  .searchWrap{display:flex;gap:8px;align-items:center;flex:1;max-width:560px}
+  .searchWrap input{flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;outline:none;}
+  .searchWrap input:focus{box-shadow:0 0 0 3px rgba(44,123,229,.16)}
+  .searchResults{margin-top:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .resultItem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line);cursor:pointer;background:#fff}
+  .resultItem:first-child{border-top:none}
+  .resultItem:hover{background:#f8fbfd}
+  .miniAvatar{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:#f3f8fb;background-size:cover;background-position:center}
+  .pill{font-size:.75rem;padding:4px 8px;border-radius:999px;border:1px solid var(--line)}
+  .pill.safe{background:#e9fbf1;color:#0a8b59;border-color:#cfeee0}
+  .pill.caution{background:#fff7e3;color:#8a6a00;border-color:#ffe2a4}
+  .pill.red{background:#fff0ee;color:#9a1f12;border-color:#ffc5bd}
+
+  /* Auth gate */
+  #authGate{position:fixed;inset:0;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:30;}
+  #authGate .panel{max-width:460px}
+
+  /* Hide profile card until a user is chosen */
+  #mainCard{display:none;}
+
+  /* Reviews UI */
+  #reviewsPanel h4{margin:0 0 8px}
+  #reviewText{width:100%;min-height:88px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;outline:none;resize:vertical;}
+  #reviewText:focus{box-shadow:0 0 0 3px rgba(44,123,229,.16)}
+  #reviewsList{margin-top:10px;border-top:1px solid var(--line)}
+  .reviewItem{padding:10px 0;border-bottom:1px solid var(--line)}
+  .reviewMeta{font-size:.85rem;color:var(--muted);margin-bottom:4px}
+  .reviewBody{white-space:pre-wrap}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="topbar">
+    <div class="brand"><div class="mark"></div><div>VerifyMe <span style="color:#0a8b59">PH</span></div></div>
+
+    <div class="searchWrap">
+      <input id="searchBox" type="search" placeholder="Search by name (case-insensitive), UID, email, or +63 phone…" aria-label="Search users" disabled />
+      <button class="btn" id="btnSearch" disabled>Search</button>
+      <button class="btn" id="btnClear" title="Clear" disabled>Clear</button>
+    </div>
+
+    <div class="row">
+      <button class="btn" id="copyLink">Copy link</button>
+      <button class="btn" id="btnSignIn" style="display:none">Sign in</button>
+      <button class="btn" id="btnSignOut" style="display:none">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <h1 style="margin:16px 0 10px 0">Public Profile</h1>
+
+  <!-- Typeahead Results -->
+  <div id="resultsWrap" class="searchResults" style="display:none"></div>
+
+  <section class="card grid cols-2" id="mainCard">
+    <div>
+      <div class="hero">
+        <div class="avatar" id="avatar"></div>
+        <div>
+          <div class="row">
+            <strong id="name" style="font-size:1.2rem">—</strong>
+            <span class="status caution" id="statusPill">CAUTION</span>
+          </div>
+          <div class="row" style="margin-top:6px">
+            <span class="badge" id="badgeId">ID Verified</span>
+            <span class="badge" id="badgeAddr">Address</span>
+            <span class="badge" id="badgeNbi">NBI / Police</span>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <span class="chip">Last verified: <span id="verifiedAt">—</span></span>
+            <span class="chip">Profile ID: <span id="uid">—</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="row" style="gap:14px">
+          <div class="dial" id="dial"><div class="needle" id="needle"></div><div style="position:relative;font-weight:800;font-size:1.4rem" id="score">—</div></div>
+          <div>
+            <div class="chip">Score band: <b id="band">—</b></div>
+            <p class="muted" style="margin:8px 0 0">Scores combine identity, liveness, address, and clearances. Renew every 6–12 months.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3 style="margin:0 0 6px">About</h3>
+        <p class="muted" id="about">This person chose to share a consented snapshot of their verification badges and trust score.</p>
+        <div class="indicators" id="docIndicators" aria-label="Document Indicators" style="margin-top:10px"></div>
+      </div>
+    </div>
+
+    <aside class="card">
+      <h3 style="margin:0 0 8px">Share / Verify</h3>
+      <div class="qrbox"><img id="qr" alt="QR" /></div>
+      <p class="muted" style="margin:10px 0 6px">Scan to open this profile. Each view should have consent.</p>
+      <div class="row">
+        <a class="btn" id="shareBtn">Share…</a>
+        <button class="btn fire" id="reportBtn">Report</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--line);margin:16px 0">
+
+      <!-- Reviews panel (replaces Snapshot hash / Generated) -->
+      <div id="reviewsPanel">
+        <h4>Reviews</h4>
+        <textarea id="reviewText" placeholder="Write a comment about this user… (visible to signed-in users)" aria-label="Review text"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" id="btnAddReview">Add review</button>
+        </div>
+        <div id="reviewsList"></div>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<!-- Auth Gate -->
+<div id="authGate">
+  <div class="card panel">
+    <h2 style="margin:0 0 8px">Sign in required</h2>
+    <p class="muted" style="margin:0 0 12px">Please sign in to search users and view verification details.</p>
+    <div class="row">
+      <button class="btn good" id="gateSignIn">Sign in with Google</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import {
+    getFirestore, doc, getDoc, collection, getDocs,
+    query, where, limit, orderBy, startAt, endAt,
+    updateDoc, addDoc, onSnapshot, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import {
+    getAuth, onAuthStateChanged, GoogleAuthProvider,
+    signInWithPopup, signOut
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+  // ---- Config ----
+  const firebaseConfig = {
+    apiKey: "AIzaSyDltLi2PXwafrQnCFG-hF-5ysY-wxaw6sQ",
+    authDomain: "web-apps-41b38.firebaseapp.com",
+    projectId: "web-apps-41b38",
+    storageBucket: "web-apps-41b38.firebasestorage.app",
+    messagingSenderId: "1082551975915",
+    appId: "1:1082551975915:web:0cb80941c5a475d83063ae",
+    measurementId: "G-EBPX4Q6M1Z"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  // --- helpers & UI refs ---
+  const $ = (id)=>document.getElementById(id);
+  const mainCard = $('mainCard');
+  function setLoading(on){ mainCard.classList.toggle('loading', !!on); }
+  function setAvatar(url){ if(url) $('avatar').style.backgroundImage = `url('${url}')`; }
+
+  const searchBox = $('searchBox');
+  const btnSearch = $('btnSearch');
+  const btnClear  = $('btnClear');
+  const resultsWrap = $('resultsWrap');
+  const authGate = $('authGate');
+  const reportBtn = $('reportBtn');
+
+  const reviewText = $('reviewText');
+  const btnAddReview = $('btnAddReview');
+  const reviewsList = $('reviewsList');
+
+  // Share/QR helpers
+  let currentShareURL = location.href;
+  const qrImg = $('qr');
+  let currentViewedUid = null;         // track clicked user
+  let currentViewedDoc = null;
+  function userPublicURL(uid, usersDoc){
+    return usersDoc?.publicUrl || `${location.origin}${location.pathname}?uid=${encodeURIComponent(uid)}`;
+  }
+  function setShareTargets(url){
+    currentShareURL = url;
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(url)}`;
+  }
+
+  // ===== ADMIN FLAG =====
+  let IS_ADMIN = false;
+  async function refreshAdminFlag(user){
+    IS_ADMIN = false;
+    if(!user) return;
+    try{
+      const token = await user.getIdTokenResult(true);
+      const claims = token?.claims || {};
+      IS_ADMIN = !!(claims.admin || claims.role === 'admin' || (Array.isArray(claims.roles) && claims.roles.includes('admin')));
+    }catch{}
+    if(!IS_ADMIN){
+      try{ const a = await getDoc(doc(db,'admins', user.uid)); IS_ADMIN = a.exists(); }catch{}
+    }
+    if(!IS_ADMIN){
+      try{
+        const u = await getDoc(doc(db,'users', user.uid));
+        if(u.exists()){
+          const d = u.data();
+          IS_ADMIN = d?.role === 'admin' || d?.roles?.admin === true;
+        }
+      }catch{}
+    }
+  }
+
+  // ---- data helpers ----
+  function parseDOB(v){
+    if(!v) return null;
+    if (typeof v === 'string' || v instanceof String) { const d = new Date(v); return isNaN(d)?null:d; }
+    if (typeof v?.toDate === 'function') return v.toDate();
+    if (typeof v?.seconds === 'number') return new Date(v.seconds*1000);
+    if (typeof v === 'number') return new Date(v);
+    return null;
+  }
+  function phoneIsPH(p){ return /^\+63\d{10}$/.test((p||'').replace(/\s|-/g,'')); }
+  function formatAddress(u){
+    const combined = u.address && String(u.address).trim();
+    if (combined) return combined;
+    const parts=[u.addressLine,u.barangay,u.city||u.municipality,u.province||u.region,u.zip,u.country||'Philippines']
+      .filter(Boolean).map(s=>String(s).trim());
+    return parts.join(', ') || '—';
+  }
+
+  // Indicators
+  const INDICATOR_DEFS = [
+    { code:'GIDF', label:'Government ID (Front)',   keys:['GIDF','govIdFront','idFront','id_front','frontId','front'] },
+    { code:'GIDB', label:'Government ID (Back)',    keys:['GIDB','govIdBack','idBack','id_back','backId','back'] },
+    { code:'SwID', label:'Selfie with ID',          keys:['SwID','selfieId','selfieWithId','selfie_id','idSelfie'] },
+    { code:'PoA',  label:'Proof of Address',        keys:['PoA','proofAddress','addressProof','utilityBill','billProof'] },
+    { code:'BC',   label:'Barangay Clearance',      keys:['BC','barangayClearance'] },
+    { code:'PC',   label:'Police Clearance',        keys:['PC','policeClearance'] },
+    { code:'NC',   label:'NBI Clearance',           keys:['NC','nbiClearance'] },
+  ];
+  function hasVal(v){
+    if(!v) return false;
+    if(Array.isArray(v)) return v.length>0;
+    if(typeof v==='string') return !!v.trim();
+    if(typeof v==='object'){ if(v.url||v.link) return true; if(Array.isArray(v.urls)&&v.urls.length>0) return true; return Object.keys(v).length>0; }
+    return false;
+  }
+  function pickVal(keys, usersDoc, docs){
+    for(const k of keys){
+      if (hasVal(usersDoc?.docs?.[k])) return usersDoc.docs[k];
+      if (hasVal(usersDoc?.verification?.[k])) return usersDoc.verification[k];
+      if (hasVal(usersDoc?.documents?.[k])) return usersDoc.documents[k];
+      if (hasVal(usersDoc?.[k])) return usersDoc[k];
+      if (hasVal(docs?.[k])) return docs[k];
+    }
+    return null;
+  }
+  function presentMap(usersDoc, docs){
+    const map = {};
+    for (const def of INDICATOR_DEFS){ map[def.code] = !!pickVal(def.keys, usersDoc||{}, docs||{}); }
+    return map;
+  }
+  function countPresent(pmap){ return Object.values(pmap).reduce((a,b)=>a+(b?1:0),0); }
+  function coreOK(pmap){ return !!(pmap.GIDF && pmap.GIDB && pmap.SwID && pmap.PoA); }
+  function profileComplete(u){
+    if(!u) return false;
+    return !!(u.fullName && u.email && (u.dob||u.dateOfBirth||u.birthdate) && formatAddress(u)!=='—' && (u.photoURL||u.avatarUrl) && u.phone && phoneIsPH(u.phone));
+  }
+  function computeScoreAndStatus(usersDoc, docs, pmap){
+    const totalDocs = countPresent(pmap);
+    const core = coreOK(pmap);
+    const profOK = profileComplete(usersDoc);
+    let score = 0;
+    if (profOK) score += 70;
+    if (totalDocs >= 2) score += 20;
+    if (core) score += 10;
+    score = Math.max(0, Math.min(100, score));
+    let statusText = 'Unverified', tone = 'red', idVerified = false;
+    if (profOK && core){ statusText='Fully Verified'; tone='green'; idVerified=true; }
+    else if (totalDocs >= 2){ statusText='Verified'; tone='yellow'; idVerified=true; }
+    return { score, statusText, tone, idVerified };
+  }
+  function renderIndicators(pmap){
+    const wrap = $('docIndicators'); wrap.innerHTML = '';
+    for(const def of INDICATOR_DEFS){
+      const ok = !!pmap[def.code];
+      const el = document.createElement('span');
+      el.className = 'dot ' + (ok ? 'ok' : 'missing');
+      el.textContent = def.code;
+      el.title = `${def.label} — ${ok ? 'uploaded' : 'missing'}`;
+      wrap.appendChild(el);
+    }
+  }
+
+  // ---- Badge coloring helper ----
+  function setBadgeState(el, level){ // level: 'red' | 'yellow' | 'green'
+    el.classList.remove('red','yellow','green');
+    el.classList.add(level);
+  }
+
+  function paint(usersDoc, result, pmap, uid){
+    $('name').textContent = usersDoc.fullName || usersDoc.name || usersDoc.displayName || 'Unnamed User';
+    $('uid').textContent = uid || '—';
+    $('about').textContent = usersDoc.about || usersDoc.bio || $('about').textContent;
+    $('verifiedAt').textContent = (()=>{
+      const d = parseDOB(usersDoc.lastVerifiedAt || usersDoc.updatedAt || usersDoc.lastLoginAt || usersDoc.location?.capturedAt);
+      if(!d) return new Date().toISOString().slice(0,10);
+      return d.toISOString().slice(0,10);
+    })();
+
+    // --- Badge color logic ---
+    // ID Verified: need GIDF + GIDB + SwID  (0=red, 1-2=yellow, 3=green)
+    const idCount = ['GIDF','GIDB','SwID'].reduce((n,k)=>n+(pmap[k]?1:0),0);
+    setBadgeState($('badgeId'), idCount===0 ? 'red' : (idCount<3 ? 'yellow' : 'green'));
+
+    // Address: PoA -> green; else if address fields exist -> yellow; else red
+    const hasPoA = !!pmap.PoA;
+    const hasAddrFields = formatAddress(usersDoc) !== '—';
+    setBadgeState($('badgeAddr'), hasPoA ? 'green' : (hasAddrFields ? 'yellow' : 'red'));
+
+    // NBI/Police: 0=red, 1=yellow, 2=green
+    const nbiCount = (pmap.NC?1:0) + (pmap.PC?1:0);
+    setBadgeState($('badgeNbi'), nbiCount===0 ? 'red' : (nbiCount===1 ? 'yellow' : 'green'));
+
+    // Dial + Status
+    const score = result.score;
+    $('score').textContent = String(score);
+    const angle = Math.max(0, Math.min(100, score))/100*270;
+    const dial = $('dial'); const needle = $('needle'); const band = $('band'); const statusPill = $('statusPill');
+    let color='var(--good-500)', label='Green (Safe)', pill='SAFE', pillClass='safe';
+    if(result.tone === 'yellow'){ color='var(--warn-500)'; label='Yellow (Caution)'; pill='CAUTION'; pillClass='caution'; }
+    if(result.tone === 'red'){ color='var(--fire-500)'; label='Red (Red flag)'; pill='RED FLAG'; pillClass='red'; }
+    dial.style.background = `conic-gradient(from 225deg, ${color} 0deg ${angle}deg, #e9eff3 ${angle}deg 270deg, transparent 270deg 360deg)`;
+    needle.style.transform = `rotate(${225+angle}deg)`;
+    band.textContent = label;
+    statusPill.textContent = pill;
+    statusPill.className = 'status '+pillClass;
+
+    setAvatar(usersDoc.photoURL || usersDoc.avatarUrl || '');
+    renderIndicators(pmap);
+
+    // Share/QR now points to clicked user
+    setShareTargets(userPublicURL(uid, usersDoc));
+
+    // Track selected user for Reviews/Report
+    currentViewedUid = uid;
+    currentViewedDoc = usersDoc;
+
+    // Begin/refresh live reviews subscription
+    subscribeReviews(uid);
+
+    // Show profile card
+    mainCard.style.display = 'grid';
+  }
+
+  async function loadDocsLegacy(uid){
+    try{
+      const flat = await getDoc(doc(db, "docs_upload", uid));
+      if(flat.exists()) return flat.data();
+      const items = await getDocs(collection(db, "docs_upload", uid, "items"));
+      if(items.empty) return {};
+      const merged = {};
+      items.forEach(d=>{
+        const data = d.data();
+        const key = data.key || d.id;
+        const val = data.value ?? data.url ?? data.urls ?? null;
+        if(!key || !val) return;
+        merged[key] = merged[key]
+          ? (Array.isArray(merged[key]) ? merged[key].concat(val) : [merged[key]].concat(val))
+          : val;
+      });
+      return merged;
+    }catch{ return {}; }
+  }
+  async function loadFromFirestore(uid){
+    setLoading(true);
+    try{
+      const snap = await getDoc(doc(db, 'users', uid));
+      if(!snap.exists()){ setLoading(false); return null; }
+      const usersDoc = snap.data() || {};
+      const legacyDocs = await loadDocsLegacy(uid);
+      const pmap = presentMap(usersDoc, legacyDocs || {});
+      const result = computeScoreAndStatus(usersDoc, legacyDocs || {}, pmap);
+      paint(usersDoc, result, pmap, uid);
+      return { usersDoc, pmap, result };
+    }catch(e){ console.error(e); }
+    setLoading(false);
+    return null;
+  }
+
+  // ---------- SEARCH (login required) ----------
+  const isLikelyUID = (s)=>/^[A-Za-z0-9_-]{20,40}$/.test((s||'').trim());
+  const normalizePhonePH = (s)=>'+63'+String(s).replace(/[^\d]/g,'').replace(/^0/,'').replace(/^63/,'').padStart(10,'0').slice(-10);
+
+  async function searchUsers(term){
+    const q = (term||'').trim();
+    if(!q) return [];
+    const usersCol = collection(db,'users');
+
+    // UID direct
+    if(isLikelyUID(q)){
+      const snap = await getDoc(doc(db,'users',q));
+      return snap.exists() ? [{ id:snap.id, data:snap.data() }] : [];
+    }
+    // Email (case-insensitive via emailLower)
+    if(q.includes('@')){
+      const r1 = await getDocs(query(usersCol, where('email','==',q), limit(10)));
+      if(!r1.empty) return r1.docs.map(d=>({id:d.id, data:d.data()}));
+      const r2 = await getDocs(query(usersCol, where('emailLower','==',q.toLowerCase()), limit(10)));
+      if(!r2.empty) return r2.docs.map(d=>({id:d.id, data:d.data()}));
+      return [];
+    }
+    // PH phone +63
+    if(q.startsWith('+63') || /^0\d{10}$/.test(q) || /^\d{11}$/.test(q)){
+      const norm = q.startsWith('+63') ? q : normalizePhonePH(q);
+      const r3 = await getDocs(query(usersCol, where('phone','==',norm), limit(10)));
+      return r3.docs.map(d=>({id:d.id, data:d.data()}));
+    }
+
+    // Name prefix — CASE-INSENSITIVE via fullNameLower/displayNameLower
+    const qLower = q.toLowerCase();
+    try{
+      const r4 = await getDocs(query(usersCol, orderBy('fullNameLower'), startAt(qLower), endAt(qLower + '\uf8ff'), limit(10)));
+      if(!r4.empty) return r4.docs.map(d=>({id:d.id, data:d.data()}));
+    }catch{}
+    try{
+      const r5 = await getDocs(query(usersCol, orderBy('displayNameLower'), startAt(qLower), endAt(qLower + '\uf8ff'), limit(10)));
+      if(!r5.empty) return r5.docs.map(d=>({id:d.id, data:d.data()}));
+    }catch{}
+
+    // Fallback: fetch a few and client-filter
+    const preload = await getDocs(query(usersCol, limit(50)));
+    return preload.docs
+      .map(d=>({id:d.id, data:d.data()}))
+      .filter(x=>{
+        const name = (x.data.fullName || x.data.displayName || '').toLowerCase();
+        return name.includes(qLower);
+      })
+      .slice(0, 10);
+  }
+
+  function computePreview(userData){
+    const pmap = presentMap(userData, {});
+    const { score, tone } = computeScoreAndStatus(userData, {}, pmap);
+    return { score, tone };
+  }
+  const toneToClass = (t)=> t==='green' ? 'safe' : (t==='yellow' ? 'caution' : 'red');
+
+  function renderResults(rows){
+    if(!rows || rows.length===0){
+      resultsWrap.style.display='block';
+      resultsWrap.innerHTML = '<div class="resultItem"><div>No matches.</div></div>';
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    rows.forEach(({id,data})=>{
+      const { score, tone } = computePreview(data||{});
+      const item = document.createElement('div');
+      item.className = 'resultItem';
+
+      const av = document.createElement('div');
+      av.className = 'miniAvatar';
+      av.style.backgroundImage = data?.photoURL||data?.avatarUrl ? `url('${data.photoURL||data.avatarUrl}')` : '';
+
+      const text = document.createElement('div');
+      text.style.flex='1';
+      const displayName = data?.fullName || data?.displayName || (IS_ADMIN ? (data?.email || '(no name)') : '(no name)');
+      let subline = '';
+      if (IS_ADMIN){
+        const parts = [];
+        if (data?.email) parts.push(data.email);
+        if (data?.phone) parts.push(data.phone);
+        subline = parts.length ? `<div class="muted" style="font-size:.85rem">${parts.join(' • ')}</div>` : '';
+      }
+      text.innerHTML = `<div style="font-weight:700">${displayName}</div>${subline}`;
+
+      const pill = document.createElement('span');
+      pill.className = 'pill '+toneToClass(tone);
+      pill.textContent = `Score ${score}`;
+
+      item.append(av,text,pill);
+      item.onclick = async ()=>{
+        resultsWrap.style.display='none';
+        await loadFromFirestore(id); // show profile only after click
+      };
+      frag.appendChild(item);
+    });
+    resultsWrap.innerHTML='';
+    resultsWrap.appendChild(frag);
+    resultsWrap.style.display='block';
+  }
+
+  // Debounce
+  function debounce(fn, ms=300){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); }; }
+
+  async function runSearchOnce(){
+    const term = searchBox.value.trim();
+    if(!term){
+      resultsWrap.style.display='none';
+      resultsWrap.innerHTML='';
+      return;
+    }
+    resultsWrap.style.display='block';
+    resultsWrap.innerHTML = '<div class="resultItem"><div>Searching…</div></div>';
+    try{
+      const rows = await searchUsers(term);
+      renderResults(rows);
+    }catch(e){
+      console.error(e);
+      resultsWrap.innerHTML = '<div class="resultItem"><div>Error searching. Check rules/indexes.</div></div>';
+    }
+  }
+  const runTypeahead = debounce(runSearchOnce, 300);
+
+  // Wire UI (typeahead)
+  btnSearch.onclick = runSearchOnce;
+  searchBox.addEventListener('input', ()=>{
+    const v = searchBox.value.trim();
+    if(v.length>=1){ runTypeahead(); }
+    else { resultsWrap.style.display='none'; resultsWrap.innerHTML=''; }
+  });
+  searchBox.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); runSearchOnce(); } });
+  btnClear.onclick = ()=>{ searchBox.value=''; resultsWrap.style.display='none'; resultsWrap.innerHTML=''; };
+
+  // ------ AUTH GATE ------
+  function setAuthedUI(isAuthed){
+    authGate.style.display = isAuthed ? 'none' : 'flex';
+    [searchBox, btnSearch, btnClear].forEach(el=>{ el.disabled = !isAuthed; });
+    $('btnSignIn').style.display = isAuthed ? 'none' : 'inline-flex';
+    $('btnSignOut').style.display = isAuthed ? 'inline-flex' : 'none';
+    if(!isAuthed){ mainCard.style.display = 'none'; }
+  }
+
+  onAuthStateChanged(auth, async (user)=>{
+    setAuthedUI(!!user);
+    await refreshAdminFlag(user);
+    const uidParam = new URLSearchParams(location.search).get('uid');
+    if (user && uidParam) { await loadFromFirestore(uidParam); }
+  });
+
+  async function doSignIn(){ try{ await signInWithPopup(auth, provider); }catch(e){ alert('Sign-in failed'); console.error(e); } }
+  async function doSignOut(){ try{ await signOut(auth); }catch(e){ console.error(e); } }
+  $('btnSignIn').onclick = doSignIn;
+  $('gateSignIn').onclick = doSignIn;
+  $('btnSignOut').onclick = doSignOut;
+
+  // Default QR/Share until a user is chosen
+  setShareTargets(location.href);
+
+  // Copy/Share use the currently selected user's link
+  $('copyLink').onclick = async ()=>{ await navigator.clipboard.writeText(currentShareURL); alert('Link copied!'); };
+  $('shareBtn').onclick = async ()=>{
+    if(navigator.share){
+      await navigator.share({ title:'VerifyMe PH — Public Profile', text:'View verification snapshot', url: currentShareURL });
+    }else{
+      await navigator.clipboard.writeText(currentShareURL);
+      alert('Link copied!');
+    }
+  };
+
+  // ===== Reviews: realtime list =====
+  let unsubscribeReviews = null;
+  function fmtDate(ts){
+    try{
+      if(!ts) return '';
+      const d = ts.toDate ? ts.toDate() : (ts.seconds ? new Date(ts.seconds*1000) : new Date(ts));
+      return d.toLocaleString();
+    }catch{return '';}
+  }
+  function subscribeReviews(uid){
+    if(unsubscribeReviews) unsubscribeReviews();
+    reviewsList.innerHTML = '<div class="muted" style="padding:8px 0">Loading reviews…</div>';
+    const qReviews = query(
+      collection(db,'users', uid, 'reviews'),
+      orderBy('createdAt','desc'),
+      limit(50)
+    );
+    unsubscribeReviews = onSnapshot(qReviews, (snap)=>{
+      if (snap.empty){ reviewsList.innerHTML = '<div class="muted" style="padding:8px 0">No reviews yet.</div>'; return; }
+      const frag = document.createDocumentFragment();
+      snap.forEach(docSnap=>{
+        const r = docSnap.data()||{};
+        const who = r.by?.displayName || (IS_ADMIN ? (r.by?.email || r.by?.uid || 'Unknown') : (r.by?.uid ? 'User '+r.by.uid.slice(0,6) : 'Unknown'));
+        const when = fmtDate(r.createdAt);
+        const type = r.type==='report' ? 'Report' : 'Review';
+        const item = document.createElement('div');
+        item.className = 'reviewItem';
+        item.innerHTML = `
+          <div class="reviewMeta">${type} • ${who}${when ? ' • '+when : ''}</div>
+          <div class="reviewBody">${(r.text||'').replace(/</g,'&lt;')}</div>
+        `;
+        frag.appendChild(item);
+      });
+      reviewsList.innerHTML = '';
+      reviewsList.appendChild(frag);
+    }, (err)=>{
+      console.error(err);
+      reviewsList.innerHTML = '<div class="muted" style="padding:8px 0">Failed to load reviews.</div>';
+    });
+  }
+
+  async function addReview(kind){
+    const user = auth.currentUser;
+    if(!user){ alert('Please sign in.'); return; }
+    if(!currentViewedUid){ alert('Open a user profile first.'); return; }
+    const text = (reviewText.value||'').trim();
+    if(!text){ alert('Please write a comment first.'); return; }
+    try{
+      await addDoc(collection(db,'users', currentViewedUid, 'reviews'), {
+        type: kind || 'review',
+        text,
+        createdAt: serverTimestamp(),
+        by: {
+          uid: user.uid,
+          email: user.email || null,
+          displayName: user.displayName || null
+        }
+      });
+      reviewText.value = '';
+    }catch(e){
+      console.error(e);
+      alert('Failed to add review.');
+    }
+  }
+
+  btnAddReview.onclick = ()=>addReview('review');
+
+  // ===== Report button -> prompt comment + set status + store review =====
+  reportBtn.onclick = async ()=>{
+    const reporter = auth.currentUser;
+    if (!reporter){ alert('Please sign in to report.'); return; }
+    if (!currentViewedUid){ alert('Open a user profile first, then tap Report.'); return; }
+
+    const comment = window.prompt('Write a comment for this report (optional):','');
+    // Update status first
+    try{
+      const ref = doc(db, 'users', currentViewedUid);
+      await updateDoc(ref, {
+        status: 'reported',
+        reportedAt: serverTimestamp(),
+        reportedBy: {
+          uid: reporter.uid,
+          email: reporter.email || null,
+          displayName: reporter.displayName || null
+        }
+      });
+      $('statusPill').textContent = 'REPORTED';
+      $('statusPill').className = 'status red';
+      // Store report note if provided
+      if (comment && comment.trim()){
+        await addDoc(collection(db,'users', currentViewedUid, 'reviews'), {
+          type: 'report',
+          text: comment.trim(),
+          createdAt: serverTimestamp(),
+          by: {
+            uid: reporter.uid,
+            email: reporter.email || null,
+            displayName: reporter.displayName || null
+          }
+        });
+      }
+      alert('User marked as reported.');
+    }catch(e){
+      console.error(e);
+      alert('Failed to report user.');
+      return;
+    }
+  };
+</script>
+</body>
+</html>
