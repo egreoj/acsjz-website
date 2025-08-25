@@ -21,10 +21,11 @@
     .nav{max-width:1100px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:center;gap:12px}
     .nav img{width:40px;height:40px;object-fit:contain}
     .nav h1{margin:0;font-size:1.05rem;font-weight:800;letter-spacing:.2px}
-    .container{max-width:520px;background:var(--card);margin:32px auto;padding:26px;border-radius:18px;border:1px solid var(--line);box-shadow:0 14px 30px rgba(14,42,50,.08)}
+    .container{max-width:620px;background:var(--card);margin:32px auto;padding:26px;border-radius:18px;border:1px solid var(--line);box-shadow:0 14px 30px rgba(14,42,50,.08)}
     h2{text-align:center;margin:0 0 10px}
     form{display:flex;flex-direction:column;gap:12px}
     label{font-weight:800;font-size:.95rem;margin-bottom:4px}
+    input,select,button{font-family:inherit}
     input,select{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:1rem;color:var(--ink);transition:border-color .15s, box-shadow .15s}
     input:focus,select:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(44,123,229,.15)}
     .hint{font-size:.85rem;color:var(--muted)}
@@ -34,14 +35,22 @@
     button:active{transform:translateY(1px)}
     .loading{opacity:.65;pointer-events:none}
     .row{display:flex;gap:10px;flex-wrap:wrap}
-    .social-login{margin:18px 0 6px;text-align:center}
-    .oauth{display:flex;flex-direction:column;gap:10px}
-    .oauth button{background:#fff;border:1px solid var(--line);box-shadow:none;color:#0E2A32}
-    .oauth .fb{background:#1877f2;color:#fff;border-color:#1877f2}
+    .col{flex:1 1 260px}
     .login-link{text-align:center;margin-top:14px}
-    #otherSkill{display:none}
+    #otherPrimary{display:none}
     .error{background:#FEF2F2;border:1px solid #FECACA;color:#991b1b;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:none}
     .ok{background:#ECFEFF;border:1px solid #A5F3FC;color:#075985;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:none}
+
+    /* Phone input with fixed +63 prefix */
+    .phone-group{display:flex;gap:8px;align-items:center}
+    .phone-prefix{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#F8FAFC;color:#0E2A32;font-weight:800}
+    .chipbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .chip{display:inline-flex;align-items:center;gap:6px;background:#F3F6FA;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-weight:700}
+    .chip button{margin:0;background:transparent;border:0;cursor:pointer;font-weight:900}
+    .inline-actions{display:flex;gap:8px;align-items:center}
+    .ghost{background:#fff;border:1px solid var(--line);box-shadow:none;color:var(--ink);font-weight:700}
+    .ghost:hover{background:#FAFCFF;border-color:#D8E3EE;box-shadow:0 6px 16px rgba(14,42,50,.06)}
+    .oauth{margin:18px 0 6px;text-align:center}
   </style>
 </head>
 <body>
@@ -56,8 +65,8 @@
     <h2>Join Beehire</h2>
     <p class="hint" style="text-align:center;margin-bottom:14px">Create a worker account. You can verify later to boost trust.</p>
 
-    <div id="err" class="error"></div>
-    <div id="ok" class="ok"></div>
+    <div id="err" class="error" role="alert"></div>
+    <div id="ok" class="ok" role="status"></div>
 
     <form id="registerForm" novalidate>
       <div>
@@ -66,13 +75,27 @@
       </div>
 
       <div class="row">
-        <div style="flex:1 1 240px">
+        <div class="col">
           <label for="email">Email Address</label>
           <input type="email" id="email" autocomplete="email" required />
         </div>
-        <div style="flex:1 1 240px">
-          <label for="phone">Phone Number</label>
-          <input type="tel" id="phone" placeholder="+63 9xx xxx xxxx" autocomplete="tel" required />
+        <div class="col">
+          <label for="phone10">CP Number</label>
+          <div class="phone-group">
+            <span class="phone-prefix" aria-hidden="true">+63</span>
+            <input
+              type="text"
+              id="phone10"
+              inputmode="numeric"
+              pattern="^9\\d{9}$"
+              maxlength="10"
+              placeholder="9XXXXXXXXX"
+              autocomplete="tel-national"
+              required
+              title="Enter 10 digits starting with 9 (e.g., 9XXXXXXXXX)"
+            />
+          </div>
+          <div class="hint">Prefix is fixed to <b>+63</b>. Enter the 10-digit mobile number only (e.g., <b>9XXXXXXXXX</b>).</div>
         </div>
       </div>
 
@@ -82,10 +105,11 @@
         <div class="hint">6+ characters</div>
       </div>
 
+      <!-- Primary + extra skills -->
       <div>
-        <label for="skill">Skill Category</label>
-        <select id="skill" required>
-          <option value="">-- Select Skill --</option>
+        <label for="primarySkill">Primary skill</label>
+        <select id="primarySkill" required>
+          <option value="">-- Select Primary Skill --</option>
           <option>Electrician</option><option>Plumber</option><option>Tutor</option>
           <option>Mechanic</option><option>Virtual Assistant</option>
           <option>Cook</option><option>Carpenter</option><option>Driver</option>
@@ -94,17 +118,30 @@
         </select>
       </div>
 
-      <input type="text" id="otherSkill" placeholder="Enter your skill" />
+      <input type="text" id="otherPrimary" placeholder="Enter your primary skill" />
+
+      <div>
+        <label for="extraSkill">Add more skills (optional)</label>
+        <div class="inline-actions">
+          <input id="extraSkill" list="skills-suggest" placeholder="Type a skill then Add" />
+          <button type="button" id="addSkillBtn" class="ghost">Add</button>
+        </div>
+        <datalist id="skills-suggest">
+          <option>Electrician</option><option>Plumber</option><option>Tutor</option>
+          <option>Mechanic</option><option>Virtual Assistant</option>
+          <option>Cook</option><option>Carpenter</option><option>Driver</option>
+          <option>Cleaner</option><option>Painter</option><option>IT Support</option>
+        </datalist>
+        <div id="skillsChips" class="chipbar" aria-live="polite"></div>
+        <div class="hint">Add all skills you can offer. You can remove a chip anytime.</div>
+      </div>
 
       <button type="submit" id="submitBtn">Register</button>
     </form>
 
-    <div class="social-login">
+    <div class="oauth">
       <p class="hint">or register with</p>
-      <div class="oauth">
-        <button id="googleBtn">Continue with Google</button>
-        <button class="fb" id="fbBtn">Continue with Facebook</button>
-      </div>
+      <button class="ghost" id="googleBtn">Continue with Google</button>
     </div>
 
     <div class="login-link">
@@ -113,29 +150,75 @@
   </div>
 
   <script>
-    const skillSelect = document.getElementById('skill');
-    const otherInput = document.getElementById('otherSkill');
+    // --- UI logic (phone +63 and skills chips) ---
     const err = document.getElementById('err');
     const ok = document.getElementById('ok');
-    const phone = document.getElementById('phone');
+    const primarySkillSel = document.getElementById('primarySkill');
+    const otherPrimary = document.getElementById('otherPrimary');
+    const phone10 = document.getElementById('phone10');
 
-    const PH_PHONE = /^(?:\+?63|0)?9\d{9}$/; // simple PH mobile check
+    const skillsChips = document.getElementById('skillsChips');
+    const extraSkillInput = document.getElementById('extraSkill');
+    const addSkillBtn = document.getElementById('addSkillBtn');
+    const extraSkills = new Set(); // store unique extras
 
     function showErr(msg){ err.textContent = msg; err.style.display='block'; ok.style.display='none'; }
     function showOk(msg){ ok.textContent = msg; ok.style.display='block'; err.style.display='none'; }
     function clearAlerts(){ err.style.display='none'; ok.style.display='none'; }
 
-    skillSelect.addEventListener('change', function () {
-      const isOther = this.value === 'Others';
-      otherInput.style.display = isOther ? 'block' : 'none';
-      otherInput.required = isOther;
+    // Fixed +63, only allow 10 digits starting with 9
+    phone10.addEventListener('input', ()=>{
+      // keep only digits and max 10
+      phone10.value = phone10.value.replace(/\D+/g,'').slice(0,10);
     });
-
-    phone.addEventListener('blur', ()=>{
-      const v = phone.value.trim();
-      if (v && !PH_PHONE.test(v.replace(/\s+/g,''))) showErr('Please enter a valid PH mobile number.');
+    phone10.addEventListener('blur', ()=>{
+      const v = phone10.value.trim();
+      if (!/^9\d{9}$/.test(v)) showErr('Enter a valid 10-digit PH mobile (starts with 9).');
       else clearAlerts();
     });
+
+    // Primary skill "Others" toggle
+    primarySkillSel.addEventListener('change', ()=>{
+      const isOther = primarySkillSel.value === 'Others';
+      otherPrimary.style.display = isOther ? 'block' : 'none';
+      otherPrimary.required = isOther;
+    });
+
+    // Chips management
+    function renderChips(){
+      skillsChips.innerHTML = '';
+      [...extraSkills].forEach(s=>{
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.innerHTML = `<span>${s}</span><button type="button" aria-label="Remove ${s}">&times;</button>`;
+        chip.querySelector('button').addEventListener('click', ()=>{
+          extraSkills.delete(s);
+          renderChips();
+        });
+        skillsChips.appendChild(chip);
+      });
+    }
+    function normalizeSkill(s){
+      return s.trim().replace(/\s+/g,' ').replace(/^./, c=>c.toUpperCase()) ;
+    }
+    addSkillBtn.addEventListener('click', ()=>{
+      const raw = extraSkillInput.value;
+      const clean = normalizeSkill(raw);
+      if (!clean) return;
+      extraSkills.add(clean);
+      extraSkillInput.value = '';
+      renderChips();
+      clearAlerts();
+    });
+    extraSkillInput.addEventListener('keydown', (e)=>{
+      if (e.key === 'Enter'){ e.preventDefault(); addSkillBtn.click(); }
+    });
+
+    // Helper to compute final primary skill value
+    function getPrimarySkill(){
+      const sel = primarySkillSel.value;
+      return sel === 'Others' ? normalizeSkill(otherPrimary.value) : sel;
+    }
   </script>
 
   <!-- Firebase SDK -->
@@ -143,7 +226,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
     import {
       getAuth, createUserWithEmailAndPassword, updateProfile, sendEmailVerification,
-      GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, getAdditionalUserInfo
+      GoogleAuthProvider, signInWithPopup, getAdditionalUserInfo
     } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
     import {
       getFirestore, collection, query, where, getDocs, doc, setDoc, serverTimestamp
@@ -163,10 +246,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const providers = {
-      google: new GoogleAuthProvider(),
-      facebook: new FacebookAuthProvider()
-    };
+    const googleProvider = new GoogleAuthProvider();
 
     const $ = (id)=>document.getElementById(id);
     const form = $("registerForm");
@@ -179,29 +259,46 @@
     }
 
     async function emailExists(email){
-      // Optional: prevent duplicate by checking existing workers
       const q = query(collection(db,"workers"), where("email","==", email));
       const s = await getDocs(q);
       return !s.empty;
     }
 
-    function finalSkillValue(){
-      const sel = $("skill").value;
-      const other = $("otherSkill").value.trim();
-      return sel === "Others" ? other : sel;
+    // Pull values from UI helpers declared in the page scope
+    function getPrimarySkill(){
+      const sel = $("primarySkill").value;
+      const other = $("otherPrimary").value.trim();
+      if (sel === "Others") return normalizeSkill(other);
+      return sel || "";
+    }
+    function normalizeSkill(s){
+      return s.trim().replace(/\s+/g,' ').replace(/^./, c=>c.toUpperCase());
+    }
+
+    function collectSkills(){
+      // Start with primary, then add chips (read from DOM to keep module boundary simple)
+      const chips = Array.from(document.querySelectorAll('#skillsChips .chip span')).map(el=>el.textContent.trim());
+      const primary = getPrimarySkill();
+      const all = [primary, ...chips].filter(Boolean).map(normalizeSkill);
+      // dedupe case-insensitively
+      const seen = new Set();
+      return all.filter(s=>{
+        const key = s.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key); return true;
+      });
     }
 
     function validateBasics(){
       const fullName = $("fullname").value.trim();
       const email = $("email").value.trim().toLowerCase();
-      const phone = $("phone").value.trim().replace(/\s+/g,'');
+      const phone10 = $("phone10").value.trim();
       const pass = $("password").value;
-      const fskill = finalSkillValue();
+      const primary = getPrimarySkill();
 
-      if (!fullName || !email || !phone || !pass || !fskill) return "Please complete all required fields.";
+      if (!fullName || !email || !phone10 || !pass || !primary) return "Please complete all required fields.";
       if (pass.length < 6) return "Password must be at least 6 characters.";
-      const PH_PHONE = /^(?:\+?63|0)?9\d{9}$/;
-      if (!PH_PHONE.test(phone)) return "Please enter a valid PH mobile number.";
+      if (!/^9\d{9}$/.test(phone10)) return "Enter a valid 10-digit PH mobile (starts with 9).";
       return null;
     }
 
@@ -211,9 +308,9 @@
         role: "worker",
         fullName: data.fullName,
         email: data.email,
-        phone: data.phone,
-        skillCategory: data.skillCategory,
-        skills: data.skillCategory ? [data.skillCategory] : [],
+        phone: data.phone, // full E.164-like: +63XXXXXXXXXX
+        primarySkill: data.primarySkill,
+        skills: data.skills, // array (primary + extras)
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp(),
         verificationStatus: "unverified",
@@ -222,7 +319,7 @@
       await setDoc(doc(db,"workers",uid), payload, { merge:true });
     }
 
-    // ✅ Email/password registration → send verification → redirect to email_verify.html
+    // Email/password registration
     async function handleEmailSignup(e){
       e.preventDefault();
       clearAlerts();
@@ -231,28 +328,25 @@
 
       const fullName = $("fullname").value.trim();
       const email = $("email").value.trim().toLowerCase();
-      const phone = $("phone").value.trim();
+      const phone = "+63" + $("phone10").value.trim(); // fixed +63 + 10 digits
       const password = $("password").value;
-      const skillCategory = finalSkillValue();
+      const primarySkill = getPrimarySkill();
+      const skills = collectSkills();
 
       try{
         setLoading(true);
 
-        // Prevent duplicate
         if (await emailExists(email)){
           showErr("This email already exists. Please login instead.");
           setLoading(false);
           return;
         }
 
-        // Create Auth user
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(cred.user, { displayName: fullName });
 
-        // Create worker profile
-        await saveWorker(cred.user.uid, { fullName, email, phone, skillCategory });
+        await saveWorker(cred.user.uid, { fullName, email, phone, primarySkill, skills });
 
-        // Send verification + redirect
         try { await sendEmailVerification(cred.user); } catch {}
         showOk("Registration successful! Check your inbox for a verification email.");
         setTimeout(()=>{ window.location.href = "email_verify.html"; }, 500);
@@ -264,27 +358,29 @@
       }
     }
 
-    // ✅ Social registration:
-    // If new user OR not verified → send verification & redirect to email_verify.html
-    // If already verified → proceed to main page
-    async function handleOauth(providerName){
+    // Google registration/login
+    async function handleGoogle(){
       clearAlerts();
       try{
         setLoading(true);
-        const provider = providers[providerName];
-        const result = await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
         const info = getAdditionalUserInfo(result);
 
-        const skillCategory = finalSkillValue(); // optional on first pass
+        // Pull optional form values if provided
+        const phone10Val = $("phone10").value.trim();
+        const phoneFull = /^9\d{9}$/.test(phone10Val) ? ("+63" + phone10Val) : (user.phoneNumber || "");
+        const primarySkill = getPrimarySkill() || ""; // optional on first pass
+        const skills = collectSkills();
+
         await saveWorker(user.uid, {
           fullName: user.displayName || "",
           email: (user.email || "").toLowerCase(),
-          phone: user.phoneNumber || "",
-          skillCategory
+          phone: phoneFull,
+          primarySkill,
+          skills: primarySkill ? skills : (skills.length ? skills : [])
         });
 
-        // New user or not verified -> verify flow
         if (info?.isNewUser || !user.emailVerified) {
           try { await sendEmailVerification(user); } catch {}
           showOk("Account created! Please verify your email.");
@@ -292,14 +388,13 @@
           return;
         }
 
-        // Already verified (common for Google) -> proceed
         showOk("Welcome back!");
         setTimeout(()=>{ window.location.href = "beehiremain.html"; }, 500);
       }catch(error){
         console.warn(error);
         const readable = error?.customData?.email
           ? `Sign-in failed for ${error.customData.email}. ${error.message || ''}`
-          : (error?.message || "Social sign-in is unavailable. Please use email & password.");
+          : (error?.message || "Google sign-in is unavailable. Please use email & password.");
         showErr(readable);
       }finally{
         setLoading(false);
@@ -308,10 +403,8 @@
 
     // Wire up events
     form.addEventListener("submit", handleEmailSignup);
-    document.getElementById("googleBtn").addEventListener("click", ()=> handleOauth("google"));
-    document.getElementById("fbBtn").addEventListener("click", ()=> handleOauth("facebook"));
+    document.getElementById("googleBtn").addEventListener("click", handleGoogle);
 
-    // Helpful warning for local testing
     if (location.protocol === 'file:') {
       console.warn('Open via http(s)://, not file:// (OAuth will fail on file://).');
     }

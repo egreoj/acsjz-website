@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Beehire — Profile</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --brand:#FFC107; --ink:#0E2A32; --muted:#6B7B84; --bg:#F6F9FC; --card:#ffffff;
+      --line:#E6EDF2; --line-strong:#D7E1EA; --focus:#2C7BE5;
+      --ok:#16a34a; --warn:#d97706; --bad:#dc2626; --ghost:#FAFCFF;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--ink); background:linear-gradient(180deg,#fff 0%, var(--bg) 70%);
+    }
+
+    /* Header */
+    header{position:sticky; top:0; z-index:40; background:var(--card); border-bottom:1px solid var(--line);
+      box-shadow:0 2px 10px rgba(14,42,50,.04)}
+    .nav{
+      max-width:1100px; margin:0 auto; padding:14px 20px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    }
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; min-width:0}
+    .brand-logo{width:42px; height:42px; object-fit:contain; filter:drop-shadow(0 2px 8px rgba(0,0,0,.06))}
+    .brand-title{display:flex; flex-direction:column; line-height:1.1; min-width:0}
+    .brand-title .name{
+      font-weight:800; font-size:1.12rem; color:var(--ink);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:60vw;
+    }
+    .brand-title .tag{font-size:.8rem; color:var(--muted); font-weight:700; letter-spacing:.3px}
+    .badge{padding:6px 10px; border:1px solid var(--line-strong); border-radius:999px; color:var(--ink); font-size:.8rem; font-weight:800; background:#fff}
+
+    /* Layout */
+    .wrap{max-width:1100px; margin:26px auto 34px; padding:0 20px}
+    .grid{display:grid; grid-template-columns: minmax(0,320px) minmax(0,1fr); gap:18px;}
+    @media (max-width:860px){ .grid{ grid-template-columns: 1fr } }
+
+    .card{background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:0 12px 28px rgba(14,42,50,.08)}
+    .left,.right{padding:22px; min-width:0}
+
+    /* Avatar block */
+    .avatar{display:grid; place-items:center; gap:10px; text-align:center}
+    .avatar img{width:160px; height:160px; border-radius:50%; object-fit:cover; border:5px solid var(--brand); background:#fff; box-shadow:0 6px 16px rgba(14,42,50,.08)}
+    .avatar > *{max-width:100%}
+    .name{font-weight:800; font-size:1.25rem; margin-top:6px; overflow-wrap:anywhere}
+    .primary-skill{
+      display:inline-flex; align-items:center; gap:6px; background:#FFF6D6; border:1px solid #F3D66A; color:#3b2d0b;
+      padding:6px 10px; border-radius:999px; font-weight:800; font-size:.9rem; margin-top:6px; overflow-wrap:anywhere
+    }
+    .meta{color:var(--muted); font-size:.92rem; overflow-wrap:anywhere}
+
+    .pill{
+      display:inline-block; padding:6px 10px; border-radius:999px; background:var(--ghost);
+      border:1px solid var(--line); font-weight:700; font-size:.85rem; overflow-wrap:anywhere
+    }
+
+    /* Sections & key/values */
+    .section{margin:0 0 18px}
+    .section h3{margin:0 0 10px; font-size:1.05rem; border-bottom:1px dashed var(--line-strong); padding-bottom:8px}
+    .kv{display:grid; grid-template-columns: 160px minmax(0,1fr); gap:10px; padding:8px 0; border-bottom:1px dashed var(--line)}
+    .kv:last-child{border-bottom:0}
+    .k{color:#345; font-weight:800}
+    .v{color:#102028; overflow-wrap:anywhere; word-break:break-word}
+
+    /* Chips */
+    .chips{display:flex; flex-wrap:wrap; gap:8px}
+    .chip{display:inline-flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line-strong);
+      padding:6px 10px; border-radius:999px; font-weight:700; font-size:.9rem; overflow-wrap:anywhere}
+    .chip.primary{border-color:#F3D66A; background:#FFF6D6}
+
+    /* Documents */
+    .docs .row{
+      display:grid; grid-template-columns: minmax(0,1fr) auto; gap:12px; align-items:center; padding:10px 0; border-bottom:1px dashed var(--line)
+    }
+    .docs .row:last-child{border-bottom:0}
+    .doc-title{font-weight:800; overflow-wrap:anywhere}
+    .doc-status{font-size:.92rem; color:var(--muted)}
+    .doc-actions a{font-weight:800; color:#0D6EFD; text-decoration:none}
+    .doc-actions a:hover{text-decoration:underline}
+
+    /* Buttons & toggle */
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    .btn{background:var(--brand); color:#111; padding:10px 14px; border:0; border-radius:12px; font-size:1rem; font-weight:800; cursor:pointer;
+      box-shadow:0 8px 20px rgba(255,193,7,.28); transition:filter .15s, transform .06s}
+    .btn:hover{filter:brightness(.98)}
+    .btn:active{transform:translateY(1px)}
+    .btn-ghost{background:#fff; border:1px solid var(--line); box-shadow:none; color:#102028}
+
+    .toggle-row{display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px}
+    .switch{position:relative; display:inline-block; width:52px; height:28px}
+    .switch input{opacity:0; width:0; height:0}
+    .slider{position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#d1d5db; transition:.2s; border-radius:999px}
+    .slider:before{position:absolute; content:""; height:22px; width:22px; left:3px; top:3px; background:white; transition:.2s; border-radius:50%}
+    input:checked + .slider{background:#34d399}
+    input:checked + .slider:before{transform:translateX(24px)}
+
+    .empty{padding:16px; border:1px dashed var(--line); border-radius:12px; background:#fff}
+    .muted{color:var(--muted)}
+    .center{text-align:center}
+
+    @media (max-width:480px){
+      .brand-title .name{max-width:50vw}
+      .kv{grid-template-columns: 120px minmax(0,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <a class="brand" href="beehiremain.html">
+        <img class="brand-logo" src="BeeHire Logo.png" alt="Beehire logo">
+        <span class="brand-title">
+          <span class="name">Beehire CONNECT</span>
+          <span class="tag">Profile</span>
+        </span>
+      </a>
+      <span class="badge" id="lastUpdated">Loading…</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <!-- LEFT: summary -->
+      <aside class="card left">
+        <div class="avatar">
+          <img id="photo" src="https://via.placeholder.com/160" alt="Profile photo">
+          <div id="name" class="name">Loading…</div>
+          <div id="primarySkill" class="primary-skill" style="display:none">★ <span></span></div>
+          <div id="location" class="meta"></div>
+          <div id="badges" class="btns" style="margin-top:10px"></div>
+
+          <!-- Worker Mode toggle (owner only) -->
+          <div id="workerToggleWrap" class="toggle-row" style="display:none">
+            <strong>Worker Mode</strong>
+            <label class="switch" title="Toggle to make the account user-only (no worker profile)">
+              <input id="workerToggle" type="checkbox" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div id="workerToggleHint" class="muted" style="display:none; font-size:.9rem; text-align:center;">
+            OFF hides you from Hire Dashboard and removes worker fields. We’ll also save your current location.
+          </div>
+        </div>
+
+        <div class="section" style="margin-top:18px">
+          <div class="kv"><div class="k">Phone</div><div class="v" id="phone">—</div></div>
+          <div class="kv"><div class="k">Email</div><div class="v" id="email">—</div></div>
+
+          <!-- Worker-only rows -->
+          <div class="kv" id="kvAvailability"><div class="k">Availability</div><div class="v" id="availability">—</div></div>
+          <div class="kv" id="kvRate"><div class="k">Rate</div><div class="v" id="rate">—</div></div>
+          <div class="kv" id="kvExperience"><div class="k">Experience</div><div class="v" id="experience">—</div></div>
+        </div>
+
+        <div class="btns" id="ownerActions" style="display:none">
+          <a class="btn" href="edit_profile.html">✏️ Edit Profile</a>
+          <button class="btn btn-ghost" id="updateLocationBtn" type="button">📍 Update Current Location</button>
+        </div>
+        <div class="btns" id="contactActions" style="display:none">
+          <a class="btn" id="callBtn" href="#">📞 Call</a>
+          <a class="btn btn-ghost" id="emailBtn" href="#">✉️ Email</a>
+        </div>
+      </aside>
+
+      <!-- RIGHT: details -->
+      <section class="card right">
+        <div class="section" id="aboutSection">
+          <h3>About</h3>
+          <div id="bio" class="v empty muted">No bio yet.</div>
+        </div>
+
+        <div class="section">
+          <h3>Skills</h3>
+          <div id="skills" class="chips"></div>
+        </div>
+
+        <div class="section">
+          <h3>Personal</h3>
+          <div class="kv"><div class="k">Birthdate</div><div class="v" id="birthdate">—</div></div>
+          <div class="kv"><div class="k">Age</div><div class="v" id="age">—</div></div>
+          <div class="kv"><div class="k">Gender</div><div class="v" id="gender">—</div></div>
+          <div class="kv"><div class="k">Civil Status</div><div class="v" id="status">—</div></div>
+        </div>
+
+        <div class="section docs" id="docsSection">
+          <h3>Documents</h3>
+          <div id="docsList"></div>
+        </div>
+      </section>
+    </div>
+
+    <p id="notFound" class="center muted" style="display:none; margin-top:18px">Profile not found or unavailable.</p>
+  </main>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, updateDoc, serverTimestamp, deleteField
+    } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    // --- Firebase ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+      authDomain: "myapp-96865.firebaseapp.com",
+      databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.firebasestorage.app",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+      measurementId: "G-1T4M9PE1GD"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // --- DOM helpers ---
+    const $ = (id)=> document.getElementById(id);
+    const els = {
+      photo: $("photo"), name: $("name"), location: $("location"),
+      phone: $("phone"), email: $("email"),
+      availability: $("availability"), rate: $("rate"), experience: $("experience"),
+      kvAvailability: $("kvAvailability"), kvRate: $("kvRate"), kvExperience: $("kvExperience"),
+      bio: $("bio"), aboutSection: $("aboutSection"), docsSection: $("docsSection"),
+      birthdate: $("birthdate"), age: $("age"), gender: $("gender"), status: $("status"),
+      skills: $("skills"), primarySkill: $("primarySkill"),
+      badges: $("badges"), lastUpdated: $("lastUpdated"),
+      ownerActions: $("ownerActions"), contactActions: $("contactActions"),
+      callBtn: $("callBtn"), emailBtn: $("emailBtn"),
+      docsList: $("docsList"), notFound: $("notFound"),
+      workerToggleWrap: $("workerToggleWrap"), workerToggle: $("workerToggle"), workerToggleHint: $("workerToggleHint"),
+      updateLocationBtn: $("updateLocationBtn")
+    };
+
+    // --- utilities ---
+    function toHttps(url){ if(!url) return ""; return String(url).startsWith("http://") ? String(url).replace("http://","https://") : String(url); }
+    function onlyDigits(s){ return (s||"").replace(/\D/g,''); }
+    function validPhoneAny(p){
+      const d = onlyDigits(p);
+      return d.length >= 10; // simple but robust — accept intl numbers (store raw string as provided)
+    }
+    function formatPhone(p){ return p || "—"; }
+    function fmtDate(d){
+      if (!d) return "—";
+      try{
+        if (typeof d === "number") return new Date(d).toLocaleString();
+        if (d?.toDate) return d.toDate().toLocaleString();
+        const t = new Date(d); return isNaN(t) ? "—" : t.toLocaleDateString();
+      }catch{ return "—"; }
+    }
+    function setPrimaryBadge(text){
+      if (!text) { els.primarySkill.style.display = "none"; return; }
+      els.primarySkill.style.display = "inline-flex";
+      els.primarySkill.querySelector("span").textContent = text;
+    }
+    function setChips(list, primary){
+      els.skills.innerHTML = "";
+      (list || []).forEach(s=>{
+        const chip = document.createElement("span");
+        chip.className = "chip" + (primary && s?.toLowerCase() === primary.toLowerCase() ? " primary" : "");
+        chip.textContent = s;
+        els.skills.appendChild(chip);
+      });
+      if (!list || !list.length){
+        const div = document.createElement("div");
+        div.className = "empty muted";
+        div.textContent = "No skills listed.";
+        els.skills.appendChild(div);
+      }
+    }
+    function addBadge(text){
+      const b = document.createElement("span");
+      b.className = "pill";
+      b.textContent = text;
+      els.badges.appendChild(b);
+    }
+    function initials(name=""){
+      const parts = String(name).trim().split(/\s+/).slice(0,2);
+      return parts.map(p => p[0]?.toUpperCase() || "").join("") || "U";
+    }
+    function fallbackAvatar(name, size=160){
+      const i = initials(name);
+      const svg = `
+        <svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>
+          <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+            <stop offset='0%' stop-color='#FFE480'/><stop offset='100%' stop-color='#FFB300'/>
+          </linearGradient></defs>
+          <circle cx='${size/2}' cy='${size/2}' r='${size/2}' fill='url(#g)'/>
+          <text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle'
+            font-family='Inter, Segoe UI, Arial' font-weight='800' font-size='64' fill='#1F1502'>${i}</text>
+        </svg>`;
+      return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+    }
+
+    // Documents map
+    const DOC_FIELDS = [
+      {key:'validIdUrl',         label:'Valid ID'},
+      {key:'policeClearanceUrl', label:'Police Clearance'},
+      {key:'barangayClearanceUrl',label:'Barangay Clearance'},
+      {key:'tesdaCertificateUrl',label:'TESDA Certificate'},
+      {key:'nbiClearanceUrl',    label:'NBI Clearance'}
+    ];
+
+    function renderDocs(data){
+      els.docsList.innerHTML = "";
+      DOC_FIELDS.forEach(({key,label})=>{
+        const url = data?.[key];
+        const row = document.createElement("div");
+        row.className = "row";
+        const left = document.createElement("div");
+        left.innerHTML = `<div class="doc-title">📄 ${label}</div><div class="doc-status">${url ? "Uploaded" : "Not uploaded"}</div>`;
+        const right = document.createElement("div");
+        right.className = "doc-actions";
+        if (url){
+          const a = document.createElement("a");
+          a.href = toHttps(url);
+          a.target = "_blank"; a.rel = "noopener";
+          a.textContent = "View";
+          right.appendChild(a);
+        } else {
+          right.innerHTML = `<span class="muted">—</span>`;
+        }
+        row.appendChild(left); row.appendChild(right);
+        els.docsList.appendChild(row);
+      });
+    }
+
+    function setLastUpdated(ts){ els.lastUpdated.textContent = "Updated: " + (fmtDate(ts)); }
+
+    // Geo capture
+    async function recordCurrentLocation(uid){
+      if (!("geolocation" in navigator)) return;
+      return new Promise((resolve)=> {
+        navigator.geolocation.getCurrentPosition(async (pos)=>{
+          try{
+            const { latitude:lat, longitude:lng } = pos.coords || {};
+            if (Number.isFinite(lat) && Number.isFinite(lng)){
+              await updateDoc(doc(db,"users",uid), {
+                geo: { lat, lng },
+                geoUpdatedAt: serverTimestamp(),
+                geoSource: "browser"
+              });
+            }
+          }catch(e){ console.warn("Geo save failed:", e); }
+          resolve();
+        }, ()=> resolve(), { enableHighAccuracy:true, timeout:8000, maximumAge:60000 });
+      });
+    }
+
+    // Show/hide worker-only UI blocks
+    function showWorkerUI(isWorker){
+      const disp = isWorker ? "" : "none";
+      els.kvAvailability.style.display = disp;
+      els.kvRate.style.display = disp;
+      els.kvExperience.style.display = disp;
+      els.aboutSection.style.display = disp;
+      els.docsSection.style.display = disp;
+      els.primarySkill.style.display = disp;
+      // Hint near toggle
+      els.workerToggleHint.style.display = els.workerToggleWrap.style.display === "none" ? "none" : "";
+    }
+
+    // Require phone number for owner
+    async function ensurePhone(uid, currentPhone){
+      if (validPhoneAny(currentPhone)) return currentPhone;
+      let p = null;
+      while(true){
+        p = prompt("Phone number is required. Enter your phone (include country code if possible):", currentPhone || "");
+        if (p === null) break; // user cancelled
+        if (validPhoneAny(p)) break;
+        alert("Please enter a valid phone number (at least 10 digits).");
+      }
+      if (p && validPhoneAny(p)){
+        await updateDoc(doc(db,"users",uid), {
+          phone: String(p).trim(),
+          updatedAt: serverTimestamp()
+        });
+        return p;
+      }
+      return currentPhone; // unchanged if cancelled
+    }
+
+    // Load target uid
+    const uidParam = new URLSearchParams(location.search).get("uid");
+
+    async function loadAndRender(uid, viewerUid){
+      try{
+        const ref = doc(db, "users", uid);
+        const snap = await getDoc(ref);
+        if (!snap.exists()){
+          els.notFound.style.display = "block";
+          return;
+        }
+        const data = snap.data() || {};
+
+        const name = data.fullName || data.displayName || "User";
+        const photo = toHttps(data.profileImageUrl || data.photoURL) || fallbackAvatar(name);
+
+        els.name.textContent = name;
+        els.photo.src = photo;
+        els.location.textContent = data.location || "";
+        els.phone.textContent = formatPhone(data.phone);
+        els.email.textContent = (data.email || "").toLowerCase() || "—";
+        els.availability.textContent = data.availability || "—";
+        els.rate.textContent = data.pricing || "—";
+        els.experience.textContent = (Number.isFinite(Number(data.experience)) ? Number(data.experience) : "—") + (Number.isFinite(Number(data.experience)) ? " year(s)" : "");
+        els.bio.textContent = data.bio || "No bio yet.";
+        if (!data.bio) els.bio.classList.add("empty","muted"); else els.bio.classList.remove("empty","muted");
+
+        els.birthdate.textContent = data.birthdate ? fmtDate(data.birthdate) : "—";
+        els.age.textContent = data.age ? String(data.age) : "—";
+        els.gender.textContent = data.gender || "—";
+        els.status.textContent = data.status || "—";
+
+        const primary = data.primarySkill || data.skillCategory || (Array.isArray(data.skills) && data.skills[0]) || "";
+        setPrimaryBadge(primary);
+        setChips(Array.isArray(data.skills) ? data.skills : [], primary);
+
+        els.badges.innerHTML = "";
+        if (data.online === true) addBadge("Online");
+        const verCount = DOC_FIELDS.reduce((n,{key})=> n + (data[key] ? 1 : 0), 0);
+        if (verCount >= 1) addBadge("ID Verified");
+        if (data.banned === true) addBadge("Banned");
+
+        renderDocs(data);
+        setLastUpdated(data.updatedAt || data.createdAt);
+
+        const isOwner = viewerUid && viewerUid === uid;
+        els.ownerActions.style.display = isOwner ? "flex" : "none";
+        els.contactActions.style.display = isOwner ? "none" : "flex";
+
+        // Contact links
+        const phoneDigits = onlyDigits(data.phone || "");
+        els.callBtn.href = phoneDigits ? `tel:+${phoneDigits}` : "#";
+        els.emailBtn.href = data.email ? `mailto:${(data.email||"").toLowerCase()}` : "#";
+        if (!phoneDigits) els.callBtn.classList.add("btn-ghost");
+        if (!data.email) els.emailBtn.classList.add("btn-ghost");
+
+        // Determine current Worker Mode status:
+        const hasWorkerFields = Boolean(
+          data.skillCategory || data.primarySkill ||
+          (Array.isArray(data.skills) && data.skills.length) ||
+          (data.workerProfile && (data.workerProfile.skillCategory || (Array.isArray(data.workerProfile.skills) && data.workerProfile.skills.length)))
+        );
+        const isWorker = (data.isWorker !== false) && hasWorkerFields;
+
+        // Owner-only toggle UI
+        els.workerToggleWrap.style.display = isOwner ? "flex" : "none";
+        els.workerToggle.checked = !!isWorker;
+        els.workerToggleHint.style.display = isOwner ? "" : "none";
+
+        showWorkerUI(isWorker);
+
+        // If owner and phone missing, enforce
+        if (isOwner && !validPhoneAny(data.phone)){
+          const newPhone = await ensurePhone(uid, data.phone);
+          if (newPhone && newPhone !== data.phone){
+            els.phone.textContent = formatPhone(newPhone);
+          }
+        }
+
+        // Owner can capture geo
+        els.updateLocationBtn?.addEventListener("click", async ()=>{
+          els.updateLocationBtn.disabled = true;
+          await recordCurrentLocation(uid);
+          alert("Location updated.");
+          els.updateLocationBtn.disabled = false;
+        });
+
+        // Toggle handler
+        els.workerToggle.onchange = async ()=>{
+          if (!isOwner){
+            alert("Only the profile owner can change this.");
+            els.workerToggle.checked = isWorker;
+            return;
+          }
+
+          // Enforce phone
+          const snap2 = await getDoc(ref);
+          const data2 = snap2.data() || {};
+          if (!validPhoneAny(data2.phone)){
+            alert("Phone number is required before changing Worker Mode.");
+            const p = await ensurePhone(uid, data2.phone);
+            if (!validPhoneAny(p)){ els.workerToggle.checked = !!isWorker; return; }
+            els.phone.textContent = formatPhone(p);
+          }
+
+          const wantsWorker = els.workerToggle.checked;
+          try{
+            if (!wantsWorker){
+              // Switch to USER-ONLY: remove worker profile and hide from lists
+              await updateDoc(ref, {
+                isWorker: false,
+                skillCategory: deleteField(),
+                primarySkill: deleteField(),
+                workerProfile: deleteField(),
+                skills: deleteField(),
+                availability: deleteField(),
+                pricing: deleteField(),
+                experience: deleteField(),
+                bio: deleteField(),
+                // Keep documents in storage; just hide section in UI
+                updatedAt: serverTimestamp()
+              });
+              showWorkerUI(false);
+              // Record current location
+              await recordCurrentLocation(uid);
+              alert("You are now User-only. Worker fields removed and you’ll be hidden from Hire Dashboard.");
+            }else{
+              // Switching back to worker view simply sets the flag (fields can be re-added in Edit Profile)
+              await updateDoc(ref, { isWorker: true, updatedAt: serverTimestamp() });
+              showWorkerUI(true);
+              alert("Worker Mode is ON. You can add your skills and details in Edit Profile.");
+            }
+            setLastUpdated(new Date());
+          }catch(e){
+            console.error("Toggle update failed:", e);
+            alert("Could not change Worker Mode. Please try again.");
+            els.workerToggle.checked = !!isWorker; // revert
+          }
+        };
+
+      }catch(e){
+        console.error("Profile load error:", e);
+        els.notFound.style.display = "block";
+      }
+    }
+
+    // Resolve which profile to show
+    onAuthStateChanged(auth, async (currUser)=>{
+      const targetUid = uidParam || currUser?.uid;
+      if (!targetUid){
+        els.notFound.style.display = "block";
+        return;
+      }
+      await loadAndRender(targetUid, currUser?.uid || null);
+    });
+  </script>
+</body>
+</html>

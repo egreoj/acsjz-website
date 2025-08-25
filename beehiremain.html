@@ -95,8 +95,12 @@
     .hero-inner{position:relative; z-index:1; padding: 90px 20px 100px; max-width: 920px; margin: 0 auto; text-align:center}
     .hero h1{font-size:clamp(2rem,4vw,3rem);margin:0 0 12px;font-weight:800;letter-spacing:.2px}
     .hero p{font-size:1.12rem;margin:0 0 22px;opacity:.95}
-    .hero-buttons{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
-    .btn{padding:14px 22px;font-size:1rem;font-weight:700;border-radius:14px;cursor:pointer;border:2px solid transparent;transition:.18s}
+
+    /* Stacked buttons (Browse on top, Work below) */
+    .hero-buttons{
+      display:flex;flex-direction:column;align-items:center;gap:12px;flex-wrap:nowrap;max-width:360px;margin:0 auto
+    }
+    .btn{width:100%;padding:14px 22px;font-size:1rem;font-weight:700;border-radius:14px;cursor:pointer;border:2px solid transparent;transition:.18s}
     .btn-primary{background:var(--brand);color:#1A1304;box-shadow:0 12px 24px rgba(255,193,46,.22)}
     .btn-primary:hover{transform:translateY(-1px);filter:brightness(1.02)}
     .btn-outline{background:transparent;color:#FFF7E0;border-color:#FFF0C2}
@@ -158,8 +162,7 @@
           <!-- Logged-in group -->
           <div class="group" id="menuLoggedIn" style="display:none;">
             <div class="muted" id="menuGreeting">Signed in</div>
-            <a href="hirer-profile.html" id="hirerProfileItem">🧑‍💼 Hirer Profile</a>
-            <a href="worker-profile.html" id="workerProfileItem">🧑‍🔧 Worker Profile</a>
+            <a href="profile_view.html" id="profileItem">👤 Profile</a>
             <a href="edit_profile.html" id="editProfileItem">✏️ Edit Profile</a>
             <!-- Admin item (hidden by default; shown if user is admin) -->
             <a href="god_mode.html" id="adminItem" style="display:none;">🛡️ Admin</a>
@@ -169,7 +172,7 @@
           <div class="group" id="menuLoggedOut" style="display:none;">
             <div class="muted">Welcome to BeeHire CONNECT</div>
             <a href="login.html" id="loginItem">🔐 Log in</a>
-            <a href="hirer-register.html" id="registerItem">🆕 Register</a>
+            <a href="registration.html" id="registerItem">🆕 Register</a>
           </div>
         </div>
       </div>
@@ -193,8 +196,8 @@
       <h1>Find or Offer Skilled Work Instantly</h1>
       <p>Whether you need help or want to earn, BeeHire CONNECT links workers and hirers in one trusted, global-ready platform.</p>
       <div class="hero-buttons">
-        <button id="hireBtn" class="btn btn-primary">I Want to Hire</button>
-        <button id="workBtn" class="btn btn-outline">I Want to Work</button>
+        <button id="hireBtn" class="btn btn-primary">Browse for Available Workers</button>
+        <button id="workBtn" class="btn btn-outline">Register to Work</button>
       </div>
     </div>
   </section>
@@ -264,311 +267,321 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+  import {
+    getFirestore, collection, doc, getDoc, getDocs, query, where
+  } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
-      authDomain: "myapp-96865.firebaseapp.com",
-      databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "myapp-96865",
-      storageBucket: "myapp-96865.firebasestorage.app",
-      messagingSenderId: "217431866794",
-      appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
-      measurementId: "G-1T4M9PE1GD"
-    };
+  // --- Firebase ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+    authDomain: "myapp-96865.firebaseapp.com",
+    databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "myapp-96865",
+    storageBucket: "myapp-96865.firebasestorage.app",
+    messagingSenderId: "217431866794",
+    appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+    measurementId: "G-1T4M9PE1GD"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  // --- DOM ---
+  const userPhotoEl = document.getElementById('userPhoto');
+  const userNameEl  = document.getElementById('userName');
+  const profileBtn  = document.getElementById('profileBtn');
+  const profileMenu = document.getElementById('profileMenu');
+  const groupIn     = document.getElementById('menuLoggedIn');
+  const groupOut    = document.getElementById('menuLoggedOut');
+  const menuGreeting= document.getElementById('menuGreeting');
+  const adminItem   = document.getElementById('adminItem');
 
-    const userPhotoEl = document.getElementById('userPhoto');
-    const userNameEl = document.getElementById('userName');
-    const profileBtn = document.getElementById('profileBtn');
-    const profileMenu = document.getElementById('profileMenu');
-    const groupIn = document.getElementById('menuLoggedIn');
-    const groupOut = document.getElementById('menuLoggedOut');
-    const menuGreeting = document.getElementById('menuGreeting');
-    const adminItem = document.getElementById('adminItem');
+  const servicesGrid = document.getElementById('servicesGrid');
+  const workerSearch = document.getElementById('workerSearch');
+  const clearFilters = document.getElementById('clearFilters');
 
-    const servicesGrid = document.getElementById('servicesGrid');
-    const workerSearch = document.getElementById('workerSearch');
-    const clearFilters = document.getElementById('clearFilters');
+  // --- Helpers ---
+  const asString = (v, fb = "") => {
+    if (v === null || v === undefined) return fb;
+    if (typeof v === "string") return v;
+    if (Array.isArray(v)) return v.filter(Boolean).join(", ");
+    try { return String(v); } catch { return fb; }
+  };
+  function guestAvatarURI(size = 45) {
+    const svg = `
+      <svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>
+        <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+          <stop offset='0%' stop-color='#FFE480'/><stop offset='100%' stop-color='#FFB300'/>
+        </linearGradient></defs>
+        <circle cx='${size/2}' cy='${size/2}' r='${size/2}' fill='url(#g)'/>
+        <text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle'
+          font-family='Inter, Segoe UI, Arial' font-weight='800' font-size='10' fill='#1F1502'>Guest</text>
+      </svg>`;
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+  }
+  const toHttps = (url)=> !url ? "" : (url.startsWith("http://") ? url.replace("http://","https://") : url);
 
-    function guestAvatarURI(size = 45) {
-      const svg = `
-        <svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>
-          <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
-            <stop offset='0%' stop-color='#FFE480'/><stop offset='100%' stop-color='#FFB300'/>
-          </linearGradient></defs>
-          <circle cx='${size/2}' cy='${size/2}' r='${size/2}' fill='url(#g)'/>
-          <text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle'
-            font-family='Inter, Segoe UI, Arial' font-weight='800' font-size='10' fill='#1F1502'>Guest</text>
-        </svg>`;
-      return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+  // --- Map ---
+  const map = L.map('map').setView([10.7202, 122.5621], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap contributors' }).addTo(map);
+  const markerLayer = L.layerGroup().addTo(map);
+  function ensureOverlay(){
+    let ov = document.querySelector('#map .map-overlay');
+    if(!ov){
+      ov = document.createElement('div');
+      ov.className = 'map-overlay';
+      ov.textContent = 'Please log in to explore the map.';
+      document.getElementById('map').appendChild(ov);
     }
-    function toHttps(url){ if(!url) return ""; return url.startsWith("http://") ? url.replace("http://","https://") : url; }
+    return ov;
+  }
+  function removeOverlay(){ const ov = document.querySelector('#map .map-overlay'); if(ov) ov.remove(); }
 
-    // Map
-    const map = L.map('map').setView([10.7202, 122.5621], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap contributors' }).addTo(map);
-    const markerLayer = L.layerGroup().addTo(map);
+  function setGuestMode(){
+    userNameEl.textContent = "Guest";
+    userPhotoEl.src = guestAvatarURI(45);
+    groupIn.style.display = "none";
+    groupOut.style.display = "block";
+    adminItem.style.display = "none";
+    markerLayer.clearLayers();
+    profileBtn.classList.add('disabled');
+    profileBtn.setAttribute('aria-disabled','true');
+    profileMenu.classList.remove('show');
+    map.dragging.disable(); map.scrollWheelZoom.disable(); map.touchZoom.disable(); map.doubleClickZoom.disable(); map.boxZoom.disable(); map.keyboard.disable();
+    ensureOverlay();
+  }
+  function setUserMode(){
+    profileBtn.classList.remove('disabled');
+    profileBtn.setAttribute('aria-disabled','false');
+    profileBtn.removeAttribute('title');
+    removeOverlay();
+    map.dragging.enable(); map.scrollWheelZoom.enable(); map.touchZoom.enable(); map.doubleClickZoom.enable(); map.boxZoom.enable(); map.keyboard.enable();
+  }
 
-    function ensureOverlay(){
-      let ov = document.querySelector('#map .map-overlay');
-      if(!ov){
-        ov = document.createElement('div');
-        ov.className = 'map-overlay';
-        ov.textContent = 'Please log in to explore the map.';
-        document.getElementById('map').appendChild(ov);
-      }
-      return ov;
+  // --- Unified schema assumptions for map ---
+  const COL_USERS = "users";
+  const rolesIncludesWorker = (roles) => {
+    if (Array.isArray(roles)) return roles.map(r=>asString(r).toLowerCase()).includes("worker");
+    return asString(roles).toLowerCase() === "worker";
+  };
+
+  // Load users-for-map (workers only)
+  let ALL_USERS = [];
+  async function loadUsersForMap(){
+    ALL_USERS = [];
+    try{
+      const usersRef = collection(db, COL_USERS);
+      const q1 = query(usersRef, where("roles", "array-contains", "worker"));
+      let snapshot = await getDocs(q1);
+      if (snapshot.empty) snapshot = await getDocs(usersRef);
+
+      ALL_USERS = snapshot.docs.map(d=>{
+        const data = d.data() || {};
+        if (!rolesIncludesWorker(data.roles)) return null;
+
+        let lat = data.geo?.lat ?? data.latitude ?? data.lat ?? null;
+        let lng = data.geo?.lng ?? data.longitude ?? data.lng ?? null;
+        if (typeof lat === "string") lat = parseFloat(lat);
+        if (typeof lng === "string") lng = parseFloat(lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+        const imgUrl = data.photoURL || data.profileImageUrl || data.photoUrl || "";
+        const photo = toHttps(imgUrl) || "https://via.placeholder.com/100";
+        const name  = asString(data.displayName) || asString(data.fullName) || asString(data.name) || "User";
+        const skill = data.workerProfile?.skillCategory
+          || (Array.isArray(data.workerProfile?.skills) && asString(data.workerProfile.skills[0]))
+          || asString(data.skillCategory) || "Skill";
+        const availability = asString(data.workerProfile?.availability) || asString(data.availability);
+        const location = asString(data.location);
+
+        return { uid:d.id, lat, lng, name, photo, skill, availability, location };
+      }).filter(Boolean);
+    }catch(err){
+      console.error("Map load error:", err);
+      ALL_USERS = [];
     }
-    function removeOverlay(){ const ov = document.querySelector('#map .map-overlay'); if(ov) ov.remove(); }
+  }
 
-    function setGuestMode(){
-      userNameEl.textContent = "Guest";
-      userPhotoEl.src = guestAvatarURI(45);
-      groupIn.style.display = "none";
-      groupOut.style.display = "block";
-      adminItem.style.display = "none";
-      markerLayer.clearLayers();
+  function normalizeSkill(val){
+    if(!val) return "";
+    const s = String(val).toLowerCase();
+    if (s.includes("electric")) return "Electrician";
+    if (s.includes("plumb")) return "Plumber";
+    if (s.includes("tutor")||s.includes("teach")) return "Tutor";
+    if (s.includes("mechanic")) return "Mechanic";
+    if (s.includes("virtual")) return "Virtual Services";
+    if (s.includes("legal")||s.includes("law")) return "Legal Consultation";
+    if (s.includes("clean")) return "Cleaner";
+    if (s.includes("labor")) return "Laborer";
+    if (s.includes("driver")) return "Driver";
+    if (s.includes("carpent")) return "Carpenter";
+    if (s.includes("paint")) return "Painter";
+    if (s.includes("cook")||s.includes("chef")) return "Cook";
+    return val;
+  }
 
-      profileBtn.classList.add('disabled');
-      profileBtn.setAttribute('aria-disabled','true');
-      profileMenu.classList.remove('show');
-
-      map.dragging.disable(); map.scrollWheelZoom.disable(); map.touchZoom.disable(); map.doubleClickZoom.disable(); map.boxZoom.disable(); map.keyboard.disable();
-      ensureOverlay();
-    }
-    function setUserMode(){
-      profileBtn.classList.remove('disabled');
-      profileBtn.setAttribute('aria-disabled','false');
-      profileBtn.removeAttribute('title');
-
-      removeOverlay();
-      map.dragging.enable(); map.scrollWheelZoom.enable(); map.touchZoom.enable(); map.doubleClickZoom.enable(); map.boxZoom.enable(); map.keyboard.enable();
-    }
-
-    // Load workers for map
-    let ALL_WORKERS = [];
-    async function loadWorkers(){
-      try{
-        const workerRef = collection(db,"workers");
-        const snapshot = await getDocs(workerRef);
-        ALL_WORKERS = snapshot.docs.map(d=>{
-          const data = d.data();
-          const lat = data.latitude ?? data.lat;
-          const lng = data.longitude ?? data.lng;
-          if (typeof lat !== "number" || typeof lng !== "number") return null;
-          const imgUrl = data.profileImageUrl || data.photoUrl || "";
-          const photo = toHttps(imgUrl) || "https://via.placeholder.com/100";
-          const name = data.fullName || data.name || "Worker";
-          const skill = data.skillCategory || (Array.isArray(data.skills)&&data.skills.length ? data.skills[0] : "Skill");
-          const availability = data.availability || "";
-          const location = data.location || "";
-          return { uid:d.id, lat, lng, name, photo, skill, availability, location };
-        }).filter(Boolean);
-      }catch(err){ console.error("Map load error:", err); }
-    }
-    function normalizeSkill(val){
-      if(!val) return "";
-      const s = String(val).toLowerCase();
-      if (s.includes("electric")) return "Electrician";
-      if (s.includes("plumb")) return "Plumber";
-      if (s.includes("tutor")||s.includes("teach")) return "Tutor";
-      if (s.includes("mechanic")) return "Mechanic";
-      if (s.includes("virtual")) return "Virtual Services";
-      if (s.includes("legal")||s.includes("law")) return "Legal Consultation";
-      if (s.includes("clean")) return "Cleaner";
-      if (s.includes("labor")) return "Laborer";
-      if (s.includes("driver")) return "Driver";
-      if (s.includes("carpent")) return "Carpenter";
-      if (s.includes("paint")) return "Painter";
-      if (s.includes("cook")||s.includes("chef")) return "Cook";
-      return val;
-    }
-    function renderMarkers({category=null, search=""}={}){
-      markerLayer.clearLayers();
-      const term = search.trim().toLowerCase();
-      const filtered = ALL_WORKERS.filter(w=>{
-        if (category && normalizeSkill(w.skill) !== category) return false;
-        if (term){
-          const blob = `${w.name} ${w.skill} ${w.location}`.toLowerCase();
-          if (!blob.includes(term)) return false;
-        }
-        return true;
-      });
-      filtered.forEach(w=>{
-        const popup = `
-          <div style="text-align:center">
-            <img src="${w.photo}" style="width:80px;height:80px;border-radius:50%;border:2px solid #FFC12E;margin-bottom:10px;object-fit:cover;">
-            <br><strong>${w.name}</strong><br>
-            ${w.skill}${w.availability ? " - " + w.availability : ""}
-          </div>`;
-        L.marker([w.lat,w.lng]).addTo(markerLayer).bindPopup(popup);
-      });
-      if (filtered.length){
-        try{ const group = L.featureGroup(markerLayer.getLayers()); map.fitBounds(group.getBounds().pad(0.25)); }catch(e){}
-      }
-    }
-
-    // Role-aware profile fetch
-    let CURRENT_USER = null;
-    let CURRENT_ROLE = null;
-    async function getRoleProfile(uid){
-      const hirerRef = doc(db,"hirers",uid);
-      const hirerSnap = await getDoc(hirerRef);
-      if (hirerSnap.exists()) return { type:'hirer', data:hirerSnap.data() };
-      const workerRef = doc(db,"workers",uid);
-      const workerSnap = await getDoc(workerRef);
-      if (workerSnap.exists()) return { type:'worker', data:workerSnap.data() };
-      return { type:null, data:null };
-    }
-
-    // Email verification guard
-    async function guardEmailVerification(user){
-      try{ await user.reload(); }catch(_e){}
-      if (!user.emailVerified){
-        try{ sessionStorage.setItem('postVerifyRedirect', location.pathname + location.search + location.hash); }catch(_e){}
-        window.location.href = "email_verify.html";
-        return false;
+  function renderMarkers({category=null, search=""}={}){
+    markerLayer.clearLayers();
+    const term = search.trim().toLowerCase();
+    const filtered = ALL_USERS.filter(w=>{
+      if (category && normalizeSkill(w.skill) !== category) return false;
+      if (term){
+        const blob = `${w.name} ${w.skill} ${w.location}`.toLowerCase();
+        if (!blob.includes(term)) return false;
       }
       return true;
-    }
+    });
 
-    // --- Admin check helper ---
-    async function isUserAdmin(uid, profileData){
-      // 1) explicit flag on the user doc
-      if (profileData && profileData.isAdmin === true) return true;
-      // 2) Admin/{uid} document exists
+    filtered.forEach(w=>{
+      const popup = `
+        <div style="text-align:center; max-width:160px;">
+          <img src="${w.photo}" style="width:80px;height:80px;border-radius:50%;border:2px solid #FFC12E;margin-bottom:10px;object-fit:cover;">
+          <div style="font-weight:800">${w.name}</div>
+          <div style="font-size:.95em;color:#6b5e4a">${normalizeSkill(w.skill)}${w.availability ? " · " + w.availability : ""}</div>
+          <div style="margin-top:8px">
+            <a href="profile_view.html?uid=${encodeURIComponent(w.uid)}" style="font-weight:800;color:#0d6efd;text-decoration:none">View Profile →</a>
+          </div>
+        </div>`;
+      L.marker([w.lat,w.lng]).addTo(markerLayer).bindPopup(popup);
+    });
+
+    if (filtered.length){
       try{
-        const adminRef = doc(db, "Admin", uid);
-        const adminSnap = await getDoc(adminRef);
-        if (adminSnap.exists()) return true;
+        const group = L.featureGroup(markerLayer.getLayers());
+        map.fitBounds(group.getBounds().pad(0.25));
       }catch(_e){}
+    }
+  }
+
+  // --- Profiles / auth state ---
+  async function getUserDoc(uid){
+    const ref = doc(db, COL_USERS, uid);
+    const snap = await getDoc(ref);
+    return snap.exists() ? snap.data() : null;
+  }
+  async function isUserAdmin(uid, userDoc){
+    if (userDoc?.isAdmin === true) return true;
+    try{
+      const adminSnap = await getDoc(doc(db,"Admin",uid));
+      return adminSnap.exists();
+    }catch(_e){}
+    return false;
+  }
+  async function guardEmailVerification(user){
+    try{ await user.reload(); }catch(_e){}
+    if (!user.emailVerified){
+      try{ sessionStorage.setItem('postVerifyRedirect', location.pathname + location.search + location.hash); }catch(_e){}
+      window.location.href = "email_verify.html";
       return false;
     }
+    return true;
+  }
 
-    onAuthStateChanged(auth, async (user)=>{
-      CURRENT_USER = user || null;
-      if (!user){ setGuestMode(); return; }
+  let CURRENT_USER = null;
+  let CURRENT_ROLES = [];
 
-      const ok = await guardEmailVerification(user);
-      if (!ok) return;
+  onAuthStateChanged(auth, async (user)=>{
+    CURRENT_USER = user || null;
+    if (!user){ setGuestMode(); return; }
 
-      try{
-        const { type, data } = await getRoleProfile(user.uid);
-        CURRENT_ROLE = type;
+    const ok = await guardEmailVerification(user);
+    if (!ok) return;
 
-        let displayName = user.displayName || "User";
-        let photo = user.photoURL || "";
-        if (data){
-          displayName = data.fullName || data.name || displayName || "User";
-          photo = data.profileImageUrl || data.photoUrl || photo || "";
-        }
+    try{
+      const docData = await getUserDoc(user.uid);
+      const roles = Array.isArray(docData?.roles) ? docData.roles : (docData?.roles ? [docData?.roles] : []);
+      CURRENT_ROLES = roles;
 
-        document.getElementById('userName').textContent = displayName;
-        document.getElementById('userPhoto').src = toHttps(photo) || guestAvatarURI(45);
-        document.getElementById('menuGreeting').textContent = `Signed in as ${displayName}`;
-        document.getElementById('menuLoggedIn').style.display = "block";
-        document.getElementById('menuLoggedOut').style.display = "none";
+      const displayName = asString(docData?.displayName) || asString(docData?.fullName) || asString(user.displayName) || "User";
+      const photo = toHttps(docData?.photoURL || docData?.profileImageUrl || user.photoURL) || guestAvatarURI(45);
 
-        // ADMIN: show/hide Admin button
-        const admin = await isUserAdmin(user.uid, data);
-        adminItem.style.display = admin ? "block" : "none";
+      userNameEl.textContent = displayName;
+      userPhotoEl.src = photo;
+      menuGreeting.textContent = `Signed in as ${displayName}`;
+      groupIn.style.display = "block";
+      groupOut.style.display = "none";
 
-        setUserMode();
-        await loadWorkers();
-        renderMarkers({});
-      }catch(e){
-        console.error("Profile load error:", e);
-        setGuestMode();
-      }
-    });
+      const admin = await isUserAdmin(user.uid, docData);
+      adminItem.style.display = admin ? "block" : "none";
 
-    // Dropdown toggle
-    document.getElementById('profileBtn').addEventListener('click',(e)=>{
-      e.stopPropagation();
-      if (profileBtn.classList.contains('disabled')) return;
-      profileMenu.classList.toggle('show');
-      profileBtn.setAttribute('aria-expanded', profileMenu.classList.contains('show') ? 'true' : 'false');
-    });
-    document.addEventListener('click',()=> profileMenu.classList.remove('show'));
-
-    // Guard Edit Profile
-    document.getElementById('editProfileItem').addEventListener('click',(e)=>{
-      if (!CURRENT_USER){ e.preventDefault(); window.location.href="login.html"; }
-    });
-
-    // Logout
-    document.getElementById('logoutItem')?.addEventListener('click', async ()=>{
-      try{ await signOut(auth); profileMenu.classList.remove('show'); window.location.reload(); }
-      catch(err){ console.error("Logout failed:", err); alert("Failed to log out. Please try again."); }
-    });
-
-    // CTA routing
-    document.getElementById('hireBtn').addEventListener('click', async ()=>{
-      if (!CURRENT_USER){ window.location.href="hirer-login.html"; return; }
-      try{
-        const hRef = doc(db,"hirers",CURRENT_USER.uid);
-        const hSnap = await getDoc(hRef);
-        if (hSnap.exists()) window.location.href="hirer-dashboard.html";
-        else window.location.href="hirer-login.html";
-      }catch(e){ console.error(e); window.location.href="hirer-login.html"; }
-    });
-
-    document.getElementById('workBtn').addEventListener('click', async ()=>{
-      if (!CURRENT_USER){ window.location.href="worker-login.html"; return; }
-      try{
-        const wRef = doc(db,"workers",CURRENT_USER.uid);
-        const wSnap = await getDoc(wRef);
-        if (wSnap.exists()) window.location.href=`profile-view.html?uid=${encodeURIComponent(CURRENT_USER.uid)}`;
-        else window.location.href="worker-login.html";
-      }catch(e){ console.error(e); window.location.href="worker-login.html"; }
-    });
-
-    // Quick profile double-click
-    document.getElementById('userPhoto').addEventListener('dblclick',()=>{
-      if (!CURRENT_USER) return;
-      if (CURRENT_ROLE==='hirer') window.location.href="hirer-dashboard.html";
-      else if (CURRENT_ROLE==='worker') window.location.href=`profile-view.html?uid=${encodeURIComponent(CURRENT_USER.uid)}`;
-      else window.location.href="hirer-register.html";
-    });
-    document.getElementById('userName').addEventListener('dblclick',()=>{
-      if (!CURRENT_USER) return;
-      if (CURRENT_ROLE==='hirer') window.location.href="hirer-dashboard.html";
-      else if (CURRENT_ROLE==='worker') window.location.href=`profile-view.html?uid=${encodeURIComponent(CURRENT_USER.uid)}`;
-      else window.location.href="hirer-register.html";
-    });
-
-    // Services filtering
-    let activeCategory = null;
-    servicesGrid.addEventListener('click',(e)=>{
-      const btn = e.target.closest('.service-btn'); if (!btn) return;
-      if (btn.classList.contains('active')){ btn.classList.remove('active'); activeCategory = null; }
-      else {
-        servicesGrid.querySelectorAll('.service-btn.active').forEach(b=> b.classList.remove('active'));
-        btn.classList.add('active'); activeCategory = btn.dataset.cat;
-      }
-      renderMarkers({ category:activeCategory, search:workerSearch.value });
-      document.getElementById('map').scrollIntoView({ behavior:'smooth', block:'start' });
-    });
-
-    let t=null;
-    workerSearch.addEventListener('input',()=>{
-      clearTimeout(t);
-      t=setTimeout(()=> renderMarkers({ category:activeCategory, search:workerSearch.value }), 250);
-    });
-    clearFilters.addEventListener('click',()=>{
-      workerSearch.value=""; activeCategory=null;
-      servicesGrid.querySelectorAll('.service-btn.active').forEach(b=> b.classList.remove('active'));
+      setUserMode();
+      await loadUsersForMap();
       renderMarkers({});
-    });
+    }catch(e){
+      console.error("Profile load error:", e);
+      setGuestMode();
+    }
+  });
 
-    // Preload guest avatar
-    userPhotoEl.src = guestAvatarURI(45);
+  // --- UI: menu/dropdown ---
+  profileBtn.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    if (profileBtn.classList.contains('disabled')) return;
+    profileMenu.classList.toggle('show');
+    profileBtn.setAttribute('aria-expanded', profileMenu.classList.contains('show') ? 'true' : 'false');
+  });
+  document.addEventListener('click',()=> profileMenu.classList.remove('show'));
+
+  // Guard Edit Profile when logged out
+  document.getElementById('editProfileItem').addEventListener('click',(e)=>{
+    if (!CURRENT_USER){ e.preventDefault(); window.location.href="login.html"; }
+  });
+
+  // Logout
+  document.getElementById('logoutItem')?.addEventListener('click', async ()=>{
+    try{ await signOut(auth); profileMenu.classList.remove('show'); window.location.reload(); }
+    catch(err){ console.error("Logout failed:", err); alert("Failed to log out. Please try again."); }
+  });
+
+  // --- CTAs (updated wiring per request) ---
+  // Browse for Available Workers -> hire_dashboard.html (always)
+  document.getElementById('hireBtn').addEventListener('click', ()=>{
+    window.location.href = "hire_dashboard.html";
+  });
+
+  // I Want to Work -> login.html if not logged in; else -> profile_view.html
+  document.getElementById('workBtn').addEventListener('click', ()=>{
+    if (CURRENT_USER) window.location.href = "profile_view.html";
+    else window.location.href = "login.html";
+  });
+
+  // Quick profile shortcuts → always go to profile_view.html
+  function goProfile(){
+    if (!CURRENT_USER) return;
+    window.location.href = "profile_view.html";
+  }
+  document.getElementById('userPhoto').addEventListener('dblclick', goProfile);
+  document.getElementById('userName').addEventListener('dblclick', goProfile);
+
+  // Services filtering
+  let activeCategory = null;
+  servicesGrid.addEventListener('click',(e)=>{
+    const btn = e.target.closest('.service-btn'); if (!btn) return;
+    if (btn.classList.contains('active')){ btn.classList.remove('active'); activeCategory = null; }
+    else {
+      servicesGrid.querySelectorAll('.service-btn.active').forEach(b=> b.classList.remove('active'));
+      btn.classList.add('active'); activeCategory = btn.dataset.cat;
+    }
+    renderMarkers({ category:activeCategory, search:workerSearch.value });
+    document.getElementById('map').scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+
+  let t=null;
+  workerSearch.addEventListener('input',()=>{
+    clearTimeout(t);
+    t=setTimeout(()=> renderMarkers({ category:activeCategory, search:workerSearch.value }), 250);
+  });
+  clearFilters.addEventListener('click',()=>{
+    workerSearch.value=""; activeCategory=null;
+    servicesGrid.querySelectorAll('.service-btn.active').forEach(b=> b.classList.remove('active'));
+    renderMarkers({});
+  });
+
+  // Preload guest avatar
+  userPhotoEl.src = guestAvatarURI(45);
   </script>
+
 </body>
 </html>

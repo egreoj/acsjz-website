@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>BeeHire — Hire Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --ink:#1F2328; --muted:#6F6354; --bg:#FFFDF6;
+      --card:#ffffff; --ring:#F3EAD2;
+      --brand:#FFC12E; --brand-ink:#3A2A09; --brand-ghost:#FFF6D8;
+      --grad1:#1B1A17; --grad2:#4A3B1B;
+      --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    a{color:inherit}
+    .container{max-width:1120px;margin:0 auto;padding:0 20px}
+
+    header{
+      position:sticky;top:0;z-index:50;background:var(--card);
+      border-bottom:1px solid var(--ring);backdrop-filter:saturate(1.05) blur(6px)
+    }
+    .header-inner{height:68px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+    .brand img{height:38px;width:auto;display:block}
+    .wordmark{line-height:1.05;display:flex;flex-direction:column}
+    .wordmark .title{font-weight:800;font-size:1.28rem;letter-spacing:.2px;color:var(--brand-ink)}
+    .wordmark .kicker{font-weight:700;font-size:.72rem;letter-spacing:.34em;color:var(--muted)}
+
+    .user-profile{position:relative;display:flex;align-items:center;gap:10px;cursor:pointer}
+    .user-profile img{width:40px;height:40px;border-radius:50%;border:2px solid #fff;object-fit:cover;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+    .user-name{font-weight:600}
+    .menu{
+      position:absolute;right:0;top:54px;background:#fff;border:1px solid var(--ring);border-radius:14px;
+      box-shadow:0 18px 44px rgba(58,42,9,.12);min-width:260px;padding:8px;display:none
+    }
+    .menu.show{display:block}
+    .menu .group{padding:6px 8px;border-bottom:1px solid #f5efe1}
+    .menu .group:last-child{border-bottom:0}
+    .menu button,.menu a{
+      width:100%;text-align:left;padding:11px 12px;border:0;background:transparent;border-radius:10px;
+      font-size:.96em;cursor:pointer;display:block;color:#2A2520;text-decoration:none;font-weight:600
+    }
+    .menu button:hover,.menu a:hover{background:var(--brand-ghost)}
+    .menu .muted{color:#867a6b;font-size:.85em;padding:8px 12px 6px}
+    .user-profile.disabled{pointer-events:none;opacity:.55;cursor:not-allowed}
+
+    nav{background:linear-gradient(90deg,var(--grad1) 0%,var(--grad2) 100%);border-bottom:3px solid var(--brand)}
+    .nav-inner{height:52px;display:flex;align-items:center;gap:24px;justify-content:center}
+    nav a{color:#FFF7E0;text-decoration:none;font-weight:700;font-size:1rem;opacity:.95;position:relative;padding:4px 2px}
+    nav a:after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;background:transparent;transition:all .18s ease}
+    nav a:hover{color:#fff}
+    nav a:hover:after{background:var(--brand);transform:translateY(-2px)}
+
+    .page-head{padding:18px 0;border-bottom:1px solid var(--ring);background:linear-gradient(180deg,#ffffff 0%, #FFF7DE 100%)}
+    .page-head h1{margin:0;font-size:1.35rem;font-weight:800;color:var(--brand-ink)}
+    .page-sub{margin:6px 0 0;color:#4b4334}
+
+    .dashboard{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;padding:24px 0}
+    @media (max-width:980px){.dashboard{grid-template-columns:1fr}}
+
+    .panel{background:var(--card);border:1px solid var(--ring);border-radius:16px;box-shadow:0 10px 24px rgba(74,59,27,.06)}
+    .panel .hd{padding:14px 16px;border-bottom:1px solid var(--ring);font-weight:800}
+    .panel .bd{padding:16px}
+
+    .filter-group{margin-bottom:12px}
+    .filter-group label{font-weight:800;font-size:.92rem;margin-bottom:6px;display:block;color:#2D261C}
+    .filter-group input,.filter-group select{
+      width:100%;padding:11px 12px;border:1px solid #E9DBC0;border-radius:12px;background:#fff;font-size:.95rem;color:var(--ink);
+      transition:border-color .15s, box-shadow .15s
+    }
+    .filter-group input:focus,.filter-group select:focus{outline:3px solid #FFE08266;outline-offset:2px}
+
+    .categories{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    .categories button{
+      padding:7px 12px;border:1px solid #E9DBC0;border-radius:999px;background:#fff;cursor:pointer;font-weight:700;font-size:.85rem;color:#3a2f1d
+    }
+    .categories button:hover{background:var(--brand-ghost)}
+    .categories button.active{background:var(--brand);border-color:#e6c200}
+
+    .worker-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;align-content:start}
+    .muted{color:var(--muted)}
+
+    .worker-card{
+      background:#fff;border:1px solid var(--ring);border-radius:16px;padding:16px;text-align:center;
+      box-shadow:0 10px 24px rgba(74,59,27,.06);display:flex;flex-direction:column;gap:8px;min-height:252px
+    }
+    .worker-card:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(74,59,27,.10);transition:.15s}
+    .avatar-wrap{position:relative;display:grid;place-items:center}
+    .worker-card img{width:92px;height:92px;border-radius:50%;border:3px solid var(--brand);object-fit:cover;background:#fff}
+    .status-dot{position:absolute;top:2px;right:calc(50% - 56px);width:14px;height:14px;background:var(--ok);border:2px solid #fff;border-radius:50%}
+
+    .skill-chip{display:inline-block;margin-top:4px;padding:4px 10px;border-radius:999px;background:#FFF6D6;border:1px solid #F3D66A;font-weight:800;font-size:.78rem;color:#7A5B00}
+    .rating{color:#ffb400;font-size:1rem;margin-top:2px}
+
+    .chips{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+    .chip{padding:4px 10px;border-radius:12px;font-size:.78rem;color:#fff;font-weight:800}
+    .chip.v{background:#16a34a}.chip.p{background:#d97706}.chip.u{background:#9ca3af}.chip.r{background:#dc2626}
+
+    .btn{background:var(--brand);border:none;padding:10px 14px;border-radius:12px;font-weight:800;cursor:pointer;box-shadow:0 8px 20px rgba(255,193,46,.28)}
+    .btn:hover{filter:brightness(.98);box-shadow:0 12px 26px rgba(255,193,46,.38)}
+    .btn:active{transform:translateY(1px)}
+    .view-btn{margin-top:auto}
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container header-inner">
+      <a class="brand" href="beehiremain.html">
+        <img src="BeeHire Logo.png" alt="BeeHire Connect logo" />
+        <span class="wordmark">
+          <span class="title">BeeHire</span>
+          <span class="kicker">CONNECT</span>
+        </span>
+      </a>
+
+      <div class="user-profile" id="profileBtn" aria-haspopup="true" aria-expanded="false" aria-disabled="true" title="Log in to access profile">
+        <img id="userPhoto" alt="User avatar">
+        <span class="user-name" id="userName">Guest</span>
+
+        <div class="menu" id="profileMenu" role="menu" aria-label="Profile menu">
+          <div class="group" id="menuLoggedIn" style="display:none;">
+            <div class="muted" id="menuGreeting">Signed in</div>
+            <a href="profile_view.html" id="profileItem">👤 Profile</a>
+            <a href="edit_profile.html" id="editProfileItem">✏️ Edit Profile</a>
+            <a href="god_mode.html" id="adminItem" style="display:none;">🛡️ Admin</a>
+            <button id="logoutItem">🚪 Log out</button>
+          </div>
+          <div class="group" id="menuLoggedOut" style="display:none;">
+            <div class="muted">Welcome to BeeHire CONNECT</div>
+            <a href="login.html" id="loginItem">🔐 Log in</a>
+            <a href="registration.html" id="registerItem">🆕 Register</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav>
+    <div class="container nav-inner">
+      <a href="beehiremain.html">Home</a>
+      <a href="beehiremain.html#services">Services</a>
+      <a href="beehiremain.html#map">Map</a>
+      <a href="beehiremain.html#ads">For You</a>
+      <a href="beehiremain.html#contact">Contact</a>
+    </div>
+  </nav>
+
+  <section class="page-head">
+    <div class="container">
+      <h1>Hire Dashboard</h1>
+      <p class="page-sub">Find workers faster with filters by skill category, location, rate, and more.</p>
+    </div>
+  </section>
+
+  <div class="container dashboard">
+    <aside class="panel" aria-label="Filters">
+      <div class="hd">Filters</div>
+      <div class="bd">
+        <div class="filter-group">
+          <label for="searchSkill">Search (skill, name, or location)</label>
+          <input id="searchSkill" placeholder="e.g., Electrician · Ana · Iloilo" autocomplete="off" />
+        </div>
+
+        <div class="filter-group">
+          <label for="filterVerified">Verification</label>
+          <select id="filterVerified">
+            <option value="all">All Workers</option>
+            <option value="verified">Verified Only</option>
+            <option value="unverified">Unverified Only</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filterLocation">Location</label>
+          <select id="filterLocation">
+            <option value="all">All</option>
+            <option value="iloilo">Iloilo City</option>
+            <option value="cebu">Cebu City</option>
+            <option value="manila">Manila</option>
+            <option value="bacolod">Bacolod</option>
+            <option value="davao">Davao</option>
+            <option value="cdo">Cagayan de Oro</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label><input type="checkbox" id="filterAvailable"> Available Now</label>
+        </div>
+
+        <label>Categories</label>
+        <div class="categories" id="catButtons">
+          <button type="button">Electrician</button><button type="button">Plumber</button><button type="button">Tutor</button>
+          <button type="button">Mechanic</button><button type="button">Carpenter</button><button type="button">Driver</button>
+          <button type="button">Cook</button><button type="button">IT Support</button><button type="button">Cleaner</button>
+          <button type="button">Painter</button><button type="button">Virtual Assistant</button><button type="button">Laborer</button>
+        </div>
+
+        <div class="filter-group" style="margin-top:14px">
+          <label for="filterRate">Rate Range</label>
+          <select id="filterRate">
+            <option value="all">Any</option>
+            <option value="low">₱100–₱300</option>
+            <option value="mid">₱301–₱500</option>
+            <option value="high">₱501+</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filterExperience">Experience</label>
+          <select id="filterExperience">
+            <option value="all">Any</option>
+            <option value="0-1">0–1 yr</option>
+            <option value="2-5">2–5 yrs</option>
+            <option value="5+">5+ yrs</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filterRating">Rating</label>
+          <select id="filterRating">
+            <option value="all">Any</option>
+            <option value="4">4★ & above</option>
+            <option value="3">3★ & above</option>
+          </select>
+        </div>
+      </div>
+    </aside>
+
+    <section class="panel" aria-live="polite">
+      <div class="hd">Results</div>
+      <div class="bd">
+        <div id="workerList" class="worker-list">
+          <p id="loadingState" class="muted">Loading workers…</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
+      authDomain: "myapp-96865.firebaseapp.com",
+      databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.firebasestorage.app",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+      measurementId: "G-1T4M9PE1GD"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const $ = (id)=>document.getElementById(id);
+    const profileBtn = $("profileBtn"), profileMenu = $("profileMenu");
+    const groupIn = $("menuLoggedIn"), groupOut = $("menuLoggedOut"), adminItem = $("adminItem");
+    const userNameEl = $("userName"), userPhotoEl = $("userPhoto"), menuGreeting = $("menuGreeting");
+
+    const toHttps = (u)=>{
+      if (u == null) return "";
+      if (typeof u !== "string") {
+        try { u = String(u); } catch { return ""; }
+      }
+      u = u.trim();
+      if (!u) return "";
+      return u.startsWith("http://") ? u.replace("http://","https://") : u;
+    };
+    const asString = (v,fb="")=> v==null ? fb : (typeof v==="string" ? v : (Array.isArray(v)?v.filter(Boolean).join(", "): String(v)));
+
+    function initialsAvatar(name="Guest", size=45){
+      const initials = name.trim().split(/\s+/).slice(0,2).map(p=>p[0]?.toUpperCase()||"").join("")||"U";
+      const svg = `
+        <svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>
+          <defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+            <stop offset='0%' stop-color='#FFE480'/><stop offset='100%' stop-color='#FFB300'/></linearGradient></defs>
+          <circle cx='${size/2}' cy='${size/2}' r='${size/2}' fill='url(#g)'/>
+          <text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle'
+            font-family='Inter, Segoe UI, Arial' font-weight='800' font-size='${Math.round(size*0.44)}' fill='#1F1502'>${initials}</text>
+        </svg>`;
+      return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
+    }
+
+    function setGuest(){
+      userNameEl.textContent="Guest";
+      userPhotoEl.src = initialsAvatar("Guest");
+      groupIn.style.display="none";
+      groupOut.style.display="block";
+      adminItem.style.display="none";
+      profileBtn.classList.add("disabled");
+      profileBtn.setAttribute("aria-disabled","true");
+      profileMenu.classList.remove("show");
+    }
+    function setUserEnabled(){ profileBtn.classList.remove("disabled"); profileBtn.setAttribute("aria-disabled","false"); profileBtn.removeAttribute("title"); }
+
+    async function getUserDoc(uid){ const s=await getDoc(doc(db,"users",uid)); return s.exists()?s.data():null; }
+    async function isAdmin(uid, d){ if (d?.isAdmin===true) return true; try{const s=await getDoc(doc(db,"Admin",uid)); return s.exists();}catch{return false;} }
+
+    profileBtn.addEventListener("click",(e)=>{
+      e.stopPropagation(); if (profileBtn.classList.contains("disabled")) return;
+      profileMenu.classList.toggle("show");
+      profileBtn.setAttribute("aria-expanded", profileMenu.classList.contains("show") ? "true" : "false");
+    });
+    document.addEventListener("click",()=> profileMenu.classList.remove("show"));
+    $("logoutItem").addEventListener("click", async ()=>{ try{ await signOut(auth); location.reload(); }catch{} });
+
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user){ setGuest(); return; }
+      const d = await getUserDoc(user.uid);
+      const display = asString(d?.displayName) || asString(d?.fullName) || asString(user.displayName) || "User";
+      userNameEl.textContent = display;
+      userPhotoEl.src = toHttps(d?.profileImageUrl || user.photoURL) || initialsAvatar(display);
+      menuGreeting.textContent = `Signed in as ${display}`;
+      groupIn.style.display="block"; groupOut.style.display="none";
+      adminItem.style.display = (await isAdmin(user.uid, d)) ? "block" : "none";
+      setUserEnabled();
+    });
+
+    const workerList = $("workerList"), loadingState = $("loadingState");
+    const searchSkill = $("searchSkill"), filterVerified = $("filterVerified"), filterLocation = $("filterLocation");
+    const filterRate = $("filterRate"), filterExperience = $("filterExperience"), filterRating = $("filterRating");
+    const filterAvailable = $("filterAvailable"), catButtons = $("catButtons");
+
+    const rateNum = (v)=> v==null ? null : (typeof v==="number" ? v : (parseFloat(String(v).replace(/[^\d.]/g,""))||null));
+    const titleCase = (s)=> s ? s.charAt(0).toUpperCase()+s.slice(1) : "";
+
+    function computeVerificationStatus(d){
+      const raw = (d?.verificationStatus||"").toString().trim().toLowerCase();
+      if (raw.includes("verified")||d?.verified===true) return "Verified";
+      if (raw.includes("pending")||raw.includes("review")) return "Pending Review";
+      if (raw.includes("reject")||raw.includes("declin")) return "Rejected";
+      const docKeys=["validIdUrl","policeClearanceUrl","barangayClearanceUrl","tesdaCertificateUrl","nbiClearanceUrl"];
+      return docKeys.some(k=>!!d?.[k]) ? "Pending Review" : "Not Verified";
+    }
+    function statusChip(s){ const map={Verified:"v","Pending Review":"p","Not Verified":"u",Rejected:"r"}; return `<span class="chip ${map[s]||"u"}">${s}</span>`; }
+    function stars(r){ if (r==null||isNaN(r)) return "☆☆☆☆☆"; const f=Math.round(Math.max(0,Math.min(5,r))); return "⭐".repeat(f)+"☆".repeat(5-f); }
+
+    // ALWAYS include the user; use "Unspecified" when no skillCategory-like field
+    function normalize(uid,d){
+      try{
+        let skill = d?.skillCategory ?? d?.workerProfile?.skillCategory ?? d?.primarySkill;
+        if (!skill && Array.isArray(d?.skills)) skill = d.skills.find(Boolean);
+        if (!skill) skill = "Unspecified";
+
+const hasWorkerFields = Boolean(
+  d.skillCategory || d.primarySkill ||
+  (Array.isArray(d.skills) && d.skills.length) ||
+  (d.workerProfile && (d.workerProfile.skillCategory || (Array.isArray(d.workerProfile.skills) && d.workerProfile.skills.length)))
+);
+const isWorker = (d.isWorker !== false) && hasWorkerFields;
+
+        const name = d?.fullName || d?.displayName || d?.name || "User";
+        const locationLabel = (d?.location ?? "Unknown") + "";
+        const L = locationLabel.toLowerCase();
+        const locationKey = L.includes("iloilo")?"iloilo": L.includes("cebu")?"cebu": L.includes("manila")?"manila":
+                            L.includes("bacolod")?"bacolod": L.includes("davao")?"davao":
+                            (L.includes("cagayan de oro")||L.includes("cdo"))?"cdo":"other";
+
+        const rate = rateNum(d?.pricing);
+        const exp = typeof d?.experience==="number" ? d.experience : null;
+        const rating = [d?.averageRating,d?.ratingAvg,d?.ratingAverage,d?.rating].find(v=>typeof v==="number") ?? null;
+
+        let photoRaw = d?.profileImageUrl ?? d?.photoUrl ?? d?.photoURL ?? "";
+        let photo = toHttps(photoRaw);
+        if (!photo || photo === "[object Object]" || photo === "undefined") photo = initialsAvatar(name,92);
+
+        const available = d?.online===true || String(d?.availability||"").toLowerCase().includes("available");
+        const status = computeVerificationStatus(d||{});
+        const skillsText = Array.isArray(d?.skills) ? d.skills.filter(Boolean).join(" ") : "";
+
+return {
+  uid, name, photo, skill,
+  locationLabel: titleCase(locationLabel), locationKey,
+  rate, exp, rating, available, status,
+  blob: `${name} ${skill} ${skillsText} ${locationLabel}`.toLowerCase(),
+  isWorker
+};
+
+        return {
+          uid, name, photo, skill,
+          locationLabel: titleCase(locationLabel), locationKey,
+          rate, exp, rating, available, status,
+          blob: `${name} ${skill} ${skillsText} ${locationLabel}`.toLowerCase()
+        };
+      }catch(err){
+        console.warn("normalize() failed for", uid, err);
+        return {
+          uid, name: "User", photo: initialsAvatar("User",92), skill: "Unspecified",
+          locationLabel: "Unknown", locationKey: "other",
+          rate: null, exp: null, rating: null, available: false, status: "Not Verified",
+          blob: `user unspecified unknown`
+        };
+      }
+    }
+
+    let ALL = [];
+
+    function makeCard(w){
+      const el=document.createElement("div");
+      el.className="worker-card";
+      el.innerHTML=`
+        <div class="avatar-wrap">
+          ${w.available?'<span class="status-dot" title="Available now"></span>':''}
+          <img src="${w.photo}" alt="${w.name}">
+        </div>
+        <span class="skill-chip">${w.skill}</span>
+        <h3 style="margin:6px 0 0;font-size:1.02rem">${w.name}</h3>
+        <p class="muted" style="margin:0">${w.locationLabel}</p>
+        <p class="muted" style="margin:0">Rate: ${w.rate!=null?`₱${w.rate}/hr`:'—'}</p>
+        <div class="rating" aria-label="Rating">${stars(w.rating)}</div>
+        <div class="chips">${statusChip(w.status)}</div>
+        <button class="btn view-btn ping-btn" data-uid="${w.uid}" data-name="${w.name}">
+          Check availability →
+        </button>
+      `;
+      return el;
+    }
+
+    function render(list){
+      workerList.innerHTML="";
+      if (!list.length){ workerList.innerHTML=`<p class="muted">No users found.</p>`; return; }
+      const frag=document.createDocumentFragment();
+      list.forEach(w=>frag.appendChild(makeCard(w)));
+      workerList.appendChild(frag);
+    }
+
+    function applyFilters(){
+      const q = searchSkill.value.trim().toLowerCase();
+      const v = filterVerified.value, loc = filterLocation.value, rate=filterRate.value, exp=filterExperience.value, rat=filterRating.value;
+      const avail = filterAvailable.checked;
+
+      const out = ALL.filter(w=>{
+        if (!w.isWorker) return false;
+        if (q && !w.blob.includes(q)) return false;
+        if (v!=="all"){ if (v==="verified" && w.status!=="Verified") return false; if (v==="unverified" && w.status==="Verified") return false; }
+        if (loc!=="all" && w.locationKey!==loc) return false;
+        if (rate==="low" && !(w.rate!=null && w.rate<=300)) return false;
+        if (rate==="mid" && !(w.rate!=null && w.rate>=301 && w.rate<=500)) return false;
+        if (rate==="high" && !(w.rate!=null && w.rate>=501)) return false;
+        if (exp==="0-1" && !(w.exp!=null && w.exp<=1)) return false;
+        if (exp==="2-5" && !(w.exp!=null && w.exp>=2 && w.exp<=5)) return false;
+        if (exp==="5+"  && !(w.exp!=null && w.exp>=5)) return false;
+        if (rat!=="all" && !(w.rating!=null && w.rating>=parseFloat(rat))) return false;
+        if (avail && !w.available) return false;
+        return true;
+      });
+      render(out);
+    }
+
+    const debounce=(fn,ms=220)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};};
+
+    catButtons.addEventListener("click",(e)=>{
+      const btn=e.target.closest("button"); if(!btn) return;
+      catButtons.querySelectorAll("button").forEach(b=>b.classList.toggle("active",b===btn));
+      searchSkill.value = btn.textContent.trim();
+      applyFilters();
+    });
+
+    searchSkill.addEventListener("input", debounce(applyFilters,250));
+    [filterVerified,filterLocation,filterRate,filterExperience,filterRating,filterAvailable].forEach(el=>el.addEventListener("change",applyFilters));
+
+    // === Availability ping ===
+    async function sendAvailabilityPing(workerUid, workerName){
+      const me = auth.currentUser;
+      if (!me) {
+        location.href = "login.html?next=hire_dashboard.html";
+        return;
+      }
+      if (me.uid === workerUid) {
+        alert("You can’t send an availability request to yourself.");
+        return;
+      }
+
+      const defaultMsg = `Hi ${workerName || "there"}, are you available to work for me?`;
+      const msg = prompt("Message to worker:", defaultMsg);
+      if (msg === null) return;
+
+      try{
+        await addDoc(collection(db, "notifications"), {
+          type: "availability_request",
+          toUid: workerUid,
+          fromUid: me.uid,
+          message: String(msg || "").trim(),
+          createdAt: serverTimestamp(),
+          status: "pending"
+        });
+        // UI feedback: change the clicked button text (delegated click handles finding it)
+        const btn = document.querySelector(`.ping-btn[data-uid="${CSS.escape(workerUid)}"]`);
+        if (btn) { btn.textContent = "Request sent ✓"; btn.disabled = true; btn.style.opacity = "0.7"; }
+        alert("Sent! We’ll notify the worker.");
+      }catch(e){
+        console.error("Failed to send availability request:", e);
+        alert("Could not send the request. Please try again.");
+      }
+    }
+
+    // Delegate button clicks
+    workerList.addEventListener("click",(e)=>{
+      const btn = e.target.closest(".ping-btn");
+      if (!btn) return;
+      const uid = btn.getAttribute("data-uid");
+      const name = btn.getAttribute("data-name") || "there";
+      sendAvailabilityPing(uid, name);
+    });
+
+    async function loadAllUsers(){
+      const out=[];
+      try{
+        const snap = await getDocs(collection(db,"users"));
+        for (const d of snap.docs){
+          try{
+            const row = normalize(d.id, d.data()||{});
+            if (row) out.push(row);
+          }catch(inner){
+            console.warn("Skipping bad user doc:", d.id, inner);
+          }
+        }
+        console.log("Loaded users count:", out.length, "of", snap.size);
+      }catch(e){
+        console.error("Failed to load users:", e);
+      }
+      return out;
+    }
+
+    (async function init(){
+      userPhotoEl.src = initialsAvatar("Guest");
+      ALL = await loadAllUsers();
+      if (loadingState) loadingState.remove();
+      render(ALL);
+    })();
+  </script>
+</body>
+</html>

@@ -167,3 +167,7 @@ footer {
   text-align: center; padding: 16px;
   pointer-events: none; /* block map but not trap focus */
 }
+@media (max-width:480px){
+  .category-buttons{gap:6px}
+  .category-buttons button{flex:1 1 calc(50% - 6px)}
+}

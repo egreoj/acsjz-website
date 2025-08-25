@@ -76,6 +76,14 @@
     .doc-note{font-size:.9rem; color:var(--muted)}
     .status{font-size:.9rem; color:var(--muted)}
     .ico{flex:0 0 18px; opacity:.7}
+
+    /* Phone input with fixed +63 prefix */
+    .phone-wrap{display:flex; align-items:center; gap:8px}
+    .phone-wrap .prefix{
+      flex:0 0 auto; padding:6px 10px; border:1px solid var(--line-strong); border-radius:10px;
+      background:#f9fbff; font-weight:800; color:#0b1520; letter-spacing:.2px
+    }
+    .phone-wrap input{letter-spacing:.4px}
   </style>
 </head>
 <body>
@@ -89,7 +97,7 @@
           <span class="tag">Edit Profile</span>
         </span>
       </a>
-      <span class="badge">Worker Portal</span>
+      <span class="badge">Profile</span>
     </div>
   </header>
 
@@ -147,8 +155,20 @@
 
       <div class="row">
         <div>
-          <label for="phone">Phone Number</label>
-          <div class="input"><input type="tel" id="phone" placeholder="+63 9xx xxx xxxx"></div>
+          <label for="phone10">Phone Number</label>
+          <div class="input phone-wrap">
+            <span class="prefix">+63</span>
+            <input
+              type="tel"
+              id="phone10"
+              inputmode="numeric"
+              placeholder="9xxxxxxxxx"
+              maxlength="10"
+              pattern="9[0-9]{9}"
+              aria-label="Philippine mobile number, 10 digits starting with 9"
+            />
+          </div>
+          <div class="hint">PH mobile: <b>+63</b> <b>9xxxxxxxxx</b> (enter only the 10 digits).</div>
         </div>
         <div>
           <label for="email">Email Address</label>
@@ -285,10 +305,11 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
-    // --- Cloudinary config (SET THESE) ---
-    const CLOUD_NAME = "dutarfbgp";            // ← your cloud name
-    const UPLOAD_PRESET = "MyApp_uploads";  // ← your unsigned preset name
+    // --- Cloudinary config ---
+    const CLOUD_NAME = "dutarfbgp";
+    const UPLOAD_PRESET = "MyApp_uploads";
 
+    // --- Firebase ---
     const firebaseConfig = {
       apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
       authDomain: "myapp-96865.firebaseapp.com",
@@ -360,7 +381,7 @@
       nbiClearance: 'nbiClearanceUrl'
     };
 
-    function cloudinaryWidget({folder, publicIdPrefix, multiple=false, resourceType="auto", tags=[]}, onSuccess, onClose){
+    function cloudinaryWidget({folder, resourceType="auto", multiple=false, tags=[]}, onSuccess, onClose){
       const options = {
         cloudName: CLOUD_NAME,
         uploadPreset: UPLOAD_PRESET,
@@ -380,22 +401,20 @@
       };
       const widget = window.cloudinary.createUploadWidget(options, (err, res) => {
         if (err) { console.error(err); return; }
-        if (res && res.event === "success") {
-          onSuccess && onSuccess(res.info);
-        }
-        if (res && (res.event === "close" || res.event === "abort")) {
-          onClose && onClose();
-        }
+        if (res && res.event === "success") onSuccess && onSuccess(res.info);
+        if (res && (res.event === "close" || res.event === "abort")) onClose && onClose();
       });
       return widget;
     }
 
     async function updateDocUrl(userUid, fieldUrl, url, extra = {}){
-      const userRef = doc(db, "workers", userUid);
+      const userRef = doc(db, "users", userUid);
       await updateDoc(userRef, { [fieldUrl]: url, ...extra, updatedAt: Date.now() });
     }
 
-    // ---------- Wire UI ----------
+    function toHttps(url){ if(!url) return ""; return url.startsWith("http://") ? url.replace("http://","https://") : url; }
+
+    // ---------- Wire UI for each doc row ----------
     function wireDocRow(rowEl, user, data){
       const kind = rowEl.getAttribute('data-kind');
       const field = DOC_FIELDS[kind];
@@ -408,7 +427,7 @@
 
       btn.addEventListener('click', ()=>{
         btn.disabled = true; statusEl.textContent = "Opening uploader…";
-        const folder = `workers/${user.uid}/docs`;
+        const folder = `users/${user.uid}/docs`;
         const widget = cloudinaryWidget({ folder, tags:[kind, user.uid], resourceType:"auto" },
           async (info)=>{
             try{
@@ -429,7 +448,32 @@
       });
     }
 
-    // Prefill + save
+    // --------- Phone helpers (lock +63, accept only 10 digits starting with 9) ---------
+    const phone10El = document.getElementById('phone10');
+    function onlyDigits(s){ return (s||"").replace(/\D/g,''); }
+    function toTenDigitsFromAny(phone){
+      const d = onlyDigits(phone);
+      if (d.startsWith('63') && d.length >= 12) return d.slice(2,12);        // +63XXXXXXXXXX
+      if (d.startsWith('0') && d.length >= 11)  return d.slice(1,11);        // 09XXXXXXXXX
+      if (d.length === 10) return d;
+      return "";
+    }
+    function isValidPH10(s){ return /^9\d{9}$/.test(s); }
+
+    phone10El.addEventListener('input', ()=>{
+      // keep digits only & max 10
+      const digits = onlyDigits(phone10El.value).slice(0,10);
+      phone10El.value = digits;
+    });
+    phone10El.addEventListener('blur', ()=>{
+      const v = phone10El.value.trim();
+      if (v && !isValidPH10(v)) {
+        alert("Please enter a valid PH mobile: 10 digits starting with 9 (e.g., 9XXXXXXXXX).");
+        phone10El.focus();
+      }
+    });
+
+    // --------- Prefill + Save (USERS collection) ---------
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         alert("Please log in first.");
@@ -437,21 +481,25 @@
         return;
       }
 
-      const userRef = doc(db, "workers", user.uid);
+      const userRef = doc(db, "users", user.uid);
       let snap = await getDoc(userRef);
 
       if (snap.exists()) {
         const data = snap.data();
-        document.getElementById("fullname").value = data.fullName || "";
+
+        document.getElementById("fullname").value = data.fullName || data.displayName || "";
         document.getElementById("birthdate").value = data.birthdate || "";
         document.getElementById("gender").value = data.gender || "Male";
         document.getElementById("status").value = data.status || "Single";
-        document.getElementById("phone").value = data.phone || "";
-        document.getElementById("email").value = data.email || user.email;
+        document.getElementById("email").value = (data.email || user.email || "").toLowerCase();
         document.getElementById("location").value = data.location || "";
 
+        // phone prefill → 10-digit field
+        const ten = toTenDigitsFromAny(data.phone || "");
+        phone10El.value = ten;
+
         const loadedSkills = Array.isArray(data.skills) ? data.skills.filter(Boolean) : [];
-        const primaryFromDoc = data.skillCategory || (loadedSkills[0] || "");
+        const primaryFromDoc = data.primarySkill || data.skillCategory || (loadedSkills[0] || "");
         SKILLS = [...new Set(loadedSkills.map(norm))];
         PRIMARY = primaryFromDoc || (SKILLS[0] || "");
         renderChips();
@@ -460,18 +508,17 @@
         document.getElementById("rate").value = data.pricing || "";
         document.getElementById("availability").value = data.availability || "";
         document.getElementById("bio").value = data.bio || "";
-        if (data.profileImageUrl) {
-          document.getElementById("profileImage").src = data.profileImageUrl.startsWith("http://")
-            ? data.profileImageUrl.replace("http://","https://")
-            : data.profileImageUrl;
-        }
+
+        const purl = data.profileImageUrl || data.photoURL || "";
+        if (purl) document.getElementById("profileImage").src = toHttps(purl);
+
         birthdateInput.dispatchEvent(new Event('change'));
 
-        // Wire document rows (Cloudinary)
+        // Wire document rows
         document.querySelectorAll('.doc-item').forEach(row => wireDocRow(row, user, data));
       } else {
-        await setDoc(userRef, { uid: user.uid, email: user.email, createdAt: Date.now() }, { merge: true });
-        document.getElementById("email").value = user.email;
+        await setDoc(userRef, { uid: user.uid, email: (user.email || "").toLowerCase(), createdAt: Date.now() }, { merge: true });
+        document.getElementById("email").value = (user.email || "").toLowerCase();
         document.querySelectorAll('.doc-item').forEach(row => wireDocRow(row, user, {}));
       }
 
@@ -479,12 +526,12 @@
       const btnUploadPhoto = document.getElementById('btnUploadPhoto');
       btnUploadPhoto.addEventListener('click', ()=>{
         btnUploadPhoto.disabled = true;
-        const folder = `workers/${user.uid}/profile`;
+        const folder = `users/${user.uid}/profile`;
         const widget = cloudinaryWidget({ folder, tags:["profile", user.uid], resourceType:"image" },
           async (info)=>{
             try{
               const url = info.secure_url;
-              document.getElementById('profileImage').src = url;
+              document.getElementById('profileImage').src = toHttps(url);
               await updateDocUrl(user.uid, "profileImageUrl", url, { profileImagePublicId: info.public_id });
             }catch(e){
               console.error(e);
@@ -499,7 +546,7 @@
       });
 
       // Local preview (optional)
-      document.getElementById('photoUpload').addEventListener('change', async (e)=>{
+      document.getElementById('photoUpload').addEventListener('change', (e)=>{
         const f = e.target.files?.[0];
         if (!f) return;
         const reader = new FileReader();
@@ -507,52 +554,60 @@
         reader.readAsDataURL(f);
       });
 
-      // Save profile (Firestore only)
+      // Save profile → USERS collection
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
+        // phone validation
+        const ten = onlyDigits(phone10El.value).slice(0,10);
+        if (!isValidPH10(ten)) {
+          alert("Please enter a valid PH mobile: 10 digits starting with 9 (e.g., 9XXXXXXXXX).");
+          phone10El.focus();
+          return;
+        }
+        const fullPhone = `+63${ten}`;
+
         if (!PRIMARY && SKILLS.length) PRIMARY = SKILLS[0];
 
-        const userRef = doc(db, "workers", user.uid);
         const prevSnap = await getDoc(userRef);
         const prev = prevSnap.exists() ? prevSnap.data() : {};
 
-        const userData = {
+        const payload = {
           uid: user.uid,
           email: document.getElementById("email").value,
           fullName: document.getElementById("fullname").value,
+          displayName: document.getElementById("fullname").value || prev.displayName || "",
           birthdate: document.getElementById("birthdate").value,
           age: Number(document.getElementById("age").value) || 0,
           gender: document.getElementById("gender").value,
           status: document.getElementById("status").value,
-          phone: document.getElementById("phone").value,
+          phone: fullPhone,                       // ← saved as +63XXXXXXXXXX
           location: document.getElementById("location").value,
 
-          skillCategory: PRIMARY || "",
+          primarySkill: PRIMARY || "",
+          skillCategory: PRIMARY || "",           // keep for backward-compat
           skills: SKILLS,
 
           experience: Number(document.getElementById("experience").value) || 0,
           pricing: document.getElementById("rate").value,
-          serviceRadius: prev.serviceRadius || "100",
           availability: document.getElementById("availability").value,
           bio: document.getElementById("bio").value,
-          profileImageUrl: document.getElementById("profileImage").src.startsWith("http://")
-            ? document.getElementById("profileImage").src.replace("http://","https://")
-            : document.getElementById("profileImage").src,
 
+          profileImageUrl: toHttps(document.getElementById("profileImage").src),
+
+          roles: Array.isArray(prev.roles) ? prev.roles : (prev.roles ? [prev.roles] : []),
           banned: prev.banned ?? false,
           isAdmin: prev.isAdmin ?? false,
           online: true,
           createdAt: prev.createdAt || Date.now(),
-          latitude: prev.latitude ?? null,
-          longitude: prev.longitude ?? null,
+          geo: prev.geo ?? { lat: prev.latitude ?? null, lng: prev.longitude ?? null },
           updatedAt: Date.now()
         };
 
         try {
-          await setDoc(userRef, userData, { merge: true });
+          await setDoc(userRef, payload, { merge: true });
           alert("Profile saved successfully!");
-          window.location.href = "beehiremain.html";
+          window.location.href = "profile_view.html";
         } catch (err) {
           console.error("Failed to save profile:", err);
           alert("Failed to save. Please try again.");

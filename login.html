@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Beehire — Worker Login</title>
+  <title>Beehire — Login</title>
 
   <!-- Corporate font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +17,11 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:linear-gradient(180deg,#fff 0%,#F8FBFF 60%,#F2F7FB 100%)}
+    body{
+      margin:0;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--ink);
+      background:linear-gradient(180deg,#fff 0%,#F8FBFF 60%,#F2F7FB 100%)
+    }
 
     header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 2px 12px rgba(0,0,0,.04)}
     .nav{max-width:1100px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;gap:12px;justify-content:center}
@@ -45,7 +49,7 @@
     .oauth{display:flex;flex-direction:column;gap:10px}
     .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:700;padding:12px 14px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .15s, box-shadow .15s, border-color .15s}
     .btn-ghost:hover{background:#FAFCFF;border-color:#D8E3EE;box-shadow:0 6px 16px rgba(14,42,50,.06)}
-    .btn-fb{background:#1877F2;color:#fff;border-color:#1877F2}
+
     .hint{font-size:.9rem;color:var(--muted)}
     .register{text-align:center;margin-top:12px}
     .register a{color:#0D6EFD;text-decoration:none;font-weight:700}
@@ -62,7 +66,7 @@
   <header>
     <div class="nav">
       <img src="BeeHire Logo.png" alt="Beehire logo">
-      <div class="title">Beehire CONNECT — Worker Login</div>
+      <div class="title">Beehire CONNECT — Login</div>
     </div>
   </header>
 
@@ -77,17 +81,17 @@
         <label for="identifier">Username / Phone / Email</label>
         <div class="input">
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12a5 5 0 1 0-5-5a5 5 0 0 0 5 5m0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5"/></svg>
-          <input type="text" id="identifier" placeholder="Enter username, phone or email" required>
+          <input type="text" id="identifier" placeholder="Enter username, phone or email" required autocapitalize="none" autocomplete="username" />
         </div>
 
         <label for="password">Password</label>
         <div class="input">
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 17a2 2 0 0 1-2-2a2 2 0 1 1 2 2m6-6h-1V8a5 5 0 0 0-10 0v3H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2M8 8a4 4 0 0 1 8 0v3H8Z"/></svg>
-          <input type="password" id="password" placeholder="Enter password" required>
+          <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password" />
         </div>
 
         <button type="submit" id="loginBtn" class="btn">Sign in</button>
-        <div class="hint">Tip: Enter your <b>username</b> or <b>phone</b> and we’ll look up your email in workers.</div>
+        <div class="hint">Tip: Enter your <b>username</b> or <b>phone</b> and we’ll look up your email in <b>users</b>.</div>
       </form>
 
       <div class="divider">or continue with</div>
@@ -97,13 +101,9 @@
           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42v-.1H24v7h11.3C33.9 31 29.4 34 24 34c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.3 0 6.3 1.2 8.6 3.3l5-5C34.7 3.1 29.6 1 24 1C11.8 1 2 10.8 2 23s9.8 22 22 22c12.1 0 21.7-8.8 21.7-22c0-1.4-.1-2.7-.3-4.5z"/><path fill="#FF3D00" d="M6.3 14.7l5.7 4.2C13.8 15.2 18.5 12 24 12c3.3 0 6.3 1.2 8.6 3.3l5-5C34.7 6.1 29.6 4 24 4C15 4 7.5 9.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 46c5.3 0 10.2-1.8 14-4.9l-6.5-5c-2 1.4-4.7 2.3-7.5 2.3c-5.4 0-9.9-3.6-11.5-8.5l-5.7 4.4C9 41.6 15.9 46 24 46z"/><path fill="#1976D2" d="M43.6 20.5H42v-.1H24v7h11.3c-1.3 3.2-4.6 5.6-8.3 5.6c-2.5 0-4.8-.9-6.6-2.5l-5.7 4.4C17.1 38.4 20.3 40 24 40c12.1 0 21.7-8.8 21.7-22c0-1.4-.1-2.7-.3-4.5z"/></svg>
           Continue with Google
         </button>
-        <button class="btn-ghost btn-fb" id="fbBtn" aria-label="Continue with Facebook">
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.092 10.125 24v-8.437H7.078V12.07h3.047V9.413c0-3.007 1.793-4.668 4.533-4.668c1.312 0 2.686.235 2.686.235v2.953h-1.513c-1.492 0-1.956.929-1.956 1.882v2.255h3.328l-.532 3.492h-2.796V24C19.612 23.092 24 18.1 24 12.073"/></svg>
-          Continue with Facebook
-        </button>
       </div>
 
-      <p class="register">Don’t have an account? <a href="worker-register.html">Register as Worker</a></p>
+      <p class="register">Don’t have an account? <a href="registration.html">Register Here</a></p>
     </section>
   </main>
 
@@ -112,7 +112,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
     import {
       getAuth, signInWithEmailAndPassword, onAuthStateChanged,
-      GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult
+      GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult
     } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
     import {
       getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, serverTimestamp
@@ -120,24 +120,23 @@
 
     const firebaseConfig = {
       apiKey: "AIzaSyCkkVvflDza_lmFmUmsgUQv6iOiMW3y9bc",
-        authDomain: "myapp-96865.firebaseapp.com",
-        databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "myapp-96865",
-        // If Storage misbehaves, try: "myapp-96865.appspot.com"
-        storageBucket: "myapp-96865.firebasestorage.app",
-        messagingSenderId: "217431866794",
-        appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
-        measurementId: "G-1T4M9PE1GD"
+      authDomain: "myapp-96865.firebaseapp.com",
+      databaseURL: "https://myapp-96865-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "myapp-96865",
+      storageBucket: "myapp-96865.firebasestorage.app",
+      messagingSenderId: "217431866794",
+      appId: "1:217431866794:web:965d02cc01d12ae555ffd3",
+      measurementId: "G-1T4M9PE1GD"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // --- UI helpers ---
     const msg = document.getElementById("msg");
     const form = document.getElementById("loginForm");
     const googleBtn = document.getElementById("googleBtn");
-    const fbBtn = document.getElementById("fbBtn");
 
     function show(type, text){
       msg.className = "alert " + (type === "err" ? "err" : "ok");
@@ -146,19 +145,37 @@
     function clearMsg(){ msg.className="alert"; msg.textContent=""; }
     function setLoading(on){ document.querySelector('.panel').classList.toggle('loading', !!on); }
 
-    // Upsert worker doc
-    async function upsertWorkerProfile(user, source = "password") {
-      const ref = doc(db, "workers", user.uid);
+    // --- small utils ---
+    const asString = (v, fb="") => {
+      if (v===null || v===undefined) return fb;
+      if (typeof v === "string") return v;
+      try { return String(v); } catch { return fb; }
+    };
+    const normEmail = (e)=> asString(e).trim().toLowerCase();
+    const onlyDigits = (s)=> asString(s).replace(/\D/g,'');
+    const normPhone = (p)=> {
+      // Accept +63XXXXXXXXXX, 09XXXXXXXXX, or 9XXXXXXXXX → compare on digits only
+      const d = onlyDigits(p);
+      if (d.startsWith('63') && d.length>=12) return '+63' + d.slice(2,12);
+      if (d.startsWith('0')  && d.length>=11) return '+63' + d.slice(1,11);
+      if (d.length===10 && d.startsWith('9')) return '+63' + d; // store as +63
+      return p; // fallback untouched
+    };
+
+    // --- Upsert user doc in USERS (no roles) ---
+    async function upsertUserProfile(user, source = "password") {
+      const ref = doc(db, "users", user.uid);
       const snap = await getDoc(ref);
       const provider = (user.providerData && user.providerData[0]?.providerId) || source || "password";
+
       const payload = {
         uid: user.uid,
         email: user.email || null,
+        displayName: user.displayName || null,
         fullName: user.displayName || null,
         profileImageUrl: user.photoURL || null,
         phone: user.phoneNumber || null,
         provider,
-        role: "worker",
         lastLogin: serverTimestamp()
       };
       if (!snap.exists()) {
@@ -169,84 +186,105 @@
       return ref;
     }
 
-    // Route
-    async function goToWorkerHome(user){
-      const ref = doc(db, "workers", user.uid);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) { window.location.href = "worker-register.html"; return; }
-      try { localStorage.setItem("workerProfile", JSON.stringify(snap.data())); } catch(_){}
-      window.location.href = "worker-profile.html";
+    // --- After login go to unified profile page ---
+    async function goToHome(){
+      window.location.href = "profile_view.html";
     }
 
-    // Resolve username/phone/email → email
-    async function resolveEmailFromWorkers(identifierRaw){
-      const workersRef = collection(db, "workers");
+    // --- Resolve username/phone/email → email (from USERS) ---
+    async function resolveEmailFromUsers(identifierRaw){
+      const usersRef = collection(db, "users");
       const id = identifierRaw.trim();
-      let s = await getDocs(query(workersRef, where("email","==", id.toLowerCase())));
-      if (!s.empty) return s.docs[0].data().email;
-      s = await getDocs(query(workersRef, where("username","==", id.toLowerCase())));
-      if (!s.empty) return s.docs[0].data().email;
-      s = await getDocs(query(workersRef, where("phone","==", id)));
-      if (!s.empty) return s.docs[0].data().email;
+
+      // If looks like email, use directly
+      if (id.includes("@")) return normEmail(id);
+
+      // Try username
+      let s = await getDocs(query(usersRef, where("username", "==", id.toLowerCase())));
+      if (!s.empty) return normEmail(s.docs[0].data().email);
+
+      // Try phone (normalize both ways)
+      const phoneVariants = Array.from(new Set([
+        id,
+        onlyDigits(id),
+        normPhone(id)
+      ])).filter(Boolean);
+
+      for (const pv of phoneVariants) {
+        s = await getDocs(query(usersRef, where("phone", "==", pv)));
+        if (!s.empty) return normEmail(s.docs[0].data().email);
+      }
+
+      // Last: email field equal to id (in case they typed email w/o @ or weird)
+      s = await getDocs(query(usersRef, where("email","==", id.toLowerCase())));
+      if (!s.empty) return normEmail(s.docs[0].data().email);
+
       return null;
     }
 
-    // Email/Password
+    // --- Email/Password sign-in ---
     form.addEventListener("submit", async (e)=>{
       e.preventDefault();
       clearMsg(); setLoading(true);
       const identifier = document.getElementById("identifier").value.trim();
       const password = document.getElementById("password").value;
       try{
-        const email = identifier.includes("@") ? identifier.toLowerCase() : await resolveEmailFromWorkers(identifier);
-        if (!email){ show("err","Worker account not found. Please check your input or register first."); return; }
+        const email = identifier.includes("@")
+          ? normEmail(identifier)
+          : await resolveEmailFromUsers(identifier);
+
+        if (!email){
+          show("err","Account not found in users. Please check your input or register first.");
+          return;
+        }
         const cred = await signInWithEmailAndPassword(auth, email, password);
-        await upsertWorkerProfile(cred.user, "password");
-        await goToWorkerHome(cred.user);
+        await upsertUserProfile(cred.user, "password");
+        await goToHome();
       }catch(err){
         console.error(err);
         show("err","Login failed: " + (err.message || err.code));
       }finally{ setLoading(false); }
     });
 
-    // OAuth helpers (popup → redirect fallback)
-    async function oauthFlow(provider){
+    // --- Google OAuth (popup with redirect fallback) ---
+    async function signInWithGoogle(){
       clearMsg(); setLoading(true);
       try{
+        const provider = new GoogleAuthProvider();
         const r = await signInWithPopup(auth, provider);
-        await upsertWorkerProfile(r.user, provider.providerId);
-        await goToWorkerHome(r.user);
+        await upsertUserProfile(r.user, provider.providerId);
+        await goToHome();
       }catch(err){
-        // unauthorized-domain / popup-blocked → try redirect
-        if (String(err?.code||"").includes("auth/unauthorized-domain")){
-          show("err","Unauthorized domain. See setup notes below.");
-        }else if (String(err?.code||"").includes("popup-blocked") || String(err?.message||"").toLowerCase().includes("popup")){
+        const code = String(err?.code||"");
+        const msgText = String(err?.message||"");
+        if (code.includes("auth/unauthorized-domain")){
+          show("err","Unauthorized domain for Google sign-in. Add this domain in Firebase Auth → Settings → Authorized domains.");
+        }else if (code.includes("popup-blocked") || msgText.toLowerCase().includes("popup")){
+          const provider = new GoogleAuthProvider();
           await signInWithRedirect(auth, provider);
           return;
         }else{
-          show("err",(err?.message) || "Social sign-in failed.");
+          show("err", msgText || "Google sign-in failed.");
         }
       }finally{ setLoading(false); }
     }
 
-    // Handle redirect result (if any)
     getRedirectResult(auth).then(async (res)=>{
       if (res?.user){
-        await upsertWorkerProfile(res.user, res.providerId || res._tokenResponse?.providerId || "redirect");
-        await goToWorkerHome(res.user);
+        await upsertUserProfile(res.user, res.providerId || res._tokenResponse?.providerId || "redirect");
+        await goToHome(res.user);
       }
     }).catch(e=>console.warn("redirect result", e));
 
-    googleBtn.addEventListener("click", ()=> oauthFlow(new GoogleAuthProvider()));
-    fbBtn.addEventListener("click", ()=> oauthFlow(new FacebookAuthProvider()));
+    googleBtn.addEventListener("click", signInWithGoogle);
 
-    // Auto-redirect if already signed in
+    // --- Auto-redirect if already signed in ---
     onAuthStateChanged(auth, async (user)=>{
       if (!user) return;
       setLoading(true);
       try{
-        await upsertWorkerProfile(user, user.providerData?.[0]?.providerId || "session");
-        await goToWorkerHome(user);
+        await upsertUserProfile(user, user.providerData?.[0]?.providerId || "session");
+        await goToHome();
       }finally{ setLoading(false); }
     });
   </script>
