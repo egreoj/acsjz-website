@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WORK / TRAVEL ORDER FORM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --ink:#111;
+      --muted:#666;
+      --line:#ccc;
+      --accent:#1f4f9f;
+      --bg:#fff;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Segoe UI",Roboto,Arial,system-ui,sans-serif}
+    .container{max-width:960px;margin:24px auto;padding:24px;background:#fff}
+    h1{
+      text-align:center;margin:0 0 10px;font-size:20px;letter-spacing:.5px
+    }
+    .bar{height:2px;background:var(--ink);opacity:.2;margin:12px 0 18px}
+    .section-title{
+      font-weight:700;margin:20px 0 8px;letter-spacing:.4px
+    }
+    .grid{display:grid;gap:12px}
+    .grid.cols-2{grid-template-columns:1fr 1fr}
+    .grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+    label{display:block;font-weight:600;margin-bottom:4px}
+    .req::after{content:" *";color:#c00;font-weight:700}
+    input[type="text"], input[type="date"], input[type="number"], textarea, select{
+      width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff
+    }
+    textarea{min-height:72px;resize:vertical}
+    .row{display:flex;gap:12px;align-items:center}
+    .row > div{flex:1}
+    .muted{color:var(--muted);font-size:12px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th, td{border:1px solid var(--line);padding:8px;vertical-align:top}
+    th{background:#f6f8fb;text-align:left;font-size:13px}
+    .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+    button{
+      border:1px solid var(--accent);background:var(--accent);color:#fff;padding:8px 12px;
+      border-radius:10px;cursor:pointer;font-weight:600
+    }
+    button.secondary{background:#fff;color:var(--accent)}
+    .signature-block{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+    .sig-card{border:1px solid var(--line);border-radius:12px;padding:12px}
+    .sig-row{display:grid;grid-template-columns:120px 1fr;gap:8px;margin:6px 0}
+    .checkboxes{display:flex;gap:18px;align-items:center}
+    .print-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .print-bar small{color:var(--muted)}
+    @media print{
+      .actions, .print-bar{display:none !important}
+      body{background:#fff}
+      .container{box-shadow:none;margin:0;padding:0}
+      a{color:inherit;text-decoration:none}
+      input, textarea, select{border:1px solid #000}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="print-bar">
+      <small>Generated form — fill and print.</small>
+      <div class="actions">
+        <button type="button" class="secondary" onclick="window.print()">Print</button>
+      </div>
+    </div>
+
+    <h1>WORK / TRAVEL ORDER FORM</h1>
+
+    <div class="grid">
+      <div>
+        <label for="projectManager">Project Manager</label>
+        <input id="projectManager" type="text" placeholder="Enter name of Project Manager" />
+      </div>
+    </div>
+
+    <div class="bar"></div>
+
+    <div class="section-title">TRAVEL ORDER DETAILS</div>
+    <div class="grid cols-2">
+      <div>
+        <label for="soNumber" class="req">SO Number</label>
+        <input id="soNumber" type="text" required placeholder="Enter SO Number" />
+        <div class="muted">Required</div>
+      </div>
+      <div></div>
+    </div>
+
+    <div class="section-title">Traveler Information</div>
+    <div class="grid cols-3">
+      <div>
+        <label for="travelerName" class="req">Name of Traveler</label>
+        <input id="travelerName" type="text" required />
+      </div>
+      <div>
+        <label for="position">Position / Designation</label>
+        <input id="position" type="text" />
+      </div>
+      <div>
+        <label for="department">Office / Department</label>
+        <input id="department" type="text" />
+      </div>
+    </div>
+
+    <div class="section-title">Travel Information</div>
+    <div class="grid cols-2">
+      <div>
+        <label for="destination" class="req">Destination</label>
+        <input id="destination" type="text" required />
+      </div>
+      <div>
+        <label for="purpose">Purpose of Travel</label>
+        <input id="purpose" type="text" />
+      </div>
+    </div>
+
+    <div class="grid cols-3" style="margin-top:8px;">
+      <div>
+        <label for="dateFrom" class="req">Inclusive Dates (From)</label>
+        <input id="dateFrom" type="date" required />
+      </div>
+      <div>
+        <label for="dateTo" class="req">Inclusive Dates (To)</label>
+        <input id="dateTo" type="date" required />
+      </div>
+      <div>
+        <label for="transport">Mode of Transportation</label>
+        <input id="transport" type="text" />
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:8px;">
+      <div>
+        <label for="funds">Source of Funds</label>
+        <input id="funds" type="text" />
+      </div>
+    </div>
+
+    <div class="bar"></div>
+
+    <div class="section-title">ADDITIONAL DETAILS</div>
+    <div class="grid cols-3">
+      <div>
+        <label for="contactPerson">Person to be Contacted</label>
+        <input id="contactPerson" type="text" />
+      </div>
+      <div>
+        <label for="institution">University / Institution</label>
+        <input id="institution" type="text" />
+      </div>
+      <div>
+        <label>Travel with Visa?</label>
+        <div class="checkboxes">
+          <label><input type="radio" name="visa" value="Yes"> Yes</label>
+          <label><input type="radio" name="visa" value="No"> No</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="bar"></div>
+
+    <div class="section-title">LIST OF MACHINES TO BE INSTALLED</div>
+    <div class="muted">Add rows as needed. Serial Number per machine is available below.</div>
+    <table id="machinesTable" aria-label="Machines to be installed">
+      <thead>
+        <tr>
+          <th style="width:48px">#</th>
+          <th>Machine Description</th>
+          <th>Serial Number</th>
+          <th style="width:100px">Quantity</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-num">1</td>
+          <td><input type="text" placeholder=""></td>
+          <td><input type="text" placeholder=""></td>
+          <td><input type="number" min="0" step="1" placeholder=""></td>
+          <td><input type="text" placeholder=""></td>
+        </tr>
+        <tr>
+          <td class="row-num">2</td>
+          <td><input type="text"></td>
+          <td><input type="text"></td>
+          <td><input type="number" min="0" step="1"></td>
+          <td><input type="text"></td>
+        </tr>
+        <tr>
+          <td class="row-num">3</td>
+          <td><input type="text"></td>
+          <td><input type="text"></td>
+          <td><input type="number" min="0" step="1"></td>
+          <td><input type="text"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="actions">
+      <button type="button" class="secondary" onclick="addRow('machinesTable')">Add Machine Row</button>
+    </div>
+
+    <div class="section-title" style="margin-top:18px;">LIST OF GATES TO BE INSTALLED</div>
+    <div class="muted">Add rows for each gate location/area.</div>
+    <table id="gatesTable" aria-label="Gates to be installed">
+      <thead>
+        <tr>
+          <th style="width:48px">#</th>
+          <th>Gate Location / Area</th>
+          <th>Type of Gate</th>
+          <th style="width:100px">Quantity</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-num">1</td>
+          <td><input type="text"></td>
+          <td><input type="text"></td>
+          <td><input type="number" min="0" step="1"></td>
+          <td><input type="text"></td>
+        </tr>
+        <tr>
+          <td class="row-num">2</td>
+          <td><input type="text"></td>
+          <td><input type="text"></td>
+          <td><input type="number" min="0" step="1"></td>
+          <td><input type="text"></td>
+        </tr>
+        <tr>
+          <td class="row-num">3</td>
+          <td><input type="text"></td>
+          <td><input type="text"></td>
+          <td><input type="number" min="0" step="1"></td>
+          <td><input type="text"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="actions">
+      <button type="button" class="secondary" onclick="addRow('gatesTable')">Add Gate Row</button>
+    </div>
+
+    <div class="bar"></div>
+
+    <div class="section-title">CERTIFICATION &amp; APPROVAL</div>
+    <p>I hereby certify that the above travel is official and necessary for the service.</p>
+
+    <div class="signature-block">
+      <div class="sig-card">
+        <div class="section-title" style="margin:0 0 6px">Prepared by</div>
+        <div class="sig-row"><div>Signature:</div><div>___________________________</div></div>
+        <div class="sig-row"><div>Name &amp; Position:</div><div><input type="text"></div></div>
+        <div class="sig-row"><div>Date:</div><div><input type="date"></div></div>
+      </div>
+      <div class="sig-card">
+        <div class="section-title" style="margin:0 0 6px">Approved by</div>
+        <div class="sig-row"><div>Signature:</div><div>___________________________</div></div>
+        <div class="sig-row"><div>Name &amp; Position:</div><div><input type="text"></div></div>
+        <div class="sig-row"><div>Date:</div><div><input type="date"></div></div>
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:16px">
+      <button type="button" onclick="validateAndPrint()">Validate &amp; Print</button>
+      <button type="button" class="secondary" onclick="window.print()">Print Without Validation</button>
+    </div>
+
+  </div>
+
+  <script>
+    function renumber(table){
+      const rows = document.querySelectorAll(`#${table} tbody tr .row-num`);
+      rows.forEach((cell, idx)=> cell.textContent = idx+1);
+    }
+    function addRow(tableId){
+      const tbody = document.querySelector(`#${tableId} tbody`);
+      const first = tbody.querySelector("tr");
+      const clone = first.cloneNode(true);
+      clone.querySelectorAll("input").forEach(i=>{
+        i.value = "";
+      });
+      tbody.appendChild(clone);
+      renumber(tableId);
+    }
+
+    function validateAndPrint(){
+      const required = [
+        {el: document.getElementById('soNumber'), name:'SO Number'},
+        {el: document.getElementById('travelerName'), name:'Name of Traveler'},
+        {el: document.getElementById('destination'), name:'Destination'},
+        {el: document.getElementById('dateFrom'), name:'Inclusive Dates (From)'},
+        {el: document.getElementById('dateTo'), name:'Inclusive Dates (To)'}
+      ];
+      let missing = [];
+      required.forEach(f=>{
+        if(!f.el.value || f.el.value.trim()===""){ missing.push(f.name); f.el.style.borderColor="#c00"; }
+        else { f.el.style.borderColor="#ccc"; }
+      });
+      if(missing.length){
+        alert("Please fill required fields:\n• " + missing.join("\n• "));
+        return;
+      }
+      window.print();
+    }
+  </script>
+</body>
+</html>
