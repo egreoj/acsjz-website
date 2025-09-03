@@ -15,29 +15,26 @@
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Segoe UI",Roboto,Arial,system-ui,sans-serif}
     .container{max-width:960px;margin:24px auto;padding:24px;background:#fff}
-    h1{
-      text-align:center;margin:0 0 10px;font-size:20px;letter-spacing:.5px
-    }
+    h1{text-align:center;margin:0 0 10px;font-size:20px;letter-spacing:.5px}
     .bar{height:2px;background:var(--ink);opacity:.2;margin:12px 0 18px}
-    .section-title{
-      font-weight:700;margin:20px 0 8px;letter-spacing:.4px
-    }
+    .section-title{font-weight:700;margin:20px 0 8px;letter-spacing:.4px}
     .grid{display:grid;gap:12px}
     .grid.cols-2{grid-template-columns:1fr 1fr}
     .grid.cols-3{grid-template-columns:1fr 1fr 1fr}
     label{display:block;font-weight:600;margin-bottom:4px}
     .req::after{content:" *";color:#c00;font-weight:700}
     input[type="text"], input[type="date"], input[type="number"], textarea, select{
-      width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff
+      width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff;
+      font-family:inherit;font-size:14px
     }
-    textarea{min-height:72px;resize:vertical}
+    textarea{min-height:72px;resize:vertical;overflow:hidden}
     .row{display:flex;gap:12px;align-items:center}
     .row > div{flex:1}
     .muted{color:var(--muted);font-size:12px}
     table{width:100%;border-collapse:collapse;margin-top:8px}
     th, td{border:1px solid var(--line);padding:8px;vertical-align:top}
     th{background:#f6f8fb;text-align:left;font-size:13px}
-    .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:10px}
     button{
       border:1px solid var(--accent);background:var(--accent);color:#fff;padding:8px 12px;
       border-radius:10px;cursor:pointer;font-weight:600
@@ -159,17 +156,24 @@
         </div>
       </div>
     </div>
+    <div class="grid cols-3" style="margin-top:8px;">
+      <div>
+        <label for="cellNumber">Cell Number</label>
+        <input id="cellNumber" type="text" placeholder="Enter cell number" />
+      </div>
+    </div>
 
     <div class="bar"></div>
 
     <div class="section-title">LIST OF MACHINES TO BE INSTALLED</div>
-    <div class="muted">Add rows as needed. Serial Number per machine is available below.</div>
+    <div class="muted">Add rows as needed. Serial Number &amp; License Information per machine are available below.</div>
     <table id="machinesTable" aria-label="Machines to be installed">
       <thead>
         <tr>
           <th style="width:48px">#</th>
           <th>Machine Description</th>
           <th>Serial Number</th>
+          <th>License Information</th>
           <th style="width:100px">Quantity</th>
           <th>Remarks</th>
         </tr>
@@ -177,24 +181,11 @@
       <tbody>
         <tr>
           <td class="row-num">1</td>
-          <td><input type="text" placeholder=""></td>
-          <td><input type="text" placeholder=""></td>
-          <td><input type="number" min="0" step="1" placeholder=""></td>
-          <td><input type="text" placeholder=""></td>
-        </tr>
-        <tr>
-          <td class="row-num">2</td>
+          <td><textarea placeholder="Machine description"></textarea></td>
           <td><input type="text"></td>
-          <td><input type="text"></td>
+          <td><input type="text" placeholder="License info"></td>
           <td><input type="number" min="0" step="1"></td>
-          <td><input type="text"></td>
-        </tr>
-        <tr>
-          <td class="row-num">3</td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="number" min="0" step="1"></td>
-          <td><input type="text"></td>
+          <td><textarea placeholder="Remarks"></textarea></td>
         </tr>
       </tbody>
     </table>
@@ -208,8 +199,8 @@
       <thead>
         <tr>
           <th style="width:48px">#</th>
-          <th>Gate Location / Area</th>
-          <th>Type of Gate</th>
+          <th>Model / Type</th>
+          <th style="width:120px">Gate Location / Area</th>
           <th style="width:100px">Quantity</th>
           <th>Remarks</th>
         </tr>
@@ -217,24 +208,10 @@
       <tbody>
         <tr>
           <td class="row-num">1</td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
+          <td><textarea placeholder="Model or type"></textarea></td>
+          <td><input type="text" placeholder="Gate area"></td>
           <td><input type="number" min="0" step="1"></td>
-          <td><input type="text"></td>
-        </tr>
-        <tr>
-          <td class="row-num">2</td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="number" min="0" step="1"></td>
-          <td><input type="text"></td>
-        </tr>
-        <tr>
-          <td class="row-num">3</td>
-          <td><input type="text"></td>
-          <td><input type="text"></td>
-          <td><input type="number" min="0" step="1"></td>
-          <td><input type="text"></td>
+          <td><textarea placeholder="Remarks"></textarea></td>
         </tr>
       </tbody>
     </table>
@@ -263,6 +240,8 @@
     </div>
 
     <div class="actions" style="margin-top:16px">
+      <button type="button" onclick="saveForm()">💾 Save Form</button>
+      <button type="button" onclick="clearFormData()">🗑 Clear Saved Data</button>
       <button type="button" onclick="validateAndPrint()">Validate &amp; Print</button>
       <button type="button" class="secondary" onclick="window.print()">Print Without Validation</button>
     </div>
@@ -278,9 +257,7 @@
       const tbody = document.querySelector(`#${tableId} tbody`);
       const first = tbody.querySelector("tr");
       const clone = first.cloneNode(true);
-      clone.querySelectorAll("input").forEach(i=>{
-        i.value = "";
-      });
+      clone.querySelectorAll("input, textarea").forEach(i=>{ i.value = ""; });
       tbody.appendChild(clone);
       renumber(tableId);
     }
@@ -304,6 +281,53 @@
       }
       window.print();
     }
+
+    function saveForm(){
+      let data = {};
+      document.querySelectorAll("input, textarea, select").forEach(el=>{
+        if(el.type==="radio"){
+          if(el.checked){ data[el.name] = el.value; }
+        } else {
+          data[el.id || el.name] = el.value;
+        }
+      });
+      localStorage.setItem("travelFormData", JSON.stringify(data));
+      alert("✅ Form saved! You can reload later to continue editing.");
+    }
+
+    function loadForm(){
+      let saved = localStorage.getItem("travelFormData");
+      if(!saved) return;
+      let data = JSON.parse(saved);
+      document.querySelectorAll("input, textarea, select").forEach(el=>{
+        let key = el.id || el.name;
+        if(data[key]){
+          if(el.type==="radio"){
+            if(el.value === data[key]) el.checked = true;
+          } else {
+            el.value = data[key];
+          }
+        }
+      });
+    }
+
+    function clearFormData(){
+      if(confirm("⚠️ This will delete all saved data. Continue?")){
+        localStorage.removeItem("travelFormData");
+        alert("🗑 Saved data cleared.");
+      }
+    }
+
+    // Auto-load on page start
+    window.addEventListener("DOMContentLoaded", loadForm);
+
+    // Auto-expand textareas
+    document.addEventListener('input', function(e){
+      if(e.target.tagName.toLowerCase()==="textarea"){
+        e.target.style.height = "auto";
+        e.target.style.height = e.target.scrollHeight + "px";
+      }
+    });
   </script>
 </body>
 </html>
