@@ -141,7 +141,37 @@
 
     <div class="bar"></div>
 
-    <div class="section-title">ADDITIONAL DETAILS</div>
+<div class="section-title">ADDITIONAL DETAILS</div>
+    <div id="additionalDetails">
+      <div class="grid cols-3 detail-row">
+        <div>
+          <label for="contactPerson">Person to be Contacted</label>
+          <input type="text" name="contactPerson[]" />
+        </div>
+        <div>
+          <label for="institution">University / Institution</label>
+          <input type="text" name="institution[]" />
+        </div>
+        <div>
+          <label>Travel with Visa?</label>
+          <div class="checkboxes">
+            <label><input type="radio" name="visa0" value="Yes"> Yes</label>
+            <label><input type="radio" name="visa0" value="No"> No</label>
+          </div>
+        </div>
+      </div>
+      <div class="grid cols-3" style="margin-top:8px;">
+        <div>
+          <label for="cellNumber">Cell Number</label>
+          <input type="text" name="cellNumber[]" placeholder="Enter cell number" />
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="bar"></div>
+
+    <div class="section-title">ADDITIONAL DETAILS</div>    
     <div class="muted">Add more details as needed. Ex. Name and Number of the contact person.</div>
     <table id="detailsTable">
       <thead>
