@@ -40,9 +40,6 @@
       border-radius:10px;cursor:pointer;font-weight:600
     }
     button.secondary{background:#fff;color:var(--accent)}
-    .signature-block{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
-    .sig-card{border:1px solid var(--line);border-radius:12px;padding:12px}
-    .sig-row{display:grid;grid-template-columns:120px 1fr;gap:8px;margin:6px 0}
     .checkboxes{display:flex;gap:18px;align-items:center}
     .print-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
     .print-bar small{color:var(--muted)}
@@ -79,9 +76,8 @@
     <div class="section-title">TRAVEL ORDER DETAILS</div>
     <div class="grid cols-3">
       <div>
-        <label for="soNumber" class="req">Sales Order Number</label>
-        <input id="soNumber" type="text" required placeholder="Enter Sales Order Number" />
-        <div class="muted">Required</div>
+        <label for="soNumber">Sales Order Number</label>
+        <input id="soNumber" type="text" placeholder="Enter Sales Order Number" />
       </div>
       <div>
         <label for="serviceOrder">Service Order Number</label>
@@ -146,28 +142,23 @@
     <div class="bar"></div>
 
     <div class="section-title">ADDITIONAL DETAILS</div>
-    <div class="grid cols-3">
-      <div>
-        <label for="contactPerson">Person to be Contacted</label>
-        <input id="contactPerson" type="text" />
-      </div>
-      <div>
-        <label for="institution">University / Institution</label>
-        <input id="institution" type="text" />
-      </div>
-      <div>
-        <label>Travel with Visa?</label>
-        <div class="checkboxes">
-          <label><input type="radio" name="visa" value="Yes"> Yes</label>
-          <label><input type="radio" name="visa" value="No"> No</label>
-        </div>
-      </div>
-    </div>
-    <div class="grid cols-3" style="margin-top:8px;">
-      <div>
-        <label for="cellNumber">Cell Number</label>
-        <input id="cellNumber" type="text" placeholder="Enter cell number" />
-      </div>
+    <div class="muted">Add more details as needed. Ex. Name and Number of the contact person.</div>
+    <table id="detailsTable">
+      <thead>
+        <tr>
+          <th style="width:48px">#</th>
+          <th>Detail Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-num">1</td>
+          <td><textarea placeholder="Enter detail..."></textarea></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="actions">
+      <button type="button" class="secondary" onclick="addRow('detailsTable')">Add Detail</button>
     </div>
 
     <div class="bar"></div>
@@ -231,21 +222,6 @@
     <div class="section-title">CERTIFICATION &amp; APPROVAL</div>
     <p>I hereby certify that the above travel is official and necessary for the service.</p>
 
-    <div class="signature-block">
-      <div class="sig-card">
-        <div class="section-title" style="margin:0 0 6px">Prepared by</div>
-        <div class="sig-row"><div>Signature:</div><div>___________________________</div></div>
-        <div class="sig-row"><div>Name &amp; Position:</div><div><input type="text"></div></div>
-        <div class="sig-row"><div>Date:</div><div><input type="date"></div></div>
-      </div>
-      <div class="sig-card">
-        <div class="section-title" style="margin:0 0 6px">Approved by</div>
-        <div class="sig-row"><div>Signature:</div><div>___________________________</div></div>
-        <div class="sig-row"><div>Name &amp; Position:</div><div><input type="text"></div></div>
-        <div class="sig-row"><div>Date:</div><div><input type="date"></div></div>
-      </div>
-    </div>
-
     <div class="actions" style="margin-top:16px">
       <button type="button" onclick="saveForm()">💾 Save Form</button>
       <button type="button" onclick="clearFormData()">🗑 Clear Saved Data</button>
@@ -271,7 +247,6 @@
 
     function validateAndPrint(){
       const required = [
-        {el: document.getElementById('soNumber'), name:'Sales Order Number'},
         {el: document.getElementById('travelerName'), name:'Name of Traveler'},
         {el: document.getElementById('destination'), name:'Destination'},
         {el: document.getElementById('dateFrom'), name:'Inclusive Dates (From)'},
