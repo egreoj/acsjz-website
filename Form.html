@@ -141,7 +141,7 @@
 
     <div class="bar"></div>
 
-<div class="section-title">ADDITIONAL DETAILS</div>
+<div class="section-title">Contact Person</div>
     <div id="additionalDetails">
       <div class="grid cols-3 detail-row">
         <div>
@@ -252,6 +252,19 @@
     <div class="section-title">CERTIFICATION &amp; APPROVAL</div>
     <p>I hereby certify that the above travel is official and necessary for the service.</p>
 
+    <div class="signature-block">
+      <div class="sig-card">
+        <div class="section-title" style="margin:0 0 6px">Prepared by</div>
+        <div class="sig-row"><div>Name &amp; Position:</div><div><input type="text"></div></div>
+        <div class="sig-row"><div>Date:</div><div><input type="date"></div></div>
+      </div>
+      <div class="sig-card">
+        <div class="section-title" style="margin:0 0 6px">Approved by</div>
+        <div class="sig-row"><div>Name &amp; Position:</div><div><input type="text"></div></div>
+        <div class="sig-row"><div>Date:</div><div><input type="date"></div></div>
+      </div>
+    </div>
+
     <div class="actions" style="margin-top:16px">
       <button type="button" onclick="saveForm()">💾 Save Form</button>
       <button type="button" onclick="clearFormData()">🗑 Clear Saved Data</button>
@@ -273,6 +286,41 @@
       clone.querySelectorAll("input, textarea").forEach(i=>{ i.value = ""; });
       tbody.appendChild(clone);
       renumber(tableId);
+    }
+
+    function addDetail(){
+      const container = document.getElementById("additionalDetails");
+      const index = container.querySelectorAll(".detail-row").length;
+      const block = document.createElement("div");
+      block.className = "grid cols-3 detail-row";
+      block.innerHTML = `
+        <div>
+          <label>Person to be Contacted</label>
+          <input type="text" name="contactPerson[]" />
+        </div>
+        <div>
+          <label>University / Institution</label>
+          <input type="text" name="institution[]" />
+        </div>
+        <div>
+          <label>Travel with Visa?</label>
+          <div class="checkboxes">
+            <label><input type="radio" name="visa${index}" value="Yes"> Yes</label>
+            <label><input type="radio" name="visa${index}" value="No"> No</label>
+          </div>
+        </div>
+      `;
+      container.appendChild(block);
+      const phone = document.createElement("div");
+      phone.className = "grid cols-3";
+      phone.style.marginTop = "8px";
+      phone.innerHTML = `
+        <div>
+          <label>Cell Number</label>
+          <input type="text" name="cellNumber[]" placeholder="Enter cell number" />
+        </div>
+      `;
+      container.appendChild(phone);
     }
 
     function validateAndPrint(){
